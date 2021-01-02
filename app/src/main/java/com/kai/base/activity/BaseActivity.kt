@@ -3,6 +3,7 @@ package com.kai.base.activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.kai.base.eventBusEntity.EventBusEntity
+import com.kai.base.utils.LogUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -72,20 +73,23 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
 
-    fun <T> postStickyEvent(data :T,code :Int ?= 0,message :String ?= ""){
+    fun <T> postStickyEvent(data :T,code :Int ?= 0,message :String ){
         val eventBusEntity = EventBusEntity<T>()
         eventBusEntity.data = data
         eventBusEntity.code = code!!
-        if(message!!.isNotEmpty()){
+        if(message.isNotEmpty()){
             eventBusEntity.message = message
-        }else{
-            eventBusEntity.message = this::class.java.name
         }
-
         EventBus.getDefault().postSticky(eventBusEntity)
     }
 
 
-
-
+    override fun onPause() {
+        super.onPause()
+        if(startEventBus){
+            if(EventBus.getDefault().isRegistered(this)){
+                EventBus.getDefault().unregister(this)
+            }
+        }
+    }
 }

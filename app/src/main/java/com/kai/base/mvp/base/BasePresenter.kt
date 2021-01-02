@@ -6,5 +6,4 @@ package com.kai.base.mvp.base
  */
 interface BasePresenter {
 
-
 }
