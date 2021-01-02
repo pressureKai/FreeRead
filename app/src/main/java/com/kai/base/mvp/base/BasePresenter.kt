@@ -1,9 +1,17 @@
 package com.kai.base.mvp.base
 
+import java.lang.ref.WeakReference
 
-/**
- * 桥梁接口（含model功能）连接View与数据源
- */
-interface BasePresenter {
+abstract class BasePresenter<V> :IPresenter<V>{
+    lateinit var iView :WeakReference<in V>
+    override fun register(view: V) {
+        iView = WeakReference(view)
+    }
 
+
+    override fun unRegister() {
+        iView.clear()
+    }
+
+    abstract fun getView() : V
 }

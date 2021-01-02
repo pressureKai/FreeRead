@@ -1,15 +1,17 @@
 package com.kai.base
 
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import com.kai.base.activity.BaseActivity
 import com.kai.base.eventBusEntity.EventBusEntity
+import com.kai.base.mvp.base.BasePresenter
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity<BasePresenter<AppCompatActivity>>() {
     companion object{
         const val STRING_CODE = 0
     }
-    override fun setContentView(): Int {
+    override fun setLayoutId(): Int {
         return R.layout.activity_main
     }
 
@@ -29,5 +31,9 @@ class MainActivity : BaseActivity() {
                 text_view.text = eventBusEntity.data.toString()
             }
         }
+    }
+
+    override fun createPresenter(): BasePresenter<AppCompatActivity>? {
+        return null
     }
 }
