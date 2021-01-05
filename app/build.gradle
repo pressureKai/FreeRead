@@ -16,6 +16,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+
+        javaCompileOptions {
+            annotationProcessorOptions{
+                arguments = [AROUTER_MODULE_NAME:project.getName()]
+            }
+        }
     }
 
     buildTypes {
@@ -30,6 +37,13 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
     }
 }
 
@@ -47,6 +61,10 @@ dependencies {
     implementation rootProject.ext.dependencies.rxjava3adapter
     implementation rootProject.ext.dependencies.retrofit_log
     implementation rootProject.ext.dependencies.eventBus
+    implementation rootProject.ext.dependencies.jsoup
+    implementation rootProject.ext.dependencies.arouter
+    implementation rootProject.ext.dependencies.htmlUnit
+    annotationProcessor rootProject.ext.dependencies.arouter_processer
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

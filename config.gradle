@@ -12,7 +12,11 @@ ext {
             "scalars"           :"com.squareup.retrofit2:converter-scalars:2.9.0",
             "rxjava3adapter"    :"com.squareup.retrofit2:adapter-rxjava3:2.9.0",
             "retrofit_log"      :"com.squareup.okhttp3:logging-interceptor:3.10.0",
-            "eventBus"          :"org.greenrobot:eventbus:3.2.0"
+            "eventBus"          :"org.greenrobot:eventbus:3.2.0",
+            "jsoup"             :"org.jsoup:jsoup:1.12.1",
+            "htmlUnit"          :"net.sourceforge.htmlunit:htmlunit:2.40.0",
+            "arouter"           :"com.alibaba:arouter-api:1.4.0",
+            "arouter_processer" :"com.alibaba:arouter-compiler:1.2.1"
     ]
 
 }

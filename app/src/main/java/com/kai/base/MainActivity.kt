@@ -19,7 +19,7 @@ class MainActivity : BaseActivity<BasePresenter<AppCompatActivity>>() {
         super.initView()
         text_view.setOnClickListener {
             startActivity(Intent(this,TestActivity::class.java))
-            postStickyEvent(0,code = TestActivity.INT_CODE,message = TestActivity::class.java.name)
+            postStickyEvent(2324,code = TestActivity.INT_CODE,message = TestActivity::class.java.name)
         }
     }
 
