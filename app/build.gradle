@@ -63,7 +63,7 @@ dependencies {
     implementation rootProject.ext.dependencies.eventBus
     implementation rootProject.ext.dependencies.jsoup
     implementation rootProject.ext.dependencies.arouter
-    implementation rootProject.ext.dependencies.htmlUnit
+    implementation rootProject.ext.dependencies.lottie
     annotationProcessor rootProject.ext.dependencies.arouter_processer
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
