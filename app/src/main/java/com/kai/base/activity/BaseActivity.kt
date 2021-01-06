@@ -9,7 +9,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
-abstract class BaseActivity<P :BasePresenter<in AppCompatActivity>> : AppCompatActivity(),IView {
+abstract class BaseActivity<P :BasePresenter<AppCompatActivity>> : AppCompatActivity(),IView {
     private var startEventBus = true
     private var mPresenter :P ?= null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +34,9 @@ abstract class BaseActivity<P :BasePresenter<in AppCompatActivity>> : AppCompatA
 
 
     abstract fun setLayoutId() :Int
-    abstract fun createPresenter() :P?
+    open fun createPresenter():P? {
+        return null
+    }
     open fun startEventBus():Boolean{
         return true
     }

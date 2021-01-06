@@ -31,8 +31,4 @@ class TestActivity :BaseActivity<BasePresenter<AppCompatActivity>>() {
             }
         }
     }
-
-    override fun createPresenter(): BasePresenter<AppCompatActivity>? {
-        return null
-    }
 }

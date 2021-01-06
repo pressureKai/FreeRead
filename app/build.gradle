@@ -38,13 +38,6 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
 }
 
 dependencies {
@@ -64,6 +57,10 @@ dependencies {
     implementation rootProject.ext.dependencies.jsoup
     implementation rootProject.ext.dependencies.arouter
     implementation rootProject.ext.dependencies.lottie
+    implementation rootProject.ext.dependencies.autosize
+    implementation rootProject.ext.dependencies.autofit_textview
+    implementation rootProject.ext.dependencies.immersionbar_components
+    implementation rootProject.ext.dependencies.immersionbar
     annotationProcessor rootProject.ext.dependencies.arouter_processer
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
