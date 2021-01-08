@@ -20,6 +20,10 @@ ext {
             "autosize"          :"me.jessyan:autosize:1.2.1",
             "autofit_textview"  :"me.grantland:autofittextview:0.2.1",
             "immersionbar_components" :"com.gyf.immersionbar:immersionbar-components:3.0.0",
-            "immersionbar"      :"com.gyf.immersionbar:immersionbar:3.0.0"
+            "immersionbar"      :"com.gyf.immersionbar:immersionbar:3.0.0",
+            "crash_report"      :"com.tencent.bugly:crashreport:latest.release",
+            "native_crash_report" :"com.tencent.bugly:nativecrashreport:latest.release",
+            "multidex"          :"com.android.support:multidex:2.0.1",
+            "tinker"            :"com.tencent.tinker:tinker-android-lib:1.9.9"
     ]
 }
