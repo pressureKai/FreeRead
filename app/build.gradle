@@ -2,8 +2,8 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'walle'
 }
-
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -31,10 +31,20 @@ android {
         multiDexEnabled = true
     }
 
+    signingConfigs {
+        config {
+            keyAlias 'kai'
+            keyPassword 'qwedsa135'
+            storeFile file("keystore/base.jks")
+            storePassword 'qwedsa135'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -43,6 +53,16 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+
+    walle {
+        // 指定渠道包的输出路径
+        apkOutputFolder = new File("${project.buildDir}/outputs/channels");
+        // 定制渠道包的APK的文件名称
+        apkFileNameFormat = '${appName}-${packageName}-${channel}-${buildType}-v${versionName}-${versionCode}-${buildTime}.apk';
+        // 渠道配置文件
+        channelFile = new File("${project.getProjectDir()}/channel")
     }
 }
 
@@ -71,6 +91,7 @@ dependencies {
     implementation rootProject.ext.dependencies.native_crash_report
     implementation rootProject.ext.dependencies.multidex
     implementation rootProject.ext.dependencies.tinker
+    implementation rootProject.ext.dependencies.walle
     annotationProcessor rootProject.ext.dependencies.arouter_processer
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

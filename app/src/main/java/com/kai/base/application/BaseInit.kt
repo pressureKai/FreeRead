@@ -8,7 +8,6 @@ class BaseInit: BaseAppInit {
 
     override fun onInitSpeed(application: Application): Boolean {
         return false
-
     }
 
     override fun onInitLow(application: Application): Boolean {

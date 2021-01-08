@@ -8,7 +8,9 @@ import android.content.Intent
 import android.os.Build
 import androidx.multidex.MultiDex
 import com.kai.base.utils.LogUtils
+import com.meituan.android.walle.WalleChannelReader
 import com.tencent.bugly.Bugly
+import com.tencent.bugly.beta.Beta
 import com.tencent.tinker.entry.DefaultApplicationLike
 
 
@@ -39,10 +41,8 @@ class BaseApplication(
     }
 
     private fun initTinker(){
-
+        Beta.installTinker(application)
     }
-
-
 
 
     //反射获取BaseInit（子模块中在application 初始化时的操作类统一在BaseApplication执行）
@@ -80,7 +80,9 @@ class BaseApplication(
 
 
     private fun initBugly(){
-        Bugly.init(application, "900029763", Constant.isDebug);
+        val channel = WalleChannelReader.getChannel(application)
+        Bugly.setAppChannel(application,channel)
+        Bugly.init(application, Constant.buglyId, Constant.isDebug)
     }
 
 
