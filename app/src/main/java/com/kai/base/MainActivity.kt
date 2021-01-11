@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import com.kai.base.activity.BaseActivity
 import com.kai.base.eventBusEntity.EventBusEntity
+import com.kai.base.extension.initImmersionBar
 import com.kai.base.mvp.base.BasePresenter
 import kotlinx.android.synthetic.main.activity_main.*
 
