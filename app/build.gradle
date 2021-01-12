@@ -92,6 +92,8 @@ dependencies {
     implementation rootProject.ext.dependencies.multidex
     implementation rootProject.ext.dependencies.tinker
     implementation rootProject.ext.dependencies.walle
+    implementation rootProject.ext.dependencies.glide
+    annotationProcessor rootProject.ext.dependencies.glide_compiler
     annotationProcessor rootProject.ext.dependencies.arouter_processer
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
