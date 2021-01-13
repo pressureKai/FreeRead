@@ -4,6 +4,11 @@ import android.content.Context
 
 
 
+fun Context.getScreenWidth():Int{
+    return resources.displayMetrics.widthPixels
+}
+
+
 fun Context.getScreenHeight():Int{
     return resources.displayMetrics.heightPixels
 }
