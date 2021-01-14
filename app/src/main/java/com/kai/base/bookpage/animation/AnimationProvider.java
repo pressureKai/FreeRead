@@ -11,17 +11,19 @@ import android.widget.Scroller;
 public abstract class AnimationProvider {
 
     public enum Direction {
-        NONE(true),NEXT(true), PRE(true), UP(false), DOWN(false);
-
+        NONE(true),
+        NEXT(true),
+        PRE(true),
+        UP(false),
+        DOWN(false);
         public final boolean isHorizontal;
-
         Direction(boolean isHorizontal) {
             this.isHorizontal = isHorizontal;
         }
     }
 
     protected Bitmap mCurPageBitmap;
-    protected Bitmap mNextPageBitmap;
+
     protected float myStartX;
     protected float myStartY;
     protected int myEndX;
@@ -34,6 +36,7 @@ public abstract class AnimationProvider {
     protected PointF mTouch = new PointF(); // 拖拽点
     private Direction direction = Direction.NONE;
     private boolean isCancel = false;
+    protected Bitmap mNextPageBitmap;
 
     public AnimationProvider(int width, int height) {
         mCurPageBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
