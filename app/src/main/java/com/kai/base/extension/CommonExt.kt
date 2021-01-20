@@ -2,6 +2,8 @@ package com.kai.base.extension
 
 import android.view.View
 import android.view.ViewGroup
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 /**
  *
@@ -16,8 +18,8 @@ fun View.measureView() :IntArray{
     var lp: ViewGroup.LayoutParams = layoutParams
     if (lp == null) {
         lp = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
         )
     }
     val widthSpec = ViewGroup.getChildMeasureSpec(0, 0, lp.width)
@@ -37,4 +39,10 @@ fun View.getLocation() :IntArray{
     val location = IntArray(2)
     getLocationOnScreen(location)
     return location
+}
+
+fun String.isContainChinese(string: String) :Boolean{
+    val p: Pattern = Pattern.compile("[\u4e00-\u9fa5]")
+    val m: Matcher = p.matcher(string)
+    return m.find()
 }
