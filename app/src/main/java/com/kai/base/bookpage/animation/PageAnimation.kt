@@ -98,7 +98,7 @@ abstract class PageAnimation {
 
 
 
-    fun startAnimation(){
+    open fun startAnimation(){
         if(isRunning){
             return
         }

@@ -29,7 +29,6 @@ abstract class BasePageAnimation : PageAnimation {
     private var isNext = false
     private var noNext = false
 
-
     constructor(screenWidth: Int, screenHeight: Int,
                 marginWidth: Int, marginHeight: Int,
                 view: View,
