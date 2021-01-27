@@ -1,5 +1,3 @@
-package com.kai.base.mvp;
+package com.kai.base.mvp
 
-public class BaseModel {
-    
-}
+class BaseModel 

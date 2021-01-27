@@ -1,108 +1,97 @@
-package com.kai.base.rxhttp.factory;
+package com.kai.base.rxhttp.factory
 
-
-import com.kai.base.rxhttp.manager.RxUrlManager;
-import com.kai.base.rxhttp.retrofit.RetrofitBuilder;
-
-import java.util.HashMap;
-
-import okhttp3.OkHttpClient;
-import retrofit2.CallAdapter;
-import retrofit2.Converter;
-import retrofit2.Retrofit;
+import com.kai.base.rxhttp.manager.RxUrlManager
+import com.kai.base.rxhttp.retrofit.RetrofitBuilder
+import okhttp3.OkHttpClient
+import retrofit2.CallAdapter
+import retrofit2.Converter
+import java.util.*
 
 /**
  * <pre>
- *      @author : Allen
- *      e-mail  : lygttpod@163.com
- *      date    : 2019/03/23
- *      desc    :
- * </pre>
+ * @author : Allen
+ * e-mail  : lygttpod@163.com
+ * date    : 2019/03/23
+ * desc    :
+</pre> *
  */
-public class ApiFactory {
-
-    private volatile static ApiFactory instance;
-
-    /**
-     * 缓存retrofit针对同一个域名下相同的ApiService不会重复创建retrofit对象
-     */
-    private static HashMap<String, Object> apiServiceCache;
-
-    private CallAdapter.Factory[] callAdapterFactory;
-
-    private Converter.Factory[] converterFactory;
-
-    private OkHttpClient okHttpClient;
-
-    public static ApiFactory getInstance() {
-        if (instance == null) {
-            synchronized (ApiFactory.class) {
-                if (instance == null) {
-                    instance = new ApiFactory();
-                }
-            }
-        }
-        return instance;
-    }
-
-    private ApiFactory() {
-        apiServiceCache = new HashMap<>();
-    }
+class ApiFactory private constructor() {
+    private lateinit var callAdapterFactory: Array<CallAdapter.Factory>
+    private lateinit var converterFactory: Array<Converter.Factory>
+    private var okHttpClient: OkHttpClient? = null
 
     /**
      * 清空所有api缓存（用于切换环境时候使用）
      */
-    public void clearAllApi() {
-        apiServiceCache.clear();
+    fun clearAllApi() {
+        apiServiceCache.clear()
     }
 
-    public ApiFactory setCallAdapterFactory(CallAdapter.Factory... callAdapterFactory) {
-        this.callAdapterFactory = callAdapterFactory;
-        return this;
+    fun setCallAdapterFactory(vararg callAdapterFactory: CallAdapter.Factory): ApiFactory {
+        this.callAdapterFactory = callAdapterFactory as Array<CallAdapter.Factory>
+        return this
     }
 
-    public ApiFactory setConverterFactory(Converter.Factory... converterFactory) {
-        this.converterFactory = converterFactory;
-        return this;
+    fun setConverterFactory(vararg converterFactory: Converter.Factory): ApiFactory {
+        this.converterFactory = converterFactory as Array<Converter.Factory>
+        return this
     }
 
-    public ApiFactory setOkClient(OkHttpClient okHttpClient) {
-        this.okHttpClient = okHttpClient;
-        return this;
+    fun setOkClient(okHttpClient: OkHttpClient?): ApiFactory {
+        this.okHttpClient = okHttpClient
+        return this
     }
 
-    public ApiFactory setBaseUrl(String baseUrl) {
-        RxUrlManager.getInstance().setUrl(baseUrl);
-        return this;
+    fun setBaseUrl(baseUrl: String?): ApiFactory {
+        RxUrlManager.instance!!.setUrl(baseUrl!!)
+        return this
     }
 
-    public <A> A createApi(Class<A> apiClass) {
-        String urlKey = RxUrlManager.DEFAULT_URL_KEY;
-        String urlValue = RxUrlManager.getInstance().getUrl();
-        return createApi(urlKey, urlValue, apiClass);
+    fun <A> createApi(apiClass: Class<A>?): A? {
+        val urlKey = RxUrlManager.DEFAULT_URL_KEY
+        val urlValue = RxUrlManager.instance!!.url
+        return createApi(urlKey, urlValue, apiClass)
     }
 
-    public <A> A createApi(String baseUrlKey, String baseUrlValue, Class<A> apiClass) {
-        String key = getApiKey(baseUrlKey, apiClass);
-        A api = (A) apiServiceCache.get(key);
+    fun <A> createApi(baseUrlKey: String, baseUrlValue: String?, apiClass: Class<A>?): A? {
+        val key = getApiKey(baseUrlKey, apiClass)
+        var api = apiServiceCache[key] as A?
         if (api == null) {
-            Retrofit retrofit = new RetrofitBuilder()
+            val retrofit = RetrofitBuilder()
                     .setBaseUrl(baseUrlValue)
-                    .setCallAdapterFactory(callAdapterFactory)
-                    .setConverterFactory(converterFactory)
+                    .setCallAdapterFactory(*callAdapterFactory)
+                    .setConverterFactory(*converterFactory)
                     .setOkHttpClient(okHttpClient)
-                    .build();
-
-            api = retrofit.create(apiClass);
-
-            apiServiceCache.put(key, api);
+                    .build()
+            api = retrofit.create(apiClass)
+            apiServiceCache[key] = api
         }
-
-        return api;
+        return api
     }
 
-    private static <A> String getApiKey(String baseUrlKey, Class<A> apiClass) {
-        return String.format("%s_%s", baseUrlKey, apiClass);
+    companion object {
+        @Volatile
+        var instance: ApiFactory? = null
+            get() {
+                if (field == null) {
+                    synchronized(ApiFactory::class.java) {
+                        if (field == null) {
+                            field = ApiFactory()
+                        }
+                    }
+                }
+                return field
+            }
+        /**
+         * 缓存retrofit针对同一个域名下相同的ApiService不会重复创建retrofit对象
+         */
+        private lateinit var apiServiceCache: HashMap<String, Any?>
+        private fun <A> getApiKey(baseUrlKey: String, apiClass: Class<A>?): String {
+            return String.format("%s_%s", baseUrlKey, apiClass)
+        }
     }
 
+    init {
+        apiServiceCache = HashMap()
+    }
 }

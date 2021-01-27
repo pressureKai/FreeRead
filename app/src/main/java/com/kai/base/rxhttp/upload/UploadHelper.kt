@@ -73,8 +73,8 @@ object UploadHelper {
         val parts = builder.build().parts()
         val defaultUploadKey = "defaultUploadUrlKey"
         val defaultBaseUrl = "https://api.github.com/"
-        return ApiFactory.getInstance()
-            .createApi(defaultUploadKey, defaultBaseUrl, UploadFileApi::class.java)
-            .uploadFiles(uploadUrl, parts)
+        return ApiFactory.instance!!
+                .createApi(defaultUploadKey, defaultBaseUrl, UploadFileApi::class.java)!!
+                .uploadFiles(uploadUrl, parts)
     }
 }
