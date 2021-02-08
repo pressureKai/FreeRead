@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import com.kai.base.utils.LogUtils
+import java.lang.Exception
 
 /**
  *
@@ -23,7 +24,7 @@ class ScrollPageAnimation : PageAnimation {
     private val velocityTime = 1000
 
     //速度追踪器
-    private lateinit var mVelocityTracker: VelocityTracker
+    private var mVelocityTracker: VelocityTracker ?= null
 
 
     private val capacity = 2
@@ -104,7 +105,7 @@ class ScrollPageAnimation : PageAnimation {
                 fillUp(topEdge, offset)
             } else {
                 val bottomEdge = mActiveViews[mActiveViews.size - 1].bottom
-                fillDown(bottomEdge,offset)
+                fillDown(bottomEdge, offset)
             }
         }
 
@@ -117,6 +118,110 @@ class ScrollPageAnimation : PageAnimation {
      *@param offset 滑动的偏移量
      */
     private fun fillUp(topEdge: Int, offset: Int) {
+        // 首先进行布局的调整
+        upIt = mActiveViews.iterator()
+        var activeView :BitmapView ?= null
+        upIt?.let {
+            while (it.hasNext()){
+                activeView = it.next()
+                activeView?.let { view ->
+                    view.top = view.top + offset
+                    view.bottom = view.bottom + offset
+                    // 设置允许显示的范围
+                    view.destRect?.top = view.top
+                    view.destRect?.bottom = view.bottom
+
+
+                    //判断是否越界
+
+                    if(view.top >= mViewHeight){
+                        // 添加到废弃的View中
+                        mScrapViews?.add(view)
+                        // 从Active中移除
+                        upIt?.remove()
+
+
+                        // 如果原先是下，现在变成从上加载了，则表示取消加载
+
+
+                        if(mDirection == Direction.DOWN){
+
+                            onPageChangeListener.pageCancel()
+                            mDirection = Direction.NONE
+
+                        }
+                    }
+                }
+            }
+        }
+        // 活动之后，第一个 View 的顶部 距离 屏幕顶部的实际位置
+        var realEdge = topEdge + offset
+
+
+        while (realEdge > 0 && mActiveViews.size < 2){
+            // 从废弃的Views 中获取第一个
+             mScrapViews?.let{
+                activeView = it.first()
+             }
+
+            if(activeView == null){
+                return
+            }
+
+
+            activeView?.let { view ->
+                val cancelBitmap = mNextBitmap
+                mNextBitmap = view.bitmap
+                if(!isRefresh){
+                    val hasPrePage = onPageChangeListener.hasPrePage()
+                    // 如果不存在next，则进行还原
+                    if(!hasPrePage){
+
+                        mNextBitmap = cancelBitmap
+                        for(activeView in mActiveViews){
+                            activeView.top = 0
+                            activeView.bottom = mViewHeight
+                            // 设置允许显示的范围
+                            activeView.destRect?.top = activeView.top
+                            activeView.destRect?.bottom = activeView.bottom
+                        }
+                        abortAnimation()
+                        return
+
+                    }
+                }
+
+
+                // 如果加载成功，那么就将View从ScrapViews 中移除
+
+                mScrapViews?.removeFirst()
+
+                // 加入到存活的bitmapView 列表中
+                mActiveViews.add(0, view)
+                mDirection = Direction.UP
+
+
+                // 设置Bitmap 的范围
+
+                view.bitmap?.let {
+                    view.top = realEdge -  it.height
+                }
+
+                view.bottom = realEdge
+
+                //设置允许显示的范围
+                view.destRect?.top = view.top
+                view.destRect?.bottom = view.bottom
+
+                view.bitmap?.let {
+                    realEdge -= it.height
+                }
+
+            }
+
+        }
+
+
 
     }
 
@@ -161,7 +266,7 @@ class ScrollPageAnimation : PageAnimation {
 
 
         //滑动之后的最后一个View距离屏幕顶部的实际位置
-        val realEdge = bottomEdge + offset
+        var realEdge = bottomEdge + offset
 
         //进行填充
 
@@ -178,11 +283,44 @@ class ScrollPageAnimation : PageAnimation {
 
                 if(!isRefresh){
                     val hasNext = onPageChangeListener.hasNext()
+                    //如果不存在next，则进行还原
                     if(!hasNext){
                         mNextBitmap = cancelBitmap
+                        for(value in mActiveViews){
+                            value.top  = 0
+                            value.bottom = mViewHeight
+                            value.destRect?.top = value.top
+                            value.destRect?.bottom = value.bottom
+                        }
+                        abortAnimation()
+                        return
                     }
 
                 }
+
+                // 如果加载成功，那么就将View从ScrapViews中移除
+                mScrapViews?.removeFirst()
+                // 添加到存活的Bitmap中
+                mActiveViews.add(scrapView)
+                mDirection = Direction.DOWN
+
+                //设置Bitmap 的范围
+                scrapView.top = realEdge
+                var viewHeight = 0
+                scrapView.bitmap?.let {
+                    viewHeight = it.height
+                }
+                scrapView.bottom = realEdge + viewHeight
+
+
+                // 设置允许显示的范围
+                scrapView.destRect?.top = scrapView.top
+                scrapView.destRect?.bottom = scrapView.bottom
+
+                scrapView.bitmap?.let {
+                    realEdge += it.height
+                }
+
             }
 
         }
@@ -191,18 +329,121 @@ class ScrollPageAnimation : PageAnimation {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
-        return false
+        val x = event.x.toInt()
+        val y = event.y.toInt()
+
+
+        // 初始化速度追踪器
+        if(mVelocityTracker == null){
+            mVelocityTracker = VelocityTracker.obtain()
+        }
+
+
+        mVelocityTracker?.addMovement(event)
+
+        // 设置触碰点
+        setTouchPoint(x.toFloat(),y.toFloat())
+
+        when(event.action){
+            MotionEvent.ACTION_DOWN -> {
+                isRunning = false
+                setStartPoint(x.toFloat(),y.toFloat())
+                abortAnimation()
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                mVelocityTracker?.computeCurrentVelocity(velocityTime)
+                isRunning = true
+                mView?.postInvalidate()
+            }
+            MotionEvent.ACTION_UP -> {
+                isRunning = false
+                startAnimation()
+                mVelocityTracker?.recycle()
+                mVelocityTracker = null
+
+            }
+            MotionEvent.ACTION_CANCEL ->{
+                try {
+                    mVelocityTracker?.recycle()
+                    mVelocityTracker = null
+                }catch (e:Exception){
+                    e.printStackTrace()
+                }
+
+            }
+        }
+        return true
     }
 
+
+    private var tmpView :BitmapView ?= null
     override fun draw(canvas: Canvas) {
+
+        //进行布局
+        onLayout()
+
+
+        //绘制背景
+        mBgBitmap?.let {
+            canvas.drawBitmap(it,0f,0f,null)
+        }
+
+
+        //绘制内容
+        canvas.save()
+
+
+        //移动位置
+        canvas.translate(0f,mMarginHeight.toFloat())
+
+        //裁剪显示区域
+        canvas.clipRect(0,0,mViewWidth,mViewHeight)
+
+
+
+        //绘制Bitmap
+        for(value in mActiveViews){
+            tmpView = value
+            tmpView?.let {
+                try {
+                    canvas.drawBitmap(it.bitmap!!,
+                            it.srcRect,
+                            it.destRect!!,
+                            null)
+                }catch (e:Exception){
+
+                }
+
+            }
+
+        }
+
 
     }
 
     override fun scrollAnimation() {
+        if(mScroller.computeScrollOffset()){
+            val x = mScroller.currX
+            val y = mScroller.currY
+            setTouchPoint(x.toFloat(), y.toFloat())
+
+            if(mScroller.finalX == x
+                    && mScroller.finalY == y){
+                isRunning = false
+            }
+            mView?.postInvalidate()
+        }
 
     }
 
     override fun abortAnimation() {
+
+        if(!mScroller.isFinished){
+            mScroller.abortAnimation()
+            isRunning = false
+        }
+
 
     }
 
@@ -223,4 +464,26 @@ class ScrollPageAnimation : PageAnimation {
         var bottom = 0
     }
 
+
+    @Synchronized
+    override fun startAnimation() {
+
+        isRunning = true
+
+
+        var yVelovcity = 0
+        mVelocityTracker?.let {
+            yVelovcity =  it.yVelocity.toInt()
+        }
+
+        mScroller.fling(0,
+                mTouchY.toInt(),
+                0,
+                yVelovcity,
+                0,
+                0,
+                Integer.MAX_VALUE * -1,
+                Integer.MAX_VALUE)
+
+    }
 }

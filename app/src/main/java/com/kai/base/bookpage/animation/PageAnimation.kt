@@ -79,7 +79,7 @@ abstract class PageAnimation {
     }
 
 
-    fun setStartPoint(x :Float,y:Float){
+   open fun setStartPoint(x :Float,y:Float){
         mStartX = x
         mStartY = y
 
@@ -88,7 +88,7 @@ abstract class PageAnimation {
     }
 
 
-    fun setTouchPoint(x:Float,y:Float){
+    open fun setTouchPoint(x:Float,y:Float){
         mLastTouchX = mTouchX
         mLastTouchY = mTouchY
 
@@ -106,7 +106,7 @@ abstract class PageAnimation {
     }
 
 
-    fun setDirection(direction: Direction){
+    open fun setDirection(direction: Direction){
         mDirection = direction
     }
 
