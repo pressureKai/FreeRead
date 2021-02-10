@@ -2,10 +2,9 @@ package com.kai.base.bookpage.animation
 
 import android.graphics.*
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.view.View
-import kotlin.math.abs
-import kotlin.math.hypot
-import kotlin.math.min
+import kotlin.math.*
 
 class SimulationPageAnimation : BasePageAnimation {
     val tag = "SimulationPageAnimation"
@@ -382,18 +381,244 @@ class SimulationPageAnimation : BasePageAnimation {
     }
 
 
-    private fun drawNextPageAreaAndShadow(canvas: Canvas,
-                                          bitmap: Bitmap?){
 
-    }
 
     private fun drawCurrentPageShadow(canvas: Canvas){
+        var degree = 0.toDouble()
+        degree = if(mIsRTAndLB){
+            Math.PI / 4 - atan2(
+                    (mBezierControl1.y - mTouchY).toDouble(),
+                    mTouchX.toDouble() - mBezierControl1.x)
+        }else{
+            Math.PI / 4 - atan2(
+                    (mTouchY - mBezierControl1.y).toDouble(),
+                    mTouchX.toDouble() - mBezierControl1.x)
+        }
+
+        val d1 = (25 * 1.414 * cos(degree)).toFloat()
+        val d2 = (25 * 1.414 * sin(degree)).toFloat()
+        var x = (mTouchX + d1).toFloat()
+        var y = 0f
+        y = if(mIsRTAndLB){
+            mTouchY + d2
+        }else{
+            mTouchY - d2
+        }
+
+        mPath1?.let {
+            it.reset()
+            it.moveTo(x,y)
+            it.lineTo(mBezierControl1.x,mBezierControl1.y)
+            it.lineTo(mBezierStart1.x,mBezierStart1.y)
+            it.close()
+        }
+        var rotateDegrees = 0.toFloat()
+        canvas.save()
+
+        try {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+                mXORPath?.let { xor ->
+                    xor.reset()
+                    xor.moveTo(0f,0f)
+                    xor.lineTo(canvas.width.toFloat(),0f)
+                    xor.lineTo(canvas.width.toFloat(),canvas.height.toFloat())
+                    xor.lineTo(0f,canvas.height.toFloat())
+                    xor.close()
+                    // 取 path 的补集，作为 canvas 的交集
+                    mPath0?.let {
+                        xor.op(it,Path.Op.XOR)
+                    }
+
+                    canvas.clipPath(xor)
+                }
+            }else{
+                mPath1?.let {
+                    canvas.clipPath(it,Region.Op.INTERSECT)
+                }
+
+            }
+        }catch (e:java.lang.Exception){
+
+        }
+
+
+        var leftx = 0
+        var rightx = 0
+        var mCurrentPageShadow :GradientDrawable ? = null
+        if(mIsRTAndLB){
+            leftx = mBezierControl1.x.toInt()
+            rightx = (mBezierControl1.x + 25).toInt()
+            mCurrentPageShadow = mFrontShadowDrawableVLR
+        }else{
+            leftx = (mBezierControl1.x - 25).toInt()
+            rightx = (mBezierControl1.x + 1).toInt()
+            mCurrentPageShadow = mFrontShadowDrawableVRL
+        }
+
+
+        rotateDegrees = Math.toDegrees(
+                atan2((mTouchX - mBezierControl1.x).toDouble() ,
+                        (mBezierControl1.y - mTouchY).toDouble())
+        ).toFloat()
+        canvas.rotate(rotateDegrees,mBezierControl1.x,mBezierControl1.y)
+
+        mCurrentPageShadow?.setBounds(leftx,
+                (mBezierControl1.y - mMaxLength).toInt(),
+                rightx,
+                mBezierControl1.y.toInt()
+           )
+
+        mCurrentPageShadow?.draw(canvas)
+        canvas.restore()
+
+
+        mPath1?.let {
+            it.reset()
+            it.moveTo(x,y)
+            it.lineTo(mTouchX,mTouchY)
+            it.lineTo(mBezierControl2.x,mBezierControl2.y)
+            it.lineTo(mBezierStart2.x,mBezierStart2.y)
+            it.close()
+        }
+        canvas.save()
+
+
+        try {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+
+                mXORPath?.let {
+                    it.reset()
+                    it.moveTo(0f,0f)
+                    it.lineTo(canvas.width.toFloat(),0f)
+                    it.lineTo(canvas.width.toFloat(),canvas.height.toFloat())
+                    it.lineTo(0f,canvas.height.toFloat())
+                    it.close()
+                    if(mPath0 != null){
+                        it.op(mPath0!!,Path.Op.XOR)
+                    }
+                    canvas.clipPath(it)
+                }
+
+            }else{
+                if(mPath1 != null){
+                    canvas.clipPath(mPath1!!,Region.Op.INTERSECT)
+                }
+
+            }
+        }catch (e:java.lang.Exception){
+
+        }
+
+        if(mIsRTAndLB){
+            leftx = mBezierControl2.y.toInt()
+            rightx = (mBezierControl2.y + 1).toInt()
+            mCurrentPageShadow = mFrontShadowDrawableHTB
+        }else{
+            leftx = (mBezierControl2.y - 25).toInt()
+            rightx = (mBezierControl2.y + 1).toInt()
+            mCurrentPageShadow = mFrontShadowDrawableHBT
+        }
+        rotateDegrees = Math.toDegrees(atan2(
+                (mBezierControl2.y-mTouchY).toDouble(),
+                (mBezierControl2.x - mTouchX).toDouble() )).toFloat()
+        canvas.rotate(rotateDegrees,mBezierControl2.x,mBezierControl2.y)
+
+        var temp = 0f
+        temp = if(mBezierControl2.y < 0){
+            mBezierControl2.y - mScreenHeight
+        }else{
+            mBezierControl2.y
+        }
+
+        val hmg = hypot(mBezierControl2.x.toDouble(),temp.toDouble())
+
+
+        mCurrentPageShadow?.let {
+            if(hmg > mMaxLength){
+                it.setBounds(
+                        (mBezierControl2.x - 25 - hmg).toInt(),
+                        leftx,
+                        (mBezierControl2.x + mMaxLength - hmg).toInt(),
+                        rightx
+                )
+            }else{
+                it.setBounds(
+                        (mBezierControl2.x - mMaxLength).toInt(),
+                        leftx,
+                        (mBezierControl2.x).toInt(),
+                        rightx
+                )
+            }
+            it.draw(canvas)
+        }
+
+        canvas.restore()
 
     }
 
     private fun drawCurrentBackArea(canvas: Canvas,
                                     bitmap: Bitmap?){
 
+
+    }
+
+    private fun drawNextPageAreaAndShadow(canvas: Canvas,
+                                          bitmap: Bitmap?){
+        mPath1?.let {
+            it.reset()
+            it.moveTo(mBezierStart1.x,mBezierStart1.y)
+            it.lineTo(mBezierTop1.x,mBezierTop1.y)
+            it.lineTo(mBezierTop2.x,mBezierTop2.y)
+            it.lineTo(mBezierStart2.x,mBezierStart2.y)
+            it.lineTo(mCornerX.toFloat(),mCornerY.toFloat())
+            it.close()
+        }
+
+
+        mDegrees = Math.toDegrees(
+                atan2(
+                        (mBezierControl1.x - mCornerX).toDouble(),
+                        (mBezierControl2.y - mCornerY).toDouble()
+                )
+        ).toFloat()
+        var leftx = 0
+        var rightx = 0
+        var mBackShadowDrawable : GradientDrawable ?= null
+
+        if(mIsRTAndLB){
+            leftx = mBezierStart1.x.toInt()
+            rightx = (mBezierStart1.x + mTouchToCornerDistance /4).toInt()
+            mBackShadowDrawable = mBackShadowDrawableLR
+        } else {
+            leftx = (mBezierStart1.x - mTouchToCornerDistance/4).toInt()
+            rightx = mBezierStart1.x.toInt()
+            mBackShadowDrawable = mBackShadowDrawableRL
+        }
+
+        canvas.save()
+        try {
+            if(mPath0 != null){
+                canvas.clipPath(mPath0!!)
+            }
+
+            if(mPath1 != null){
+                canvas.clipPath(mPath1!!,Region.Op.INTERSECT)
+            }
+        }catch (e:java.lang.Exception){
+
+        }
+
+        bitmap?.let {
+            canvas.drawBitmap(bitmap,0f,0f,null)
+        }
+
+        canvas.rotate(mDegrees,mBezierStart1.x,mBezierStart1.y)
+        mBackShadowDrawable?.setBounds(leftx,
+                (mBezierStart1.y).toInt(),
+                rightx,
+                (mMaxLength + mBezierStart1.y).toInt())
+        mBackShadowDrawable?.draw(canvas)
+        canvas.restore()
     }
 
     override fun startAnimation() {
