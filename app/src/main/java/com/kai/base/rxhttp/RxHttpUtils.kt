@@ -34,7 +34,7 @@ class RxHttpUtils {
 
     fun config(): ApiFactory {
         checkInitialize()
-        return ApiFactory.instance
+        return ApiFactory.instance!!
     }
 
     companion object {
@@ -80,7 +80,7 @@ class RxHttpUtils {
          * @return 返回
         </K> */
         fun <K> createApi(cls: Class<K>?): K {
-            return ApiFactory.instance.createApi(cls)
+            return ApiFactory.instance!!.createApi(cls)!!
         }
 
         /**
@@ -93,7 +93,7 @@ class RxHttpUtils {
          * @return k
         </K> */
         fun <K> createApi(baseUrlKey: String?, baseUrlValue: String?, cls: Class<K>?): K {
-            return ApiFactory.instance.createApi(baseUrlKey, baseUrlValue, cls)
+            return ApiFactory.instance!!.createApi(baseUrlKey!!, baseUrlValue, cls)!!
         }
 
         /**

@@ -87,7 +87,7 @@ class RxUrlManager private constructor() {
      */
     fun clear(): RxUrlManager {
         urlMap.clear()
-        ApiFactory.instance.clearAllApi()
+        ApiFactory.instance?.clearAllApi()
         RxHttpUtils.removeAllCookie()
         return this
     }

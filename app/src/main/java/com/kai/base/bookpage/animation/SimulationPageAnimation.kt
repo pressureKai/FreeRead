@@ -262,9 +262,118 @@ class SimulationPageAnimation : BasePageAnimation {
 
     private fun calculatePoints(){
 
+        mMiddleX = (mTouchX + mCornerX) / 2
+        mMiddleY = (mTouchY + mCornerY) / 2
 
+
+        mBezierControl1.x =
+                mMiddleX
+                -
+                (mCornerY - mMiddleY) * (mCornerY - mMiddleY) / (mCornerX - mMiddleX)
+
+        mBezierControl1.y = mCornerY.toFloat()
+        mBezierControl2.x = mCornerX.toFloat()
+
+
+        val f4  = mCornerY - mMiddleY
+
+        if(f4 == 0f){
+            mBezierControl2.y = mMiddleY -
+                    (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / 0.1f
+        }else{
+            mBezierControl2.y = mMiddleY -
+                    (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / (mCornerY - mMiddleY)
+        }
+
+        mBezierStart1.x = mBezierControl1.x - (mCornerX - mBezierControl1.x)/2
+        mBezierStart1.y = mCornerY.toFloat()
+
+
+
+        if(mTouchX > 0 && mTouchX < mScreenWidth){
+            if(mBezierStart1.x < 0 ||
+                    mBezierStart1.x > mScreenWidth){
+
+                if(mBezierStart1.x < 0){
+                    mBezierStart1.x = mScreenWidth - mBezierStart1.x
+                }
+
+
+                val f1 = abs(mCornerX - mTouchX)
+                val f2 = mScreenWidth * f1 / mBezierStart1.x
+                mTouchX =  abs(mCornerX - f2)
+
+
+                val f3 = abs(mCornerX - mTouchX) *
+                        abs(mCornerY - mTouchY) / f1
+
+                mTouchY = abs(mCornerY - f3)
+
+
+                mMiddleX = (mTouchX + mCornerX) / 2
+                mMiddleY = (mTouchY + mCornerY) / 2
+
+
+                mBezierControl1.x = mMiddleX - (mCornerY - mMiddleY) *
+                        (mCornerY - mMiddleY) / (mCornerX - mMiddleX)
+
+
+                mBezierControl1.y = mCornerY.toFloat()
+
+                mBezierControl2.x = mCornerX.toFloat()
+                val f5 = mCornerY - mMiddleY
+
+                if(f5 == 0f){
+                    mBezierControl2.y = mMiddleY -
+                            (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / 0.1f
+                }else{
+                    mBezierControl2.y = mMiddleY -
+                            (mCornerX - mMiddleX) * (mCornerX - mMiddleX) / (mCornerY - mMiddleY)
+                }
+
+
+                mBezierStart1.x = mBezierControl1.x -
+                        (mCornerX - mBezierControl1.x) / 2
+
+            }
+        }
+
+        mBezierStart2.x = mCornerX.toFloat()
+        mBezierStart2.y = mBezierControl2.y -
+                (mCornerY - mBezierControl2.y) / 2
+
+        mTouchToCornerDistance = hypot(mTouchX- mCornerX,
+                mTouchY - mCornerY)
+        mBezierEnd1 = getCross(PointF(mTouchX,mTouchY),
+                          mBezierControl1,mBezierStart1,mBezierStart2)
+        mBezierEnd2 = getCross(PointF(mTouchX,mTouchY),mBezierControl2,
+                          mBezierStart1,mBezierStart2)
+
+
+
+        mBezierTop1.x = (mBezierStart1.x + 2 * mBezierControl1.x + mBezierEnd1.x) / 4
+        mBezierTop1.y = (mBezierControl1.y * 2 + mBezierStart1.y + mBezierEnd1.y) / 4
+        mBezierTop2.x = (mBezierStart2.x + 2 * mBezierControl2.x + mBezierEnd2.x) / 4
+        mBezierTop2.y = (mBezierControl2.y * 2 + mBezierStart2.y + mBezierEnd2.y) / 4
     }
 
+
+
+
+    private fun getCross(P1 :PointF,P2 :PointF,P3 :PointF,P4 :PointF) :PointF{
+        val pointF = PointF()
+
+        val a1 = (P2.y - P1.y) / (P2.x - P1.x)
+        val b1 = ((P1.x * P2.y) - (P2.x * P1.y)) / (P1.x - P2.x)
+
+
+        val a2 = (P4.y - P3.y) / (P4.x - P3.x)
+        val b2 = ((P3.x * P4.y) - (P4.x * P3.y)) / (P3.x - P4.x)
+
+        pointF.x = (b2 - b1) / (a1 - a2)
+        pointF.y = a1 * pointF.x + b1
+        return  pointF
+    }
 
     /**
      * 绘制翻起页背面
@@ -560,6 +669,96 @@ class SimulationPageAnimation : BasePageAnimation {
                                     bitmap: Bitmap?){
 
 
+        val i = ((mBezierStart1.x + mBezierControl1.x)/2).toInt()
+        val f1 = abs(i - mBezierControl1.x)
+        val i1 = ((mBezierStart2.y + mBezierControl2.y)/2).toInt()
+        val f2 = abs(i1 - mBezierControl2.y)
+        val f3 = min(f1, f2)
+        mPath1?.let {
+            it.reset()
+            it.moveTo(mBezierTop2.x,mBezierTop2.y)
+            it.lineTo(mBezierTop1.x,mBezierTop1.y)
+            it.lineTo(mBezierEnd1.x,mBezierEnd1.y)
+            it.lineTo(mTouchX,mTouchY)
+            it.lineTo(mBezierEnd2.x,mBezierEnd2.y)
+            it.close()
+        }
+
+
+        var mFolderShadowDrawable :GradientDrawable ?= null
+        var left = 0
+        var right = 0
+        if(mIsRTAndLB){
+            left = (mBezierStart1.x - 1).toInt()
+            right = (mBezierStart1.x + f3 + 1).toInt()
+            mFolderShadowDrawable = mFolderShadowDrawableLR
+        }else{
+            left = (mBezierStart1.x - f3 - 1).toInt()
+            right = (mBezierStart1.x + 1).toInt()
+            mFolderShadowDrawable = mFolderShadowDrawableRL
+        }
+
+        canvas.save()
+        try {
+            mPath0?.let {
+                canvas.clipPath(it)
+            }
+
+            mPath1?.let {
+                canvas.clipPath(it,Region.Op.INTERSECT)
+            }
+        }catch (e:java.lang.Exception){
+
+        }
+
+
+        mPaint?.colorFilter = mColorMatrixFilter
+
+        var color = 0
+        var red = 0
+        var green = 0
+        var blue = 0
+
+        bitmap?.let {
+            it.getPixel(1,1)
+            red = color.and(0xff0000) shr 16
+            green = color.and(0x00ff00) shr 8
+            blue = color.and(0x0000ff)
+        }
+
+
+        val tempColor = Color.argb(200,red, green, blue)
+
+        val dis = hypot(mCornerX - mBezierControl1.x,
+                mBezierControl2.y - mCornerY)
+
+
+        val f8 = (mCornerX - mBezierControl1.x)/dis
+        val f9 = (mBezierControl2.y - mCornerX)/dis
+
+
+        mMatrixArray[0] = 1 - 2 * f9 * f9
+        mMatrixArray[1] = 2 * f8 * f9
+        mMatrixArray[3] = mMatrixArray[1]
+        mMatrixArray[4] = 1 - 2 * f8 * f8
+
+        mMatrix?.reset()
+        mMatrix?.setValues(mMatrixArray)
+        mMatrix?.preTranslate(-mBezierControl1.x,-mBezierControl1.y)
+        mMatrix?.postTranslate(mBezierControl1.x,mBezierControl2.y)
+        if(bitmap != null && mMatrix != null){
+            canvas.drawBitmap(bitmap,mMatrix!!,mPaint)
+        }
+        canvas.drawColor(tempColor)
+        mPaint?.colorFilter = null
+
+        canvas.rotate(mDegrees,mBezierStart1.x,mBezierStart1.y)
+        mFolderShadowDrawable?.setBounds(left,
+                mBezierStart1.y.toInt(),right,
+                (mBezierStart1.y + mMaxLength).toInt())
+        mFolderShadowDrawable?.draw(canvas)
+        canvas.restore()
+
     }
 
     private fun drawNextPageAreaAndShadow(canvas: Canvas,
@@ -720,7 +919,21 @@ class SimulationPageAnimation : BasePageAnimation {
      *  @param y
      */
     private fun calculateCornerXY(x: Float, y: Float){
+        mCornerX = if(x <= mScreenWidth / 2){
+            0
+        }else{
+            mScreenWidth
+        }
 
 
+        mCornerY = if(y <= mScreenHeight / 2){
+            0
+        }else{
+            mScreenHeight
+        }
+
+
+        mIsRTAndLB = ((mCornerX == 0 && mCornerY == mScreenHeight)
+                || (mCornerX == mScreenWidth && mCornerY == 0))
     }
 }

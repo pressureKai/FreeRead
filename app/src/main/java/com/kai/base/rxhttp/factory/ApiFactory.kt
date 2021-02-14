@@ -71,7 +71,7 @@ class ApiFactory private constructor() {
 
     companion object {
         @Volatile
-        var instance: ApiFactory? = null
+        var instance: ApiFactory ?=  null
             get() {
                 if (field == null) {
                     synchronized(ApiFactory::class.java) {
