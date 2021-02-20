@@ -15,19 +15,28 @@ import com.tencent.tinker.entry.DefaultApplicationLike
 
 
 class BaseApplication(
-    application: Application, tinkerFlags: Int,
-    tinkerLoadVerifyFlag: Boolean, applicationStartElapsedTime: Long,
-    applicationStartMillisTime: Long, tinkerResultIntent: Intent
+        application: Application, tinkerFlags: Int,
+        tinkerLoadVerifyFlag: Boolean, applicationStartElapsedTime: Long,
+        applicationStartMillisTime: Long, tinkerResultIntent: Intent
 ) : DefaultApplicationLike(
-    application,
-    tinkerFlags,
-    tinkerLoadVerifyFlag,
-    applicationStartElapsedTime,
-    applicationStartMillisTime,
-    tinkerResultIntent
+        application,
+        tinkerFlags,
+        tinkerLoadVerifyFlag,
+        applicationStartElapsedTime,
+        applicationStartMillisTime,
+        tinkerResultIntent
 ) {
+
+    companion object{
+        private var sInstance :Context ?= null
+        fun getContext() :Context?{
+            return  sInstance
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
+        sInstance = application.baseContext
         Constant.init(application)
         initModelsSpeed()
         initModelsLow()
@@ -81,7 +90,7 @@ class BaseApplication(
 
     private fun initBugly(){
         val channel = WalleChannelReader.getChannel(application)
-        Bugly.setAppChannel(application,channel)
+        Bugly.setAppChannel(application, channel)
         Bugly.init(application, Constant.buglyId, Constant.isDebug)
     }
 
@@ -90,4 +99,8 @@ class BaseApplication(
     fun registerActivityLifecycleCallback(callbacks: ActivityLifecycleCallbacks?) {
         application.registerActivityLifecycleCallbacks(callbacks)
     }
+
+
+
+
 }
