@@ -22,7 +22,7 @@ class SharedPreferenceUtils {
 
     companion object{
         var sInstance :SharedPreferenceUtils ?= null
-        fun getInstance(){
+        fun getInstance() :SharedPreferenceUtils?{
             if(sInstance == null){
                 synchronized(SharedPreferenceUtils::class.java){
                     if(sInstance == null){
@@ -30,6 +30,7 @@ class SharedPreferenceUtils {
                     }
                 }
             }
+            return sInstance
         }
     }
 

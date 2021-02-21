@@ -1,5 +1,7 @@
 package com.kai.base.bookpage.page
 
+import com.kai.base.utils.SharedPreferenceUtils
+
 class ReadSettingManager {
 
     val READ_BG_DEFAULT = 0
@@ -22,9 +24,39 @@ class ReadSettingManager {
     //convert 转变，转换
     val SHARED_READ_CONVERT_TYPE = "shared_read_convert_type"
 
-    @Volatile
-    private var sInstance: ReadSettingManager? = null
+
+    private var sharedPreferenceUtils : SharedPreferenceUtils ?= null
 
 
 
+
+    companion object{
+        @Volatile
+        private var sInstance: ReadSettingManager? = null
+        fun getInstance() :ReadSettingManager?{
+            if(sInstance == null){
+                synchronized(ReadSettingManager::class.java){
+                    if(sInstance == null){
+                        sInstance = ReadSettingManager()
+                    }
+                }
+            }
+            return sInstance
+        }
+    }
+
+
+    private constructor(){
+        sharedPreferenceUtils = SharedPreferenceUtils.getInstance()
+    }
+
+
+
+
+    fun setBrightness(progress :Int){
+
+    }
+    fun setPageStyle(pageStyle :PageStyle){
+        sharedPreferenceUtils?.putInt(SHARED_READ_BG,pageStyle.ordinal)
+    }
 }
