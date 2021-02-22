@@ -2,9 +2,11 @@ package com.kai.base.bookpage.page
 
 import android.content.Context
 import android.graphics.Paint
+import com.kai.base.bookpage.model.BookRecordBean
 import com.kai.base.bookpage.model.CoolBookBean
 import com.kai.base.bookpage.model.TextChapter
 import com.kai.base.bookpage.model.TextPage
+import io.reactivex.rxjava3.disposables.Disposable
 
 abstract class PageLoader {
     private val TAG = "PageLoader"
@@ -39,6 +41,28 @@ abstract class PageLoader {
     private var mTitlePaint :Paint ?= null
     private var mBgPaint :Paint ?= null
     private var mTextPaint :Paint ?= null
+
+
+    private var mSettingManager :ReadSettingManager ?= null
+
+    private var mCancelPage :TextPage ?= null
+    private var mBookRecord :BookRecordBean ?= null
+
+    private var mPreLoadDisposable :Disposable ?= null
+
+    open var mStatus  = STATUS_LOADING
+    open var isChapterListPrepare = false
+
+
+    private var isChapterOpen = false
+    private var isFirstOpen = true
+
+    private var isClose = false
+    private var mPageMode : PageMode ?= null
+    private var mPageStyle :PageStyle ?= null
+    private var isNightMode = false
+
+
 
     interface OnPageChangeListener{
         fun onChapterChange(pos :Int)
