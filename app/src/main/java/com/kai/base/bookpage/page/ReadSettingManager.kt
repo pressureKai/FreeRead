@@ -1,5 +1,6 @@
 package com.kai.base.bookpage.page
 
+import com.kai.base.utils.ScreenUtils
 import com.kai.base.utils.SharedPreferenceUtils
 
 class ReadSettingManager {
@@ -14,7 +15,7 @@ class ReadSettingManager {
     val SHARED_READ_BG = "shared_read_bg"
     val SHARED_READ_BRIGHTNESS = "shared_brightness"
     val SHARED_READ_IS_BRIGHTNESS_AUTO = "shared_read_is_brightness_auto"
-    val SAHRED_READ_TEXT_SIZE = "shared_read_text_size"
+    val SHARED_READ_TEXT_SIZE = "shared_read_text_size"
     val SHARED_READ_IS_TEXT_DEFAULT = "shared_read_is_text_default"
     val SHARED_READ_PAGE_MODE = "shared_read_page_mode"
     val SHARED_READ_NIGHT_MODE = "shared_read_night_mode"
@@ -50,13 +51,67 @@ class ReadSettingManager {
         sharedPreferenceUtils = SharedPreferenceUtils.getInstance()
     }
 
-
-
-
     fun setBrightness(progress :Int){
-
+         sharedPreferenceUtils?.putInt(SHARED_READ_BRIGHTNESS,progress)
     }
+
+    fun getBrightness():Int{
+        var brightness = 40
+        sharedPreferenceUtils?.let {
+            brightness = it.getInt(SHARED_READ_BRIGHTNESS,40)
+        }
+        return brightness
+    }
+
+
+    // ordinal 序列,下标
     fun setPageStyle(pageStyle :PageStyle){
         sharedPreferenceUtils?.putInt(SHARED_READ_BG,pageStyle.ordinal)
+    }
+
+
+    fun getPageStyle() :PageStyle{
+        var styleIndex = 0
+        sharedPreferenceUtils?.let {
+            styleIndex = it.getInt(SHARED_READ_BG,PageStyle.BG_0.ordinal)
+        }
+        return PageStyle.values()[styleIndex]
+    }
+
+    fun setAutoBrightness(isAuto :Boolean){
+        sharedPreferenceUtils?.putBoolean(SHARED_READ_IS_BRIGHTNESS_AUTO,isAuto)
+    }
+
+
+    fun isBrightnessAuto() :Boolean{
+        var isBrightness = false
+        sharedPreferenceUtils?.let {
+            it.getBoolean(SHARED_READ_IS_BRIGHTNESS_AUTO,false)
+        }
+        return isBrightness
+    }
+
+    fun setDefaultTextSize(isDefault:Boolean){
+        sharedPreferenceUtils?.putBoolean(SHARED_READ_IS_TEXT_DEFAULT,isDefault)
+    }
+
+    fun isDefaultTextSize() :Boolean{
+        var isDefault = false
+        sharedPreferenceUtils?.let {
+            isDefault = it.getBoolean(SHARED_READ_IS_TEXT_DEFAULT,false)
+        }
+        return isDefault
+    }
+
+    fun setTextSize(textSize :Int){
+        sharedPreferenceUtils?.putInt(SHARED_READ_TEXT_SIZE,textSize)
+    }
+
+    fun getTextSize() :Int{
+        var textSize = 0
+        sharedPreferenceUtils?.let {
+           textSize = it.getInt(SHARED_READ_TEXT_SIZE,ScreenUtils.spToPx(28))
+        }
+        return textSize
     }
 }
