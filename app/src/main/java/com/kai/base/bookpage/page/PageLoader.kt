@@ -63,6 +63,31 @@ abstract class PageLoader {
     private var isNightMode = false
 
 
+    private var mVisibleWidth = 0
+    private var mVisibleHeight = 0
+
+    private var mDisplayWidth = 0
+    private var mDisplayHeight = 0
+
+
+    private var mTextColor = 0
+    private var mTitleSize = 0
+
+
+    private var mTextSize = 0
+    private var mTextInterval = 0
+
+    private var mTitleInterval = 0
+    //段落距离（基于行间距的额外距离）
+    private var mTextPara = 0
+    private var mTitlePara = 0
+
+    private var mBatteryLevel = 0
+    private var mBgColor = 0
+
+    private var mCurrentChapterPosition = 0
+    private var mLastChapterPosition = 0
+
 
     interface OnPageChangeListener{
         fun onChapterChange(pos :Int)
