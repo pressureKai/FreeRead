@@ -114,4 +114,68 @@ class ReadSettingManager {
         }
         return textSize
     }
+
+    fun setPageMode(mode :PageMode){
+        sharedPreferenceUtils?.putInt(SHARED_READ_PAGE_MODE,mode.ordinal)
+    }
+
+    fun getPageMode() :PageMode{
+        var modeIndex = 0
+        sharedPreferenceUtils?.let {
+            modeIndex = it.getInt(SHARED_READ_PAGE_MODE,PageMode.SIMULATION.ordinal)
+        }
+        return PageMode.values()[modeIndex]
+    }
+
+
+    fun setNightMode(isNight :Boolean){
+        sharedPreferenceUtils?.putBoolean(SHARED_READ_NIGHT_MODE,isNight)
+    }
+
+    fun isNightMode() :Boolean{
+        var isNightMode = false
+        sharedPreferenceUtils?.let {
+            isNightMode = it.getBoolean(SHARED_READ_NIGHT_MODE,false)
+        }
+        return isNightMode
+    }
+
+
+    fun setVolumeTurnPage(isTurn :Boolean){
+        sharedPreferenceUtils?.putBoolean(SHARED_READ_VOLUME_TRUE_PAGE,isTurn)
+    }
+
+    fun isVolumeTurnPage() :Boolean{
+        var isTurn = false
+        sharedPreferenceUtils?.let {
+            isTurn = it.getBoolean(SHARED_READ_VOLUME_TRUE_PAGE,false)
+        }
+        return isTurn
+    }
+
+    fun setFullScreen(isFullScreen :Boolean){
+        sharedPreferenceUtils?.putBoolean(SHARED_READ_FULL_SCREEN,isFullScreen)
+    }
+
+    fun isFullScreen() :Boolean{
+        var isFullScreen = false
+        sharedPreferenceUtils?.let {
+            isFullScreen = it.getBoolean(SHARED_READ_FULL_SCREEN,false)
+        }
+        return isFullScreen
+    }
+
+
+    fun setCovertType(covertType :Int){
+        sharedPreferenceUtils?.putInt(SHARED_READ_CONVERT_TYPE,covertType)
+    }
+
+
+    fun getCovertType() :Int{
+        var covertType = 0
+        sharedPreferenceUtils?.let {
+           covertType =  it.getInt(SHARED_READ_CONVERT_TYPE,0)
+        }
+        return covertType
+    }
 }
