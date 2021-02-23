@@ -262,6 +262,30 @@ abstract class PageLoader {
         mTitlePara = mTitleSize
     }
 
+    fun setOnPageChangeListener(listener :OnPageChangeListener){
+        mPageChangeListener = listener
+
+        if(isChapterListPrepare){
+            mPageChangeListener?.onCategoryFinish(mChapterList)
+        }
+    }
+
+    fun getPageStatus() :Int{
+        return mStatus
+    }
+
+    fun getCoolBook() :CoolBookBean?{
+        return mCoolBook
+    }
+
+    fun getChapterCategory() :List<TextChapter>{
+        return mChapterList
+    }
+
+    fun getPagePosition():Int?{
+        return mCurPage?.position
+    }
+
     interface OnPageChangeListener {
         fun onChapterChange(pos: Int)
         fun requestChapters(requestChapters: List<TextChapter>)
