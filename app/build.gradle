@@ -93,8 +93,12 @@ dependencies {
     implementation rootProject.ext.dependencies.tinker
     implementation rootProject.ext.dependencies.walle
     implementation rootProject.ext.dependencies.glide
+    implementation rootProject.ext.dependencies.room
+    testImplementation rootProject.ext.dependencies.room_testing
+
     annotationProcessor rootProject.ext.dependencies.glide_compiler
     annotationProcessor rootProject.ext.dependencies.arouter_processer
+
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

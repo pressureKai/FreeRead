@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorInt
 import com.kai.base.bookpage.animation.PageAnimation
 
 class PageView :View{
@@ -85,6 +86,20 @@ class PageView :View{
     }
 
 
+
+
+    fun drawCurrentPage(isUpdate :Boolean){
+
+    }
+
+
+    fun setPageMode(pageMode: PageMode?){
+
+    }
+
+    fun setBgColor(@ColorInt bgColor :Int){
+
+    }
 
 
     interface TouchListener{

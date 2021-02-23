@@ -26,7 +26,8 @@ ext {
             "tinker"            :"com.tencent.tinker:tinker-android-lib:1.9.9",
             "walle"             :"com.meituan.android.walle:library:1.1.7",
             "glide"             :"com.github.bumptech.glide:glide:4.9.0",
-            "glide_compiler"    :"com.github.bumptech.glide:compiler:4.9.0"
-
+            "glide_compiler"    :"com.github.bumptech.glide:compiler:4.9.0",
+            "room"              :"androidx.room:room-ktx:2.2.6",
+            "room_testing"         :"androidx.room:room-testing:2.2.6"
     ]
 }
