@@ -24,11 +24,7 @@ class ReadSettingManager {
     val SHARED_READ_FULL_SCREEN = "shared_read_full_screen"
     //convert 转变，转换
     val SHARED_READ_CONVERT_TYPE = "shared_read_convert_type"
-
-
     private var sharedPreferenceUtils : SharedPreferenceUtils ?= null
-
-
 
 
     companion object{
@@ -51,10 +47,16 @@ class ReadSettingManager {
         sharedPreferenceUtils = SharedPreferenceUtils.getInstance()
     }
 
+    /**
+     * 改变页面的亮度
+     */
     fun setBrightness(progress :Int){
          sharedPreferenceUtils?.putInt(SHARED_READ_BRIGHTNESS,progress)
     }
 
+    /**
+     * 获取页面亮度
+     */
     fun getBrightness():Int{
         var brightness = 40
         sharedPreferenceUtils?.let {

@@ -102,6 +102,12 @@ class PageView :View{
     }
 
 
+
+    fun isPrepare() :Boolean{
+        return isPrepare
+    }
+
+
     interface TouchListener{
         fun onTouch() :Boolean
         fun center()

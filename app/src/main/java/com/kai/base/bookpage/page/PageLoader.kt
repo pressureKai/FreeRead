@@ -183,6 +183,11 @@ abstract class PageLoader {
         setNightMode(isNightMode)
     }
 
+
+    /**
+     * 设置页面模式(白天 - 黑夜)
+     * @param nightMode 夜晚模式
+     */
     private fun setNightMode(nightMode: Boolean) {
         mSettingManager?.let {
             it.setNightMode(nightMode)
@@ -198,6 +203,11 @@ abstract class PageLoader {
         }
     }
 
+
+    /**
+     * 设置阅读页面的底色(正面- 反面)
+     * @param pageStyle 阅读页面的背景色
+     */
     private fun setPageStyle(pageStyle :PageStyle){
         if(pageStyle != PageStyle.BG_NIGHT){
             mPageStyle = pageStyle
@@ -222,8 +232,36 @@ abstract class PageLoader {
    }
 
 
+    /**
+     * 翻页动画
+     *
+     * @param pageMode 翻页模式
+     */
     fun setPageMode(pageMode :PageMode){
+        mPageMode = pageMode
+        mPageView?.setPageMode(mPageMode)
+        mPageMode?.let {
+            mSettingManager?.setPageMode(it)
+        }
+        mPageView?.drawCurrentPage(false)
+    }
 
+    /**
+     * 设置内容与屏幕的间距
+     *
+     * @param marginWidth px
+     * @param marginHeight px
+     */
+    fun setMargin(marginWidth :Int,marginHeight :Int){
+        mMarginWidth = marginWidth
+        mMarginWidth = marginHeight
+
+        // 如果是滑动动画，则需要重新创建
+        if(mPageMode == PageMode.SCROLL){
+            mPageView?.setPageMode(PageMode.SCROLL)
+        }
+
+        mPageView?.drawCurrentPage(false)
     }
 
     //初始化PageView
@@ -236,7 +274,6 @@ abstract class PageLoader {
     private fun prepareBook() {
        // 对mBookRecord进行赋值(从数据库根据Id的形式)
        // 原来使用了GreenDao现使用Room
-
         if(mBookRecord == null){
             mBookRecord = BookRecordBean()
         }
@@ -262,6 +299,10 @@ abstract class PageLoader {
         mTitlePara = mTitleSize
     }
 
+    /**
+     * 设置页面切换监听
+     *@param listener
+     */
     fun setOnPageChangeListener(listener :OnPageChangeListener){
         mPageChangeListener = listener
 
@@ -270,22 +311,139 @@ abstract class PageLoader {
         }
     }
 
+    /**
+     * 获取当前页的状态
+     */
     fun getPageStatus() :Int{
         return mStatus
     }
 
+    /**
+     * 获取书籍信息
+     */
     fun getCoolBook() :CoolBookBean?{
         return mCoolBook
     }
 
+    /**
+     * 获取章节目录
+     */
     fun getChapterCategory() :List<TextChapter>{
         return mChapterList
     }
 
+    /**
+     * 获取当前页的页码
+     */
     fun getPagePosition():Int?{
         return mCurPage?.position
     }
 
+    /**
+     * 获取当前书籍的章节位置
+     */
+    fun getChapterPosition() :Int{
+        return mCurrentChapterPosition
+    }
+
+    /**
+     * 获取显示内容距离屏幕的高度
+     */
+    fun getMarginHeight() :Int{
+        return mMarginHeight
+    }
+
+
+    /**
+     * 保存阅读记录
+     */
+    fun saveRecord(){
+        if(mChapterList.isEmpty()){
+            return
+        }
+
+        mCoolBook?.let {
+            mBookRecord?.bookId = it.id
+            mBookRecord?.chapter = mCurrentChapterPosition
+        }
+
+        if(mCurPage != null){
+            mBookRecord?.let {
+                it.pagePos = mCurPage!!.position
+            }
+        }else{
+            mBookRecord?.pagePos = 0
+        }
+
+        //数据库存储操作(BookRecord)
+    }
+
+    /**
+     * 打开指定章节
+     */
+    fun openChapter(){
+        isFirstOpen = false
+        mPageView?.let {
+            if(it.isPrepare()){
+                return
+            }
+        }
+
+        if(!isChapterListPrepare){
+            mStatus = STATUS_LOADING
+            mPageView?.drawCurrentPage(false)
+            return
+        }
+
+
+        if(parseCurrentChapter()){
+            if(!isChapterOpen){
+                //如果章节从未打开
+                mBookRecord?.let {
+                    var position = it.pagePos
+
+                    //防止记录的页号,大于当前的最大页号
+                    if(position >= mCurPageList.size){
+                        position = mCurPageList.size - 1
+                    }
+                    mCurPage = getCurrentPage(position)
+                    mCancelPage = mCurPage
+                    //切换状态
+                    isChapterOpen = true
+                }
+            }
+
+        }
+
+    }
+
+
+    private fun getCurrentPage(position :Int) :TextPage{
+        if(mPageChangeListener != null){
+            mPageChangeListener!!.onPageCountChange(position)
+        }
+        return mCurPageList[position]
+    }
+
+
+    /**
+     * 解析当前书籍的目录
+     */
+    fun parseCurrentChapter() :Boolean{
+        //解析数据
+        dealLoadPageList(mCurrentChapterPosition)
+        //预加载下一页面
+        preLoadNextChapter()
+        return mCurPageList != null
+    }
+
+    private fun preLoadNextChapter(){
+
+    }
+
+    private fun dealLoadPageList(currentChapterPosition :Int){
+
+    }
     interface OnPageChangeListener {
         fun onChapterChange(pos: Int)
         fun requestChapters(requestChapters: List<TextChapter>)
