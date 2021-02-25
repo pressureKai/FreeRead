@@ -11,6 +11,7 @@ import com.kai.base.bookpage.model.CoolBookBean
 import com.kai.base.bookpage.model.TextChapter
 import com.kai.base.bookpage.model.TextPage
 import com.kai.base.utils.ScreenUtils
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 
 abstract class PageLoader {
@@ -429,7 +430,7 @@ abstract class PageLoader {
     /**
      * 解析当前书籍的目录
      */
-    fun parseCurrentChapter() :Boolean{
+    private fun parseCurrentChapter() :Boolean{
         //解析数据
         dealLoadPageList(mCurrentChapterPosition)
         //预加载下一页面
@@ -437,8 +438,37 @@ abstract class PageLoader {
         return mCurPageList != null
     }
 
+    /**
+     * 预加载下一章
+     */
     private fun preLoadNextChapter(){
+        val nextChapter = mCurrentChapterPosition + 1
 
+        //如果不存在下一章，且下一章没有数据，则不进行加载
+        if(!hasNextChapter() ||
+                !hasChapterData(mChapterList[nextChapter])){
+            return
+        }
+
+        //如果之前正在加载则取消
+        if(mPreLoadDisposable != null){
+            mPreLoadDisposable?.dispose()
+        }
+
+//        Single.create<List<TextPage>> {
+//
+//        }.compose {
+//
+//        }
+
+    }
+
+    private fun hasChapterData(textChapter :TextChapter) :Boolean{
+        return false
+    }
+
+    private fun hasNextChapter() :Boolean{
+        return false
     }
 
     private fun dealLoadPageList(currentChapterPosition :Int){
