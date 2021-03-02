@@ -56,7 +56,7 @@ class BaseApplication(
 
     //反射获取BaseInit（子模块中在application 初始化时的操作类统一在BaseApplication执行）
     private fun initModelsSpeed(){
-        for(init in PageConfig.initModules){
+        for(init in ModuleConfig.initModules){
             try {
                 val clazz =  Class.forName(init)
                 val moduleInit = clazz.newInstance() as BaseAppInit
@@ -72,7 +72,7 @@ class BaseApplication(
     }
 
     private fun initModelsLow(){
-        for(init in PageConfig.initModules){
+        for(init in ModuleConfig.initModules){
             try {
                 val clazz =  Class.forName(init)
                 val moduleInit = clazz.newInstance() as BaseAppInit
@@ -99,8 +99,4 @@ class BaseApplication(
     fun registerActivityLifecycleCallback(callbacks: ActivityLifecycleCallbacks?) {
         application.registerActivityLifecycleCallbacks(callbacks)
     }
-
-
-
-
 }

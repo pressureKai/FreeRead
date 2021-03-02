@@ -9,7 +9,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
-abstract class BaseActivity<P :BasePresenter<AppCompatActivity>> : AppCompatActivity(),IView {
+abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatActivity(),IView {
     private var startEventBus = true
     private var mPresenter :P ?= null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,10 +61,6 @@ abstract class BaseActivity<P :BasePresenter<AppCompatActivity>> : AppCompatActi
         }
     }
 
-
-    /**
-     *
-     * */
     @Subscribe(threadMode = ThreadMode.ASYNC,sticky = true)
     open fun <T> onMessageEvent(eventBusEntity :EventBusEntity<T>){
         if(eventBusEntity.message == this::class.java.name){

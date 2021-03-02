@@ -2,7 +2,7 @@ package com.kai.base.application
 import android.app.Application
 
 /**
- *  用于子Module  中application初始化
+ * com.kai.base 此包的 application 初始化
  */
 class BaseInit: BaseAppInit {
 
