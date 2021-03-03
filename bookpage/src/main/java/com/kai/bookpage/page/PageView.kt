@@ -1,11 +1,11 @@
-package com.kai.base.bookpage.page
+package com.kai.bookpage.page
 
 import android.content.Context
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
-import com.kai.base.bookpage.animation.PageAnimation
+import com.kai.bookpage.animation.PageAnimation
 
 class PageView :View{
 
@@ -26,7 +26,7 @@ class PageView :View{
     private var mCenterRect : RectF  ?= null
     private var isPrepare  = false
 
-    private var mPageAnimation : PageAnimation ?= null
+    private var mPageAnimation : PageAnimation?= null
 
     private var mPageAnimationListener : PageAnimation.OnPageChangeListener = object :PageAnimation.OnPageChangeListener{
         override fun hasPrePage(): Boolean {

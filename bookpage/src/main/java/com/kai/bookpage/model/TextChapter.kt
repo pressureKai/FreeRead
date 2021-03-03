@@ -1,4 +1,4 @@
-package com.kai.base.bookpage.model
+package com.kai.bookpage.model
 
 class TextChapter {
     var bookId = ""

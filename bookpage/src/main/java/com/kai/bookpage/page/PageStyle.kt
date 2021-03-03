@@ -1,7 +1,7 @@
-package com.kai.base.bookpage.page
+package com.kai.bookpage.page
 
 import androidx.annotation.ColorRes
-import com.kai.base.R
+import com.kai.bookpage.R
 
 enum class PageStyle(@ColorRes val fontColor:Int,
                      @ColorRes val bgColor :Int){

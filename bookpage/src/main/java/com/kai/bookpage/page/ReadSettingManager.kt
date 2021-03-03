@@ -1,4 +1,4 @@
-package com.kai.base.bookpage.page
+package com.kai.bookpage.page
 
 import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils

@@ -1,3 +1,4 @@
 include ':app',
         ':common',
+        ':bookpage'
 rootProject.name = "CommonApplication"

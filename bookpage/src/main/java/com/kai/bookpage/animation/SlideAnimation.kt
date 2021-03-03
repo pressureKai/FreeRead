@@ -1,4 +1,4 @@
-package com.kai.base.bookpage.animation
+package com.kai.bookpage.animation
 
 import android.graphics.Canvas
 import android.graphics.Rect

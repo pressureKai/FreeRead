@@ -1,4 +1,4 @@
-package com.kai.base.bookpage.page
+package com.kai.bookpage.page
 
 import android.content.Context
 import android.graphics.Color
@@ -6,10 +6,10 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.core.content.ContextCompat
-import com.kai.base.bookpage.model.BookRecordBean
-import com.kai.base.bookpage.model.CoolBookBean
-import com.kai.base.bookpage.model.TextChapter
-import com.kai.base.bookpage.model.TextPage
+import com.kai.bookpage.model.BookRecordBean
+import com.kai.bookpage.model.CoolBookBean
+import com.kai.bookpage.model.TextChapter
+import com.kai.bookpage.model.TextPage
 import com.kai.common.utils.ScreenUtils
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
