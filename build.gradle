@@ -1,13 +1,12 @@
 apply from: "common_config.gradle"
 buildscript {
     ext.kotlin_version = "1.4.21"
-    ext.isLib = true
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.4.2"
+        classpath "com.android.tools.build:gradle:3.4.3"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.tencent.bugly:tinker-support:1.2.1"
         classpath 'com.meituan.android.walle:plugin:1.1.7'
