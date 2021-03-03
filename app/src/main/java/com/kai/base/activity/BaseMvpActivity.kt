@@ -2,9 +2,9 @@ package com.kai.base.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.kai.base.eventBusEntity.EventBusEntity
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
+import com.kai.common.eventBusEntity.EventBusEntity
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -62,7 +62,7 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC,sticky = true)
-    open fun <T> onMessageEvent(eventBusEntity :EventBusEntity<T>){
+    open fun <T> onMessageEvent(eventBusEntity : EventBusEntity<T>){
         if(eventBusEntity.message == this::class.java.name){
             EventBus.getDefault().removeStickyEvent(eventBusEntity)
             onMessageReceiver(eventBusEntity)

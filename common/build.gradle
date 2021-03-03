@@ -1,8 +1,15 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
+
+kapt {
+    arguments {
+        arg("moduleName", project.getName())
+    }
+}
 android {
     compileSdkVersion rootProject.ext.androidID.compileSdkVersion
     buildToolsVersion rootProject.ext.androidID.buildToolVersion
@@ -30,6 +37,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
 }
 
 dependencies {
@@ -37,6 +45,34 @@ dependencies {
     implementation rootProject.ext.dependencies.ktx
     implementation rootProject.ext.dependencies.appcompat
     implementation rootProject.ext.dependencies.material
+    implementation rootProject.ext.dependencies.constraintlayout
+    api rootProject.ext.dependencies.immersionbar_components
+    api rootProject.ext.dependencies.immersionbar
+    api rootProject.ext.dependencies.rxjava
+    api rootProject.ext.dependencies.rxAndroid
+    api rootProject.ext.dependencies.retrofit
+    api rootProject.ext.dependencies.gson
+    api rootProject.ext.dependencies.scalars
+    api rootProject.ext.dependencies.rxjava3adapter
+    api rootProject.ext.dependencies.retrofit_log
+    api rootProject.ext.dependencies.eventBus
+    api rootProject.ext.dependencies.jsoup
+    api rootProject.ext.dependencies.arouter
+    api rootProject.ext.dependencies.lottie
+    api rootProject.ext.dependencies.autosize
+    api rootProject.ext.dependencies.autofit_textview
+    api rootProject.ext.dependencies.crash_report
+    api rootProject.ext.dependencies.native_crash_report
+    api rootProject.ext.dependencies.multidex
+    api rootProject.ext.dependencies.tinker
+    api rootProject.ext.dependencies.walle
+    api rootProject.ext.dependencies.glide
+    api rootProject.ext.dependencies.room
+    testImplementation rootProject.ext.dependencies.room_testing
+    annotationProcessor rootProject.ext.dependencies.glide_compiler
+    annotationProcessor rootProject.ext.dependencies.arouter_processer
+
+
     testImplementation rootProject.ext.dependencies.junit
     androidTestImplementation rootProject.ext.dependencies.test_junit
     androidTestImplementation rootProject.ext.dependencies.espresso

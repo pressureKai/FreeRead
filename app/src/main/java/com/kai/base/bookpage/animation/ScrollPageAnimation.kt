@@ -6,7 +6,7 @@ import android.graphics.Rect
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
-import com.kai.base.utils.LogUtils
+import com.kai.common.utils.LogUtils
 import java.lang.Exception
 
 /**

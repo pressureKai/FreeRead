@@ -10,7 +10,7 @@ import com.kai.base.bookpage.model.BookRecordBean
 import com.kai.base.bookpage.model.CoolBookBean
 import com.kai.base.bookpage.model.TextChapter
 import com.kai.base.bookpage.model.TextPage
-import com.kai.base.utils.ScreenUtils
+import com.kai.common.utils.ScreenUtils
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 

@@ -3,8 +3,8 @@ package com.kai.base
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import com.kai.base.activity.BaseMvpActivity
-import com.kai.base.eventBusEntity.EventBusEntity
 import com.kai.base.mvp.base.BasePresenter
+import com.kai.common.eventBusEntity.EventBusEntity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class TestActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {

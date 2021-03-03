@@ -1,7 +1,8 @@
 package com.kai.base.bookpage.page
 
-import com.kai.base.utils.ScreenUtils
-import com.kai.base.utils.SharedPreferenceUtils
+import com.kai.common.utils.ScreenUtils
+import com.kai.common.utils.SharedPreferenceUtils
+
 
 class ReadSettingManager {
 
@@ -112,7 +113,7 @@ class ReadSettingManager {
     fun getTextSize() :Int{
         var textSize = 0
         sharedPreferenceUtils?.let {
-           textSize = it.getInt(SHARED_READ_TEXT_SIZE,ScreenUtils.spToPx(28))
+           textSize = it.getInt(SHARED_READ_TEXT_SIZE, ScreenUtils.spToPx(28))
         }
         return textSize
     }

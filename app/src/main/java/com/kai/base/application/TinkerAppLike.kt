@@ -12,7 +12,7 @@ import com.tencent.tinker.loader.shareutil.ShareConstants
  */
 class TinkerAppLike :TinkerApplication(
     ShareConstants.TINKER_ENABLE_ALL,
-    "com.kai.base.application.BaseApplication",
+    "com.kai.common.application.BaseApplication",
     "com.tencent.tinker.loader.TinkerLoader",
     false
 ){
