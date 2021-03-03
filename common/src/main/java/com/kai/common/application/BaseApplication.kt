@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.multidex.MultiDex
-import com.kai.base.application.BaseAppInit
 import com.kai.common.utils.LogUtils
 import com.meituan.android.walle.WalleChannelReader
 import com.tencent.bugly.Bugly
