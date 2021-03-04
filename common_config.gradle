@@ -42,6 +42,7 @@ project.ext {
             "junit"             :"junit:junit:4.+",
             "test_junit"        :"androidx.test.ext:junit:1.1.2",
             "espresso"          :"androidx.test.espresso:espresso-core:3.3.0",
-            "jetbrains"         :"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+            "jetbrains"         :"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+            "opencc"            :"com.zqc.opencc.android.lib:lib-opencc-android:0.8.0@aar"
     ]
 }

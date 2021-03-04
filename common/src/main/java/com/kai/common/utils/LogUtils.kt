@@ -1,7 +1,7 @@
 package com.kai.common.utils
 
 import android.util.Log
-import com.kai.common.application.Constant
+import com.kai.common.constant.Constant
 import java.lang.Exception
 
 

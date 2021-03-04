@@ -145,4 +145,10 @@ abstract class PageAnimation {
     }
 
 
+
+    @JvmName("isRunning1")
+    fun isRunning() : Boolean{
+        return isRunning
+    }
+
 }

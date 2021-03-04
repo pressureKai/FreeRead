@@ -11,8 +11,8 @@ import com.kai.bookpage.model.CoolBookBean
 import com.kai.bookpage.model.TextChapter
 import com.kai.bookpage.model.TextPage
 import com.kai.common.utils.ScreenUtils
-import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import java.io.BufferedReader
 
 abstract class PageLoader {
     private val TAG = "PageLoader"
@@ -31,14 +31,14 @@ abstract class PageLoader {
     private var EXTRA_TITLE_SIZE = 4
 
 
-    private var mChapterList: List<TextChapter> = ArrayList()
+    private var mChapterList: ArrayList<TextChapter> = ArrayList()
     private var mCoolBook: CoolBookBean? = null
     private var mPageChangeListener: OnPageChangeListener? = null
     private var mContext: Context? = null
     private var mCurPage: TextPage? = null
-    private var mPrePageList: List<TextPage> = ArrayList()
-    private var mCurPageList: List<TextPage> = ArrayList()
-    private var mNextPageList: List<TextPage> = ArrayList()
+    private var mPrePageList: ArrayList<TextPage> = ArrayList()
+    private var mCurPageList: ArrayList<TextPage> = ArrayList()
+    private var mNextPageList: ArrayList<TextPage> = ArrayList()
 
 
     private var mPageView: PageView? = null
@@ -265,15 +265,21 @@ abstract class PageLoader {
         mPageView?.drawCurrentPage(false)
     }
 
-    //初始化PageView
+    /**
+     * 初始化PageView
+     */
     private fun initPageView() {
         mPageView?.setPageMode(mPageMode)
         mPageView?.setBgColor(mBgColor)
     }
 
-    //初始化书籍(将书籍数据储存入本地数据库)
+
+    /**
+     * 初始化书籍(将书籍数据储存入本地数据库)
+     */
     private fun prepareBook() {
         // 对mBookRecord进行赋值(从数据库根据Id的形式)
+        //unFinish
         // 原来使用了GreenDao现使用Room
         if (mBookRecord == null) {
             mBookRecord = BookRecordBean()
@@ -284,6 +290,184 @@ abstract class PageLoader {
         }
         mCurrentChapterPosition = currentChapterPosition
         mLastChapterPosition = mCurrentChapterPosition
+    }
+
+
+    /**
+     * 跳转到上一章
+     */
+    fun skipPreChapter(): Boolean {
+        if (!hasPreChapter()) {
+            return false
+        }
+        //载入上一章
+        mCurPage = if (parsePreChapter()) {
+            getCurrentPage(0)
+        } else {
+            TextPage()
+        }
+        mPageView?.drawCurrentPage(false)
+        return false
+    }
+
+
+    /**
+     * 跳转到下一章
+     */
+    fun skipNextChapter(): Boolean {
+        if (!hasNextChapter()) {
+            return false
+        }
+
+        //判断是否到章节的终止点
+        mCurPage = if (parseNextChapter()) {
+            getCurrentPage(0)
+        } else {
+            TextPage()
+        }
+
+        mPageView?.drawCurrentPage(false)
+
+        return true
+    }
+
+
+    /**
+     * 跳转到指定章节
+     * @param position :章节位置
+     */
+    fun skipToChapter(position: Int) {
+        //设置参数
+        mCurrentChapterPosition = position
+        //将上一章的缓存设置为null
+        mPrePageList.clear()
+
+        //如果当前下一章缓存正在执行，则取消
+        if (mPreLoadDisposable != null) {
+            mPreLoadDisposable?.dispose()
+        }
+
+        //将下一章缓存设置为null
+        mNextPageList.clear()
+
+        //打开指定章节
+        openChapter()
+    }
+
+
+    /**
+     * 跳转到指定的页
+     *
+     * @param position
+     */
+    fun skipToPage(position: Int): Boolean {
+        if (!isChapterListPrepare) {
+            return false
+        }
+
+        mCurPage = getCurrentPage(position)
+        mPageView?.drawCurrentPage(false)
+        return true
+    }
+
+    /**
+     * 翻到上一页
+     */
+    fun skipToPrePage(): Boolean? {
+        return mPageView?.autoPrePage()
+    }
+
+    /**
+     * 翻到下一页
+     */
+    fun skipToNextPage(): Boolean? {
+        return mPageView?.autoNextPage()
+    }
+
+    /**
+     * 更新时间
+     */
+    fun updateTime() {
+        mPageView?.let {
+            if (!it.isRunning()) {
+                mPageView?.drawCurrentPage(true)
+            }
+        }
+    }
+
+    /**
+     * 更新电量
+     *
+     * @param level : 电量
+     */
+    fun updateBattery(level: Int) {
+        mBatteryLevel = level
+        mPageView?.let {
+            if (!it.isRunning()) {
+                it.drawCurrentPage(true)
+            }
+        }
+    }
+
+
+    /**
+     * 设置提示的文字大小
+     *
+     * @param textSize : px
+     */
+    fun setTipTextSize(textSize: Int) {
+        mTipPaint?.textSize = textSize.toFloat()
+        mPageView?.drawCurrentPage(false)
+    }
+
+
+    /**
+     * 设置文字相关参数
+     *
+     * @param textSize : px
+     */
+    fun setTextSize(textSize: Int) {
+        //设置文字相关参数
+        setUpTextParams(textSize)
+
+        //设置画笔的字体大小
+        mTextPaint?.textSize = mTextSize.toFloat()
+        //设置标题的字体大小
+        mTitlePaint?.textSize = mTitleSize.toFloat()
+        // 存储文字大小
+        mSettingManager?.setTextSize(mTextSize)
+        //取消缓存
+        mPrePageList.clear()
+        mNextPageList.clear()
+
+        //如果当前已经显示数据
+        if (isChapterListPrepare && mStatus == STATUS_FINISH) {
+            //重新计算当前页面
+            dealLoadPageList(mCurrentChapterPosition)
+
+            //防止在最后一页,通过修改字体导致页面总数减少导致奔溃的问题
+            mCurPage?.let {
+                if (it.position >= mCurPageList.size) {
+                    it.position = mCurPageList.size - 1
+                }
+
+                // 重新获取指定页面
+                mCurPage = mCurPageList[it.position]
+            }
+        }
+
+        mPageView?.drawCurrentPage(true)
+    }
+
+
+    /**
+     * 判断上一章节是否为空
+     */
+    private fun hasPreChapter(): Boolean {
+        if (mCurrentChapterPosition - 1 < 0) {
+            return false
+        }
+        return true
     }
 
 
@@ -376,6 +560,7 @@ abstract class PageLoader {
         }
 
         //数据库存储操作(BookRecord)
+        //unFinish
     }
 
     /**
@@ -411,13 +596,45 @@ abstract class PageLoader {
                     //切换状态
                     isChapterOpen = true
                 }
+            } else {
+                mCurPage = getCurrentPage(0)
             }
-
+        } else {
+            mCurPage = TextPage()
         }
 
+        mPageView?.drawCurrentPage(true)
+    }
+
+    /**
+     * 加载错误页面
+     */
+    fun chapterError() {
+        mStatus = STATUS_ERROR
+        mPageView?.drawCurrentPage(false)
     }
 
 
+    /**
+     * 关闭书本
+     */
+    fun closeBook() {
+        isChapterListPrepare = false
+        isClose = true
+        mPreLoadDisposable?.dispose()
+
+        mChapterList.clear()
+        mCurPageList.clear()
+        mNextPageList.clear()
+
+        mPageView = null
+        mCurPage = null
+    }
+
+
+    /**
+     * 获取当前显示页
+     */
     private fun getCurrentPage(position: Int): TextPage {
         if (mPageChangeListener != null) {
             mPageChangeListener!!.onPageCountChange(position)
@@ -456,18 +673,13 @@ abstract class PageLoader {
 
 
         //解析书籍信息
-//        Single.create<List<TextPage>> {
-//
-//        }.compose {
-//
-//        }
-
-
-
-
+        //unFinish
     }
 
 
+    /**
+     * 取消翻页
+     */
     fun pageCancel() {
         if (mCurPage?.position == 0
                 && mCurrentChapterPosition > mLastChapterPosition) {
@@ -483,11 +695,11 @@ abstract class PageLoader {
             }
         } else if (mCurPageList == null
                 || (mCurPage?.position == mCurPageList.size
-                        && mCurrentChapterPosition < mLastChapterPosition)){
-            if(mNextPageList != null){
+                        && mCurrentChapterPosition < mLastChapterPosition)) {
+            if (mNextPageList != null) {
                 cancelPreChapter()
-            }else{
-                mCurPage = if(parseNextChapter()){
+            } else {
+                mCurPage = if (parseNextChapter()) {
                     mCurPageList[0]
                 } else {
                     TextPage()
@@ -500,41 +712,218 @@ abstract class PageLoader {
     }
 
 
-    private fun parseNextChapter() :Boolean{
-
+    private fun parseNextChapter(): Boolean {
         return false
     }
 
-    private fun cancelPreChapter(){
+    private fun cancelPreChapter() {
+        // 重置位置位
+        val temp = mLastChapterPosition
+        mLastChapterPosition = mCurrentChapterPosition
+        mCurrentChapterPosition = temp
 
+        //重置页面列表(交换引用 unConfirm)
+        mPrePageList = mCurPageList
+        mCurPageList = mNextPageList
+        mNextPageList.clear()
+
+        chapterChangeCallback()
+        mCurPage = getCurrentPage(0)
+        mCancelPage = null
     }
+
     /**
      * 获取上一个章节的最后一页
      */
-    private fun getPreLastPage() :TextPage{
-        return TextPage()
+    private fun getPreLastPage(): TextPage {
+        val position = mCurPageList.size - 1
+        mPageChangeListener?.onPageChange(position)
+        return mCurPageList[position]
     }
 
-    private fun cancelNextChapter(){
 
+    /**
+     * 取消下一页
+     */
+    private fun cancelNextChapter() {
+        val temp = mLastChapterPosition
+        mLastChapterPosition = mCurrentChapterPosition
+        mCurrentChapterPosition = temp
+
+        mNextPageList = mCurPageList
+        mCurPageList = mPrePageList
+        mPrePageList.clear()
+
+        chapterChangeCallback()
+
+        mCurPage = getPreLastPage()
+        mCancelPage = null
     }
 
-    private fun parsePreChapter():Boolean{
-        return false
+
+    /**
+     * 设置页面翻页回调
+     */
+    private fun chapterChangeCallback() {
+        mPageChangeListener?.onChapterChange(mCurrentChapterPosition)
+        mPageChangeListener?.onPageCountChange(mCurPageList.size)
     }
 
-    private fun hasChapterData(textChapter: TextChapter): Boolean {
-        return false
+    /**
+     * 解析上一章的数据
+     */
+    private fun parsePreChapter(): Boolean {
+        //加载上一章数据
+        val preChapterPosition = mCurrentChapterPosition - 1
+        mLastChapterPosition = mCurrentChapterPosition
+        mCurrentChapterPosition = preChapterPosition
+
+        //当前章节缓存为下一章
+        mNextPageList = mCurPageList
+        //判断是否具有上一章缓存
+        //unConfirm
+        if (mPrePageList.isNotEmpty()) {
+            mCurPageList = mPrePageList
+            mPrePageList.clear()
+            chapterChangeCallback()
+        } else {
+            dealLoadPageList(preChapterPosition)
+        }
+        return mCurPageList.size > 0
     }
 
+
+    /**
+     * 判断是否还有下一章节
+     */
     private fun hasNextChapter(): Boolean {
-        return false
+        if (mCurrentChapterPosition + 1 >= mCurPageList.size) {
+            return false
+        }
+        return true
     }
 
+    /**
+     * 重新计算当前页面
+     */
     private fun dealLoadPageList(currentChapterPosition: Int) {
+        try {
+             loadPageList(currentChapterPosition)
+        } catch (e: Exception) {
 
+        }
     }
 
+    /**
+     * 加载页面列表
+     *@param chapterPosition : 章节序号
+     */
+    @Throws(java.lang.Exception::class)
+    private fun loadPageList(chapterPosition: Int) :ArrayList<TextPage>?{
+        //获取章节
+        val chapter = mChapterList[chapterPosition]
+        //判断章节是否存在
+        if(!hasChapterData(chapter)){
+            return null
+        }
+        // 获取章节的文本流
+        val chapterReader = getChapterReader(chapter)
+        return loadPages(chapter,chapterReader)
+    }
+
+
+    private fun loadPages(chapter: TextChapter,chapterReader: BufferedReader) :ArrayList<TextPage>{
+        //生成的页面
+        val pages :ArrayList<TextPage> = ArrayList()
+        //使用流的方式加载
+        val lines :ArrayList<String> = ArrayList()
+        val rHeight = mVisibleHeight
+        var titleLinesCount = 0
+        //是否展示标题
+        var showTitle = true
+        //默认展示标题
+        var paragraph = chapter.title
+        try {
+            while (showTitle){
+
+            }
+        }catch (e:java.lang.Exception){
+
+        }
+
+        return pages
+    }
+
+
+    /**
+     * 根据当前状态决定是否能够翻页
+     */
+    private fun canTurnPage(): Boolean {
+        var canTurn = true
+        if (!isChapterListPrepare) {
+            canTurn = false
+        }
+        //是否为错误状态 或 准备状态
+        if (mStatus == STATUS_PARSE_ERROR || mStatus == STATUS_PARING) {
+            canTurn = false
+        } else if (mStatus == STATUS_ERROR) {
+            //unConfirm
+            mStatus = STATUS_LOADING
+        }
+
+        return canTurn
+    }
+
+    /**
+     * 获取上个页面
+     */
+    private fun getPrePage(): TextPage? {
+        var position = -1
+        mCurPage?.let {
+            position = it.position - 1
+        }
+        if (position < 0) {
+            return null
+        }
+        mPageChangeListener?.onPageChange(position)
+        return mCurPageList[position]
+    }
+
+    /**
+     * 获取下个页面
+     */
+    private fun getNextPage(): TextPage? {
+        var position = 0
+        mCurPage?.let {
+            position = it.position + 1
+        }
+        if (position >= mCurPageList.size) {
+            return null
+        }
+        mPageChangeListener?.onPageChange(position)
+        return mCurPageList[position]
+    }
+
+    /**
+     * 页面是否处于关闭状态
+     */
+    fun isClose(): Boolean {
+        return isClose
+    }
+
+    /**
+     * 章节是否打开
+     */
+    fun isChapterOpen(): Boolean {
+        return isChapterOpen
+    }
+
+    /**
+     * 判断章节数据是否存在
+     */
+    protected abstract fun hasChapterData(chapter: TextChapter): Boolean
+    @Throws(Exception::class)
+    protected abstract fun getChapterReader(chapter :TextChapter) :BufferedReader
     interface OnPageChangeListener {
         fun onChapterChange(pos: Int)
         fun requestChapters(requestChapters: List<TextChapter>)

@@ -1,4 +1,4 @@
-package com.kai.common.application
+package com.kai.common.constant
 
 import android.app.Application
 import android.content.pm.ApplicationInfo

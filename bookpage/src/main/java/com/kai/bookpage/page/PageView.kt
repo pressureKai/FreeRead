@@ -103,8 +103,26 @@ class PageView :View{
 
 
 
+    fun autoPrePage() :Boolean{
+        return false
+    }
+
+
+    fun autoNextPage() :Boolean{
+        return false
+    }
+
+
     fun isPrepare() :Boolean{
         return isPrepare
+    }
+
+
+    fun isRunning() : Boolean{
+        if(mPageAnimation == null){
+            return false
+        }
+        return mPageAnimation!!.isRunning()
     }
 
 
