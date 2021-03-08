@@ -126,6 +126,11 @@ class PageView :View{
     }
 
 
+    fun drawNextPage(){
+
+    }
+
+
     interface TouchListener{
         fun onTouch() :Boolean
         fun center()

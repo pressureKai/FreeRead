@@ -1,10 +1,12 @@
 package com.kai.bookpage.utils
 
 import android.content.Context
+import android.graphics.Paint
 import android.util.Log
 import androidx.annotation.StringRes
 import com.kai.bookpage.page.ReadSettingManager
 import com.kai.common.application.BaseApplication
+import com.kai.common.utils.LogUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.zqc.opencc.android.lib.ChineseConverter
 import com.zqc.opencc.android.lib.ConversionType
@@ -24,6 +26,7 @@ class StringUtils {
         val HOUR_OF_DAY = 24
         val DAY_OF_YESTERDAY = 2
         val TIME_UNIT = 60
+
         /**
          * 繁简转换
          */
@@ -178,21 +181,78 @@ class StringUtils {
                 val oldHour = calendar.get(Calendar.HOUR)
                 //如果没有时间
                 if (oldHour == 0) {
-                     //比日期:昨天和今天以及明天
-                    if(differentDate == 0L){
-                        return "今天"
-                    } else if (differentDate < DAY_OF_YESTERDAY) {
-                        return "昨天"
-                    } else {
+                    //比日期:昨天和今天以及明天
+                    return when {
+                        differentDate == 0L -> {
+                            "今天"
+                        }
+                        differentDate < DAY_OF_YESTERDAY -> {
+                            "昨天"
+                        }
+                        else -> {
+                            val convertFormat = SimpleDateFormat("yyyy-MM-dd")
+                            convertFormat.format(date)
+                        }
+                    }
+                }
 
+
+                when {
+                    differentSecond < TIME_UNIT -> {
+                        return differentSecond.toString() + "秒前"
+                    }
+                    differentMinute < TIME_UNIT -> {
+                        return differentMinute.toString() + "分钟前"
+                    }
+                    differentHour < HOUR_OF_DAY -> {
+                        return differentHour.toString() + "小时前"
+                    }
+                    differentDate < DAY_OF_YESTERDAY -> {
+                        return "昨天"
+                    }
+                    else -> {
+                        val convertFormat = SimpleDateFormat("yyyy-MM-dd")
+                        return convertFormat.format(date)
                     }
                 }
             } catch (e: java.lang.Exception) {
-
+                LogUtils.e("StringUtils", e.toString())
             }
             return ""
         }
 
 
+        /**
+         * unConfirm
+         */
+        fun toFirstCapital(input: String): String {
+            var upperCaseString = input
+            try {
+                input.substring(0, 1).toUpperCase() + input.substring(1)
+            } catch (e: java.lang.Exception) {
+                LogUtils.e("StringUtils", e.toString())
+            }
+            return upperCaseString
+        }
+
+
+
+        fun getWordCount(input: String,paint: Paint,width :Float) :Int{
+            var wordCount  = 0
+            var beMeasureString = input
+            try {
+                if(input.contains("fi")){
+                    beMeasureString = beMeasureString.replace("fi","_!")
+                }
+                wordCount = paint.breakText(beMeasureString,true,width, null)
+            }catch (e: java.lang.Exception){
+                LogUtils.e("StringUtils", e.toString())
+            }
+            return wordCount
+        }
     }
+
+
+
+
 }
