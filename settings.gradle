@@ -1,3 +1,4 @@
+include ':learn'
 include ':app',
         ':common',
         ':bookpage'
