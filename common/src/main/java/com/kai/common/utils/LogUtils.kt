@@ -45,7 +45,7 @@ class LogUtils {
                         splitString = content.substring(count,count.plus(splitCount))
                     }
                     count += splitCount
-                    printLog(type,messageTag,splitString)
+                    dealContent(type,messageTag,splitString)
                 }
 
 
