@@ -32,6 +32,12 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
 
     }
 
+    /**
+     * 用户第一次触发事件流中的MotionEvent.ACTION_DOWN时，Activity源码中调用的方法
+     */
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+    }
 
     abstract fun setLayoutId() :Int
     open fun createPresenter():P? {

@@ -6,8 +6,12 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.widget.RelativeLayout
+import android.widget.Scroller
 import android.widget.TextView
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  *
@@ -26,9 +30,47 @@ class SlideWrapper : RelativeLayout {
 
     val TAG = "SlideWrapper"
     val CONTROL_TAG = "ctrl"
+    val CONFIRM_TAG = "confirm"
+    val ANIMATION_DURATION = 300
+    val CLICK_INTERVAL = 300;
+    val CLICK_DISTANCE = 50
+    val LONG_CLICK_INTERVAL = ViewConfiguration.getLongPressTimeout()
+    val TAN60 = 1.73f
+
+    var enableSlide = true
 
     private val mControlView: ArrayList<View> = ArrayList()
     private var mWrapperView: View? = null
+    //是否已经确定了阻止父控件拦截触摸事件,提升效率用的标记避免频繁在dispatchTouchEvent中做浮点运算
+    private var mIsDecided = false
+    private var mScroller: Scroller ?= null
+    private var mNotifyCompleteOpen =  false
+    private var mNotifyCompleteClose = false
+    private var mNotifyPullback = false
+    private var mCallback :Callback ?= null
+    private var mAnimationDurationMs = ANIMATION_DURATION
+    private var mCloseOnClick = true
+    private var mEnable = true
+    //按下时是否处于展开状态
+    private var mIsOpenWhenTouchDown = false
+    //以下用于辅助判断长按和点击事件
+    private var mDownTime = 0L
+    private var mUpTime = 0L
+    //不触发点击、长按(在展开的状态下点击时不触发)
+    private var doNotPerformClick = false
+
+    private var mX = 0f
+    private var mY = 0f
+
+    private var mXDown = 0f
+    private var mYDown = 0f
+    private var mXMove = 0f
+    private var mYMove = 0f
+    private var mXLastMove = 0f
+    private var mYLastMove = 0f
+    private var mScrollable = -1
+    //Runnable 包裹的View 的长按事件
+    private val mLongPressRunnable: Runnable = Runnable { performClick() }
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -49,87 +91,297 @@ class SlideWrapper : RelativeLayout {
 
     }
 
-    /**
-     * 处理触摸事件的分发
-     * 执行super.dispatchTouchEvent(ev) 事件向下分发
-     * 一个完整的触摸事件链有3个组成 MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE,MotionEvent.ACTION_UP
-     *  由 ev.getAction() 可知 当前触摸事件是处在哪一个状态
-     *
-     *  question : 1. 触摸事件是否由上到下逐层传递 (dispatchTouchEvent, onInterceptOnTouchEvent ,onTouchEvent)
-     *             2. 传递的对象MotionEvent的不同事件类型会在view的事件传递层中进行怎么样的传递
-     *
-     *  现象 : onTouchEvent -> true (View成为了事件黑洞,吸收外部所有的事件) 时
-     *                                dispatchTouchEvent 每种触摸类型都会调用,
-     *                                onInterceptOnTouchEvent 只有在触摸类型 MotionEvent.ACTION_DOWN 中调用一次,
-     *
-     *
-     *         onTouchEvent -> false (不响应任何的触摸事件) 时
-     *                                dispatchTouchEvent 和 onInterceptOnTouchEvent 只有在触摸类型 MotionEvent.ACTION_DOWN 中被调用一次
-     *                                onTouch在MotionEvent.ACTION_DOWN 中调用一次,返回false表示不处理此次事件,故接下来的事件流并不被此View所接收
-     *
-     *
-     *
-     * onInterceptOnTouchEvent -> false : 不拦截事件,事件流会流向子View,如果子View的 onTouchEvent 返回true 或者子View设置了点击事件,
-     *                                   原本的 ViewGroup 中的Move,Up事件会继续调用onInterceptOnTouchEvent
-     *
-     * Activity   dispatchOnTouchEvent(),onTouchEvent()
-     * ViewGroup  dispatchOnTouchEvent(),onInterceptOnTouchEvent(),onTouchEvent()
-     * View       dispatchOnTouchEvent(),onTouchEvent()
-     *                                                                                             ^ false >>>>>  onTouchEvent()[Activity]
-     *                                                                                             ^
-     * (Activity 中的事件分发)                                                                       ^
-     * (步骤一)  MotionEvent.ACTION_DOWN -> Activity -> dispatchOnTouchEvent()[Activity]   -----决定是否分发----- true -> 步骤二
-     *
-     *
-     *
-     *                                                                                             ^ false >>>>>> ViewGroup不处理事件
-     *                                                                                             ^            (返回至上层Activity的onTouchEvent)
-     *                                                                                             ^
-     * (ViewGroup 中的事件分发到 onInterceptOnTouchEvent 在 dispatchOnTouchEvent() 之后)               ^
-     * (步骤二)  MotionEvent.ACTION_DOWN -> ViewGroup -> dispatchOnTouchEvent()[ViewGroup] -----决定是否分发 ----- true -> onInterceptOnTouchEvent()[ViewGroup]
-     *
-     *
-     *
-     *
-     * (步骤三) MotionEvent.ACTION_DOWN -> onInterceptOnTouchEvent()[ViewGroup] -> -----决定是否拦截----- true ->
-     * @param ev
-     * @return false  : 不继续向下分发事件 (代表此控件不处理点击事件)
-     *         true  : 向下分发事件由 touchEvent 继续处理
-     *
-     *         触摸事件向下分发时
-     *         向下分发情况有多种,可分为两种具体情况进行分析
-     *         1.onTouchEvent -> false 此控件不响应触摸事件
-     *
-     *         2.onTouchEvent -> true 此控件响应触摸事件
-     *
-     */
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        return super.dispatchTouchEvent(ev)
+        return if(enableSlide){
+            var deltaX = 0
+            var deltaY = 0
+            ev?.let {
+                when(it.action){
+                   MotionEvent.ACTION_DOWN ->{
+                       mIsDecided = false
+                       mIsOpenWhenTouchDown = false
+                       mXDown = it.x
+                       mYDown = it.y
+                       mX = mXDown
+                       mY = mYDown
+                       if(!doNotPerformClick){
+                            //在最开始分发事件时，设置对LongClickListener的回调
+                            postDelayed(mLongPressRunnable,LONG_CLICK_INTERVAL.toLong())
+                       }
+                   }
+                   MotionEvent.ACTION_MOVE ->{
+                       if(abs(it.x - mX) > CLICK_DISTANCE &&
+                               abs(it.y - mY) > CLICK_DISTANCE &&
+                               abs(it.y - mY) < abs(it.x - mX)){
+                           removeCallbacks(mLongPressRunnable)
+                       }
+                       if(!mIsDecided){
+                           deltaX = abs(it.x - mXDown).toInt()
+                           deltaY = abs(it.y - mYDown).toInt()
+
+                           if(deltaX > 0 && deltaY > 0 && deltaX > deltaY){
+                               mIsDecided = true
+                               val tangle = (deltaX / deltaY).toFloat()
+                               if(tangle > TAN60){
+                                   //当角度值超过60度时由此View接管触摸事件，同时禁用点击事件与长按事件
+                                   doNotPerformClick = true
+                                   removeCallbacks(mLongPressRunnable)
+                                   //让此控件拦截事件,子控件接收不到事件的分发
+                                   requestDisallowInterceptTouchEvent(true)
+                               }
+                           }
+                       }
+                   }
+                   MotionEvent.ACTION_CANCEL,MotionEvent.ACTION_UP ->{
+                        removeCallbacks(mLongPressRunnable)
+                        requestDisallowInterceptTouchEvent(false)
+                        if(mIsOpenWhenTouchDown && mCloseOnClick){
+                            close()
+                        }
+                   }
+                }
+            }
+            if(mScrollable == -1){
+                mScrollable = calculateScrollableDistance()
+            }
+
+            super.dispatchTouchEvent(ev)
+        } else {
+            false
+        }
     }
 
 
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        if(isOpen()){
+            mIsOpenWhenTouchDown = true
+            //不拦截,将事件传递给子View
+            return false
+        }
+        ev?.let {
+            when(it.action){
+                MotionEvent.ACTION_DOWN -> {
+                    mXDown = it.x
+                    mYDown = it.y
+                    mXLastMove = mXDown
+                    mYLastMove = mYDown
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    mXMove = it.x
+                    mYMove = it.y
+                    mXLastMove = mXMove
+                    mYLastMove = mYMove
+                }
+                MotionEvent.ACTION_CANCEL ->{
+                    mXMove = 0f
+                    mYMove = 0f
+                    mXLastMove = 0f
+                    mYLastMove = 0f
+                }
+            }
+        }
+        return super.onInterceptTouchEvent(ev)
+    }
+
+    private fun isOpen() :Boolean{
+        return false
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if(mWrapperView == null){
+            mWrapperView = findContentView()
+            if(mWrapperView == null){
+                return false
+            }
+        }
+        event?.let {
+            when(it.action){
+                MotionEvent.ACTION_DOWN -> {
+                    mDownTime = System.currentTimeMillis()
+                    return true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    mXMove = it.x
+                    mYMove = it.y
+                    //计算移动的距离
+                    val scrolledX = (mXMove - mXLastMove).roundToInt()
+                    val scrolledY = (mYMove - mYLastMove).roundToInt()
+                    if(abs(scrolledX) > abs(scrolledY)
+                            && abs(scrolledY) > CLICK_DISTANCE){
+                        doAnimation()
+                        parent.requestDisallowInterceptTouchEvent(false)
+                    }else{
+                        handleMotionEvent(scrolledX)
+                        parent.requestDisallowInterceptTouchEvent(true)
+                    }
+                    mXLastMove = mXMove
+                    mYLastMove = mYMove
+                    return true
+                }
+                MotionEvent.ACTION_UP -> {
+                    mUpTime = System.currentTimeMillis()
+                    if(mUpTime - mDownTime <= CLICK_INTERVAL &&
+                            abs(it.x - mX) < CLICK_DISTANCE &&
+                            abs(it.y - mY) < CLICK_DISTANCE){
+                        if(scrollX > CLICK_DISTANCE){
+                            strongClose()
+                        }else{
+                            performClick()
+                        }
+                    }
+                    doAnimation()
+                    return true
+                }
+                MotionEvent.ACTION_CANCEL -> {
+                    strongClose()
+                    return true
+                }
+                else -> {
+
+                }
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
+
+    private fun strongClose(){
+
+    }
+
+    private fun doAnimation(){
+
+    }
+
+
+    private fun handleMotionEvent(scrolledX :Int){
+
+    }
+
+
+    private fun calculateScrollableDistance(): Int{
+        return -1
+    }
+
+    private fun close(){
+
+    }
+
     override fun onFinishInflate() {
         super.onFinishInflate()
+        resetControlView(findControlView())
+        mWrapperView = findContentView()
+    }
 
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        measureChildren(widthMeasureSpec,heightMeasureSpec)
+        val contentView = findContentView()
+        if(contentView != null){
+            val height = contentView.measuredHeight
+            val confirmView = findConfirmView()
+            confirmView?.let {
+                val confirmWidth = it.measuredWidth
+                val widthSpec = MeasureSpec.makeMeasureSpec(confirmWidth,MeasureSpec.EXACTLY)
+                val heightSpec = MeasureSpec.makeMeasureSpec(height,MeasureSpec.EXACTLY)
+                it.measure(widthSpec,heightSpec)
+            }
+            if(mControlView.isNotEmpty()){
+                for(i in 0.until(mControlView.size)){
+                    val controlView = mControlView[i]
+                    val measuredWidth = controlView.measuredWidth
+                    val widthSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY)
+                    val heightSpec = MeasureSpec.makeMeasureSpec(height,MeasureSpec.EXACTLY)
+                    controlView.measure(widthSpec,heightSpec)
+                }
+            }
+        }
+    }
+
+
+    //unConfirm
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+        val contentView = findContentView() ?: return
+        val contentViewWidth = contentView.measuredWidth
+        val contentViewHeight = contentView.measuredHeight
+        contentView.layout(0,0,contentViewWidth,contentViewHeight)
+        val confirmView = findConfirmView()
+        confirmView?.let {
+            it.layout(contentViewWidth,0,width + confirmView.measuredWidth,contentViewHeight)
+            it.visibility = View.INVISIBLE
+        }
+        if(mControlView.isNotEmpty()){
+            var left = contentViewWidth
+            for(i in 0.until(mControlView.size)){
+                val controlView = mControlView[i]
+                controlView.layout(left,0,left + controlView.measuredWidth,controlView.measuredHeight)
+                left += controlView.measuredWidth
+            }
+        }
+    }
+
+
+
+    /**
+     * 寻找某些操作时用于二次确认的View
+     */
+    private fun findConfirmView(): View?{
+        for(i in 0.until(childCount)){
+            val child = getChildAt(i)
+            if(child != null){
+                val tag = child.tag
+                if(tag != null && tag == CONFIRM_TAG){
+                    return child
+                }
+            }
+        }
+        return null
+    }
+
+
+    private fun resetControlView(views :List<View>){
+        mControlView.clear()
+        for(value in views){
+            mControlView.add(value)
+        }
     }
 
     /**
      * 利用tag(ctrl)识别出侧滑后出现的View
      */
-    private fun findControlView(): List<View>{
+    private fun findControlView(): List<View> {
         val controlView = ArrayList<View>()
-        for(i in 0.until(childCount)){
+        for (i in 0.until(childCount)) {
             val child = getChildAt(i)
-            if(child != null){
+            if (child != null) {
                 val tag = child.tag
-                if(tag != null && tag == CONTROL_TAG){
-                     controlView.add(child)
+                if (tag != null && tag == CONTROL_TAG) {
+                    controlView.add(child)
                 }
             }
         }
         return controlView
     }
 
+
+    private fun findContentView(): View? {
+        for (i in 0.until(childCount)) {
+            val child = getChildAt(i)
+            if(child != null){
+                val tag = child.tag
+                if(tag == null || (tag != null && (
+                                tag !is String  ||
+                                        ( (tag != CONTROL_TAG)
+                                                && (tag != CONFIRM_TAG) )
+                        ))){
+                    return child
+                }
+            }
+        }
+        return null
+    }
 
 
     /**
@@ -253,8 +505,6 @@ class SlideWrapper : RelativeLayout {
             return textSizes
         }
     }
-
-
 
 
 }
