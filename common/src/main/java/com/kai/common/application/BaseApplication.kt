@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.multidex.MultiDex
+import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.common.constant.Constant
 import com.kai.common.utils.LogUtils
 import com.meituan.android.walle.WalleChannelReader
@@ -39,6 +40,7 @@ class BaseApplication(
         super.onCreate()
         sInstance = application.baseContext
         Constant.init(application)
+        initARouter()
         initModelsSpeed()
         initModelsLow()
         initBugly()
@@ -48,6 +50,11 @@ class BaseApplication(
         super.onBaseContextAttached(base)
         MultiDex.install(base)
         initTinker()
+    }
+
+
+    private fun initARouter(){
+        ARouter.init(application)
     }
 
     private fun initTinker(){
