@@ -2,13 +2,19 @@ package com.kai.bookpage.page
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.text.TextPaint
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.kai.bookpage.R
 import com.kai.bookpage.model.BookRecordBean
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.bookpage.model.TextChapter
 import com.kai.bookpage.model.TextPage
 import com.kai.bookpage.utils.StringUtils
+import com.kai.common.constant.Constant
 import com.kai.common.utils.IOUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
@@ -115,9 +121,12 @@ abstract class PageLoader {
         initPageView()
         prepareBook()
     }
+    //初始化参数和读取参数以及设置默写参数的方法
 
 
-    //初始化数据
+    /**
+     * 初始化数据
+     */
     private fun initData() {
         mSettingManager = ReadSettingManager.getInstance()
 
@@ -136,7 +145,9 @@ abstract class PageLoader {
         setUpTextParams(textSize)
     }
 
-    //初始化画笔
+    /**
+     * 初始化画笔
+     */
     private fun initPaint() {
         //绘制提示的画笔
         mTipPaint = Paint()
@@ -197,9 +208,13 @@ abstract class PageLoader {
 
             if (isNightMode) {
                 mBatteryPaint?.color = Color.WHITE
-
+                setPageStyle(PageStyle.BG_NIGHT)
             } else {
                 mBatteryPaint?.color = Color.BLACK
+                mPageStyle?.let {
+                    setPageStyle(it)
+                }
+
             }
         }
     }
@@ -244,6 +259,7 @@ abstract class PageLoader {
         mPageMode?.let {
             mSettingManager?.setPageMode(it)
         }
+        // 重新绘制的前页
         mPageView?.drawCurrentPage(false)
     }
 
@@ -269,6 +285,7 @@ abstract class PageLoader {
      * 初始化PageView
      */
     private fun initPageView() {
+        //设置参数
         mPageView?.setPageMode(mPageMode)
         mPageView?.setBgColor(mBgColor)
     }
@@ -276,6 +293,7 @@ abstract class PageLoader {
 
     /**
      * 初始化书籍(将书籍数据储存入本地数据库)
+     * unFinish
      */
     private fun prepareBook() {
         // 对mBookRecord进行赋值(从数据库根据Id的形式)
@@ -326,9 +344,11 @@ abstract class PageLoader {
             }
             mPageView?.drawCurrentPage(false)
         }
-
     }
 
+    /**
+     *绘制背景
+     */
     private fun drawBackground(bitmap: Bitmap, isUpdate: Boolean) {
         val canvas = Canvas(bitmap)
         val tipMarginHeight = ScreenUtils.dpToPx(3)
@@ -346,8 +366,10 @@ abstract class PageLoader {
                 if (mStatus != STATUS_FINISH) {
                     if (isChapterListPrepare) {
                         mTipPaint?.let {
-                            canvas.drawText(mChapterList[mCurrentChapterPosition].title,
-                                    mMarginWidth.toFloat(), tipTop, it)
+                            canvas.drawText(
+                                mChapterList[mCurrentChapterPosition].title,
+                                mMarginWidth.toFloat(), tipTop, it
+                            )
                         }
                     }
                 } else {
@@ -380,11 +402,13 @@ abstract class PageLoader {
             //擦除区域
             mBgPaint?.let {
                 it.color = mBgColor
-                canvas.drawRect((mDisplayWidth / 2).toFloat(),
-                        (mDisplayHeight - mMarginHeight + ScreenUtils.dpToPx(2)).toFloat(),
-                        mDisplayWidth.toFloat(),
-                        mDisplayHeight.toFloat(),
-                        it)
+                canvas.drawRect(
+                    (mDisplayWidth / 2).toFloat(),
+                    (mDisplayHeight - mMarginHeight + ScreenUtils.dpToPx(2)).toFloat(),
+                    mDisplayWidth.toFloat(),
+                    mDisplayHeight.toFloat(),
+                    it
+                )
             }
         }
 
@@ -398,20 +422,22 @@ abstract class PageLoader {
             outFrameWidth = it.measureText("xxx").toInt()
             outFrameHeight = it.textSize.toInt()
         }
-        var polarHeight = ScreenUtils.dpToPx(6)
-        var polarWidth = ScreenUtils.dpToPx(2)
-        var border = 1
-        var innerMargin = 1
+        val polarHeight = ScreenUtils.dpToPx(6)
+        val polarWidth = ScreenUtils.dpToPx(2)
+        val border = 1
+        val innerMargin = 1
         //电极的制作
         val polarLeft = visibleRight - polarWidth
         val polarTop = visibleBottom - (outFrameHeight + polarHeight)/2
-        val polar = Rect(polarLeft,
-                         polarTop,
-                         visibleRight,
-                  polarTop + polarHeight - ScreenUtils.dpToPx(2))
+        val polar = Rect(
+            polarLeft,
+            polarTop,
+            visibleRight,
+            polarTop + polarHeight - ScreenUtils.dpToPx(2)
+        )
         mBatteryPaint?.style = Paint.Style.FILL
         mBatteryPaint?.let {
-            canvas.drawRect(polar,it)
+            canvas.drawRect(polar, it)
         }
 
         //外框的制作
@@ -422,18 +448,34 @@ abstract class PageLoader {
         mBatteryPaint?.style = Paint.Style.STROKE
         mBatteryPaint?.strokeWidth = border.toFloat()
         mBatteryPaint?.let {
-            canvas.drawRect(outFrame,it)
+            canvas.drawRect(outFrame, it)
         }
 
 
         //内框制作
         val innerWidth = (outFrame.width() - innerMargin * 2 - border) * (mBatteryLevel / 100.0f)
-        val innerFrame = RectF((outFrameLeft + border + innerMargin).toFloat(),
-                (outFrameTop + border + innerMargin).toFloat(),
-                outFrameLeft + border + innerMargin + innerWidth,
-                (outFrameBottom - border - innerMargin).toFloat())
+        val innerFrame = RectF(
+            (outFrameLeft + border + innerMargin).toFloat(),
+            (outFrameTop + border + innerMargin).toFloat(),
+            outFrameLeft + border + innerMargin + innerWidth,
+            (outFrameBottom - border - innerMargin).toFloat()
+        )
 
 
+        mBatteryPaint?.style = Paint.Style.FILL
+        mBatteryPaint?.let {
+            canvas.drawRect(innerFrame, it)
+        }
+
+
+        //绘制当前时间
+        //底部的字显示的位置Y
+        val time = StringUtils.dateConvert(System.currentTimeMillis(), Constant.FORMAT_TIME)
+        mTipPaint?.let {
+            val y = mDisplayHeight - it.fontMetrics.bottom - tipMarginHeight
+            val x = outFrameLeft - it.measureText(time)
+            canvas.drawText(time, x, y, it)
+        }
     }
 
     /**
@@ -548,6 +590,51 @@ abstract class PageLoader {
                             }
                         }
                     }
+
+
+                    val picture = getCurrentPage()?.picture
+                    if(!picture.isNullOrEmpty()){
+                        mContext?.let { context ->
+                            Glide.with(context)
+                                .asBitmap()
+                                .load(picture)
+                                .thumbnail(0.1f)
+                                .into(object : SimpleTarget<Bitmap>() {
+                                    override fun onLoadStarted(placeholder: Drawable?) {
+                                        canvas.save()
+                                        drawCenter(context.getString(R.string.pic_loading), canvas)
+                                        canvas.restore()
+                                    }
+
+                                    override fun onResourceReady(
+                                        resource: Bitmap,
+                                        transition: Transition<in Bitmap>?
+                                    ) {
+                                        var realBitmap = resource
+                                        if (resource.width > mDisplayWidth) {
+                                            val scaleBitmap = scaleBitmap(resource)
+                                            if (scaleBitmap != null) {
+                                                realBitmap = scaleBitmap
+                                            }
+                                        }
+
+                                        val pivotX =
+                                            ((mDisplayWidth - resource.width) shr 1).toFloat()
+                                        val pivotY =
+                                            ((mDisplayHeight - resource.height) shr 1).toFloat()
+
+                                        val currentPicture = getCurrentPage()?.picture
+
+                                        if(!currentPicture.isNullOrEmpty()){
+                                            canvas.drawBitmap(realBitmap,pivotX,pivotY,mTextPaint)
+                                            mPageView?.invalidate()
+                                        }
+
+                                    }
+                                })
+                        }
+
+                    }
                 }
             }
         }
@@ -555,6 +642,7 @@ abstract class PageLoader {
 
     /**
      * 跳转到上一章
+     * @return 跳转是否成功
      */
     fun skipPreChapter(): Boolean {
         if (!hasPreChapter()) {
@@ -567,12 +655,13 @@ abstract class PageLoader {
             TextPage()
         }
         mPageView?.drawCurrentPage(false)
-        return false
+        return true
     }
 
 
     /**
      * 跳转到下一章
+     * @return 跳转是否成功
      */
     fun skipNextChapter(): Boolean {
         if (!hasNextChapter()) {
@@ -619,6 +708,7 @@ abstract class PageLoader {
      * 跳转到指定的页
      *
      * @param position
+     * @return 跳转是否成功
      */
     fun skipToPage(position: Int): Boolean {
         if (!isChapterListPrepare) {
@@ -632,6 +722,7 @@ abstract class PageLoader {
 
     /**
      * 翻到上一页
+     * @return 操作是否成功
      */
     fun skipToPrePage(): Boolean? {
         return mPageView?.autoPrePage()
@@ -639,6 +730,7 @@ abstract class PageLoader {
 
     /**
      * 翻到下一页
+     * @return 操作是否成功
      */
     fun skipToNextPage(): Boolean? {
         return mPageView?.autoNextPage()
@@ -677,6 +769,7 @@ abstract class PageLoader {
      */
     fun setTipTextSize(textSize: Int) {
         mTipPaint?.textSize = textSize.toFloat()
+        //如果屏幕大小加载完成
         mPageView?.drawCurrentPage(false)
     }
 
@@ -716,7 +809,7 @@ abstract class PageLoader {
             }
         }
 
-        mPageView?.drawCurrentPage(true)
+        mPageView?.drawCurrentPage(false)
     }
 
 
@@ -735,10 +828,13 @@ abstract class PageLoader {
      * 设置与文字相关的参数
      */
     private fun setUpTextParams(textSize: Int) {
+        // 文字大小
         mTextSize = textSize
         mTitleSize = textSize + ScreenUtils.spToPx(EXTRA_TITLE_SIZE)
+        // 行间距（大小为字体的一半）
         mTextInterval = mTextSize / 2
         mTitleInterval = mTextSize / 2
+        // 段落间距（大小为字体的高度）
         mTextPara = mTextSize
         mTitlePara = mTitleSize
     }
@@ -750,6 +846,7 @@ abstract class PageLoader {
     fun setOnPageChangeListener(listener: OnPageChangeListener) {
         mPageChangeListener = listener
 
+        // 如果目录加载完之后才设置监听器，那么会默认回调
         if (isChapterListPrepare) {
             mPageChangeListener?.onCategoryFinish(mChapterList)
         }
@@ -800,6 +897,7 @@ abstract class PageLoader {
 
     /**
      * 保存阅读记录
+     * unFinish
      */
     fun saveRecord() {
         if (mChapterList.isEmpty()) {
@@ -834,6 +932,7 @@ abstract class PageLoader {
             }
         }
 
+        //如果章节目录没有准备好
         if (!isChapterListPrepare) {
             mStatus = STATUS_LOADING
             mPageView?.drawCurrentPage(false)
@@ -841,6 +940,12 @@ abstract class PageLoader {
         }
 
 
+        // 如果获取到的章节目录为空
+        if(mChapterList.isEmpty()){
+            mStatus = STATUS_CATEGORY_EMPTY
+            mPageView?.drawCurrentPage(false)
+            return
+        }
         if (parseCurrentChapter()) {
             if (!isChapterOpen) {
                 //如果章节从未打开
@@ -863,7 +968,7 @@ abstract class PageLoader {
             mCurPage = TextPage()
         }
 
-        mPageView?.drawCurrentPage(true)
+        mPageView?.drawCurrentPage(false)
     }
 
     /**
@@ -893,7 +998,37 @@ abstract class PageLoader {
 
 
     /**
-     * 获取当前显示页
+     * 获取当前页
+     */
+    fun getCurrentPage(): TextPage?{
+        return mCurPage
+    }
+
+    /**
+     * 设置当前页
+     */
+    fun setCurrentPage(currentPage: TextPage){
+        this.mCurPage = currentPage
+    }
+
+    /**
+     * 获取当前页列表
+     */
+    fun getCurrentPageList(): List<TextPage> {
+        return mCurPageList
+    }
+
+    /**
+     * 获取下一页列表
+     */
+    fun getNextPageList(): List<TextPage>{
+        return mNextPageList
+    }
+
+
+
+    /**
+     * 获取当前显示页根据Position
      */
     private fun getCurrentPage(position: Int): TextPage {
         if (mPageChangeListener != null) {
@@ -1046,10 +1181,14 @@ abstract class PageLoader {
     }
 
 
+    /**
+     * 解析下一章节数据
+     * @return 操作是否成功
+     */
     private fun parseNextChapter(): Boolean {
         val nextChapterPosition = mCurrentChapterPosition + 1
 
-        val mLastChapterPosition = mCurrentChapterPosition
+        mLastChapterPosition = mCurrentChapterPosition
         mCurrentChapterPosition = nextChapterPosition
 
         //将当前章节的页面列表，作为上一章缓存
@@ -1075,6 +1214,11 @@ abstract class PageLoader {
         return false
     }
 
+
+    /**
+     * 清空上一章节
+     * unConfirm
+     */
     private fun cancelPreChapter() {
         // 重置位置位
         val temp = mLastChapterPosition
@@ -1103,6 +1247,7 @@ abstract class PageLoader {
 
     /**
      * 取消下一页
+     * unConfirm
      */
     private fun cancelNextChapter() {
         val temp = mLastChapterPosition
@@ -1125,6 +1270,7 @@ abstract class PageLoader {
      */
     private fun chapterChangeCallback() {
         mPageChangeListener?.onChapterChange(mCurrentChapterPosition)
+
         mPageChangeListener?.onPageCountChange(mCurPageList.size)
     }
 
@@ -1213,6 +1359,7 @@ abstract class PageLoader {
         val chapterReader = getChapterReader(chapter)
         return loadPages(chapter, chapterReader)
     }
+    abstract fun refreshChapterList()
 
 
     /**
@@ -1293,11 +1440,19 @@ abstract class PageLoader {
                         //测量一行占用的字节数
                         if (showTitle) {
                             mTitlePaint?.let {
-                                wordCount = StringUtils.getWordCount(paragraph, it, mVisibleWidth.toFloat())
+                                wordCount = StringUtils.getWordCount(
+                                    paragraph,
+                                    it,
+                                    mVisibleWidth.toFloat()
+                                )
                             }
                         } else {
                             mTextPaint?.let {
-                                wordCount = StringUtils.getWordCount(paragraph, it, mVisibleWidth.toFloat())
+                                wordCount = StringUtils.getWordCount(
+                                    paragraph,
+                                    it,
+                                    mVisibleWidth.toFloat()
+                                )
                             }
                         }
 
@@ -1377,6 +1532,59 @@ abstract class PageLoader {
     }
 
     /**
+     * 绘制页面，暴露给外部的方法
+     */
+    fun drawPage(bitmap: Bitmap, isUpdate: Boolean) {
+        mPageView?.let {
+            it.getBgBitmap()?.let { bit ->
+                drawBackground(bit, isUpdate)
+            }
+        }
+        if(!isUpdate){
+            drawContent(bitmap)
+        }
+        //更新绘制
+        mPageView?.invalidate()
+    }
+
+
+    /**
+     * 中心文字绘制
+     */
+    private fun drawCenter(tip: String, canvas: Canvas){
+        mTextPaint?.let {
+            val fontMetrics = it.fontMetrics
+            val textHeight = fontMetrics.top - fontMetrics.bottom
+            val textWidth = it.measureText(tip)
+            val pivotX = (mDisplayWidth - textWidth) / 2
+            val pivotY = (mDisplayHeight - textHeight) / 2
+            mTextPaint?.let { paint ->
+                canvas.drawText(tip, pivotX, pivotY, paint)
+            }
+        }
+    }
+
+
+    private fun scaleBitmap(origin: Bitmap?): Bitmap?{
+        if(origin == null){
+            return null
+        }
+        val width = origin.width
+        val height = origin.height
+        val matrix = Matrix()
+        matrix.preScale(0.5f, 0.5f)
+        val createBitmap = Bitmap.createBitmap(
+            origin, 0, 0,
+            width, height,
+            matrix, false
+        )
+        if(createBitmap == origin){
+            return createBitmap
+        }
+        return createBitmap
+    }
+
+    /**
      * 获取上个页面
      */
     private fun getPrePage(): TextPage? {
@@ -1425,6 +1633,9 @@ abstract class PageLoader {
      */
     protected abstract fun hasChapterData(chapter: TextChapter): Boolean
 
+    /**
+     * 获取章节的文件流
+     */
     @Throws(Exception::class)
     protected abstract fun getChapterReader(chapter: TextChapter): BufferedReader
     interface OnPageChangeListener {

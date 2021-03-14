@@ -8,6 +8,7 @@ import java.lang.Exception
 class Constant {
     companion object{
         var isDebug = false
+        val FORMAT_TIME = "HH:MM"
         val buglyId = ""
         fun init(application : Application){
             isDebug = isDebugAble(application)

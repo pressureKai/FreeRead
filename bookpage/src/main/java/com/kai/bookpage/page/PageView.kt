@@ -1,6 +1,7 @@
 package com.kai.bookpage.page
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
@@ -130,6 +131,10 @@ class PageView :View{
 
     }
 
+
+    fun getBgBitmap(): Bitmap?{
+        return null
+    }
 
     interface TouchListener{
         fun onTouch() :Boolean
