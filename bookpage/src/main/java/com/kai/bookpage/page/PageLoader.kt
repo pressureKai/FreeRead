@@ -121,7 +121,6 @@ abstract class PageLoader {
         initPageView()
         prepareBook()
     }
-    //初始化参数和读取参数以及设置默写参数的方法
 
 
     /**
@@ -249,103 +248,49 @@ abstract class PageLoader {
 
 
     /**
-     * 翻页动画
-     *
-     * @param pageMode 翻页模式
+     * 设置与文字相关的参数
      */
-    fun setPageMode(pageMode: PageMode) {
-        mPageMode = pageMode
-        mPageView?.setPageMode(mPageMode)
-        mPageMode?.let {
-            mSettingManager?.setPageMode(it)
+    private fun setUpTextParams(textSize: Int) {
+        // 文字大小
+        mTextSize = textSize
+        mTitleSize = textSize + ScreenUtils.spToPx(EXTRA_TITLE_SIZE)
+        // 行间距（大小为字体的一半）
+        mTextInterval = mTextSize / 2
+        mTitleInterval = mTextSize / 2
+        // 段落间距（大小为字体的高度）
+        mTextPara = mTextSize
+        mTitlePara = mTitleSize
+    }
+    /****************parse fun********************/
+    /**
+     * 加载页面列表
+     *@param chapterPosition : 章节序号
+     */
+    @Throws(java.lang.Exception::class)
+    private fun loadPageList(chapterPosition: Int): ArrayList<TextPage>? {
+        //获取章节
+        val chapter = mChapterList[chapterPosition]
+        //判断章节是否存在
+        if (!hasChapterData(chapter)) {
+            return null
         }
-        // 重新绘制的前页
-        mPageView?.drawCurrentPage(false)
+        // 获取章节的文本流
+        val chapterReader = getChapterReader(chapter)
+        return loadPages(chapter, chapterReader)
     }
 
     /**
-     * 设置内容与屏幕的间距
-     *
-     * @param marginWidth px
-     * @param marginHeight px
+     * 解析当前书籍的目录
      */
-    fun setMargin(marginWidth: Int, marginHeight: Int) {
-        mMarginWidth = marginWidth
-        mMarginWidth = marginHeight
-
-        // 如果是滑动动画，则需要重新创建
-        if (mPageMode == PageMode.SCROLL) {
-            mPageView?.setPageMode(PageMode.SCROLL)
-        }
-
-        mPageView?.drawCurrentPage(false)
+    private fun parseCurrentChapter(): Boolean {
+        //解析数据
+        dealLoadPageList(mCurrentChapterPosition)
+        //预加载下一页面
+        preLoadNextChapter()
+        return mCurPageList != null
     }
 
-    /**
-     * 初始化PageView
-     */
-    private fun initPageView() {
-        //设置参数
-        mPageView?.setPageMode(mPageMode)
-        mPageView?.setBgColor(mBgColor)
-    }
-
-
-    /**
-     * 初始化书籍(将书籍数据储存入本地数据库)
-     * unFinish
-     */
-    private fun prepareBook() {
-        // 对mBookRecord进行赋值(从数据库根据Id的形式)
-        //unFinish
-        // 原来使用了GreenDao现使用Room
-        if (mBookRecord == null) {
-            mBookRecord = BookRecordBean()
-        }
-        var currentChapterPosition = 0
-        mBookRecord?.let {
-            currentChapterPosition = it.chapter
-        }
-        mCurrentChapterPosition = currentChapterPosition
-        mLastChapterPosition = mCurrentChapterPosition
-    }
-
-
-    /**
-     * 来吧，准备展示
-     */
-    fun prepareDisplay(w: Int, h: Int) {
-        // 获取PageView的宽高
-        mDisplayWidth = w
-        mDisplayHeight = h
-        // 获取内容显示位置的大小
-        mVisibleWidth = mDisplayWidth - mMarginWidth * 2
-        mVisibleHeight = mDisplayHeight - mMarginHeight * 2
-        //重置 PageMode
-        mPageView?.setPageMode(mPageMode)
-
-
-        if (!isChapterOpen) {
-            //展示加载页面
-            mPageView?.drawCurrentPage(false)
-            //如果在 display 之前调用 openChapter 肯定是无法打开的
-            //所以需要通过display再重新调用一次
-            if (!isFirstOpen) {
-                openChapter()
-            }
-        } else {
-            //如果章节已显示，那么就重新计算页面
-            if (mStatus == STATUS_FINISH) {
-                dealLoadPageList(mCurrentChapterPosition)
-                //重新设置文章指针的位置
-                mCurPage?.let {
-                    mCurPage = getCurrentPage(it.position)
-                }
-            }
-            mPageView?.drawCurrentPage(false)
-        }
-    }
-
+    /****************draw fun********************/
     /**
      *绘制背景
      */
@@ -479,166 +424,359 @@ abstract class PageLoader {
     }
 
     /**
-     * 绘制主体内容
+     * 获取上一个章节的最后一页
      */
-    private fun drawContent(bitmap: Bitmap) {
-        val canvas = Canvas(bitmap)
-        if (mPageMode == PageMode.SCROLL) {
-            canvas.drawColor(mBgColor)
-        }
-
-        if (mStatus != STATUS_FINISH) {
-            //绘制字体
-            var tip = ""
-            when (mStatus) {
-                STATUS_LOADING -> {
-                    tip = "正在拼命加载中..."
-                }
-                STATUS_ERROR -> {
-                    tip = "加载失败(点击边缘重试)"
-                }
-                STATUS_EMPTY -> {
-                    tip = "文字内容为空"
-                }
-                STATUS_PARING -> {
-                    tip = "正在排版请等待..."
-                }
-                STATUS_PARSE_ERROR -> {
-                    tip = "文件解析错误"
-                }
-                STATUS_CATEGORY_EMPTY -> {
-                    tip = "目录列表为空"
-                }
-            }
-
-            //将提示语句放正中间
-            mTextPaint?.let {
-                val fontMetrics = it.fontMetrics
-                val textHeight = fontMetrics.top - fontMetrics.bottom
-                val textWidth = it.measureText(tip)
-
-                val pivotX = (mDisplayWidth - textWidth) / 2
-                val pivotY = (mDisplayHeight - textHeight) / 2
-                canvas.drawText(tip, pivotX, pivotY, it)
-            }
-        } else {
-            var top = 0f
-            if (mPageMode == PageMode.SCROLL) {
-                mTextPaint?.let {
-                    top = -it.fontMetrics.top
-                }
-            } else {
-                mTextPaint?.let {
-                    top = mMarginHeight - it.fontMetrics.top
-                }
-            }
-
-
-            //设置总距离
-            var interval = 0
-            var para = 0
-            var titleInterval = 0
-            var titlePara = 0
-            var str = ""
-            mTitlePaint?.let {
-                titleInterval = mTitleInterval + it.textSize.toInt()
-            }
-            mTextPaint?.let {
-                interval = mTextInterval + it.textSize.toInt()
-                para = mTextPara + it.textSize.toInt()
-                titlePara = mTitlePara + it.textSize.toInt()
-            }
-
-            //对标题进行绘制
-            mCurPage?.let {
-                val titleLines = it.titleLines
-                //unConfirm
-                for (i in 0.until(titleLines)) {
-                    str = it.lines[i]
-
-                    //设置顶部间距
-                    if (i == 0) {
-                        top += mTitlePara
-                    }
-
-
-                    //计算文字的显示起始点
-                    mTitlePaint?.let { paint ->
-                        val start = ((mDisplayWidth - paint.measureText(str)) / 2).toInt()
-                        //进行绘制
-                        canvas.drawText(str, start.toFloat(), top, paint)
-                    }
-
-                    //设置尾部间距
-                    top += if (i == it.titleLines - 1) {
-                        titlePara
-                    } else {
-                        //行间距
-                        titleInterval
-                    }
-                    //对内容进行绘制
-                    mCurPage?.let { textPage ->
-                        for (index in textPage.titleLines.until(textPage.lines.size)) {
-                            str = textPage.lines[index]
-                            mTextPaint?.let { paint ->
-                                canvas.drawText(str, mMarginWidth.toFloat(), top, paint)
-                            }
-                            top += if (str.endsWith("\n")) {
-                                para
-                            } else {
-                                interval
-                            }
-                        }
-                    }
-
-
-                    val picture = getCurrentPage()?.picture
-                    if(!picture.isNullOrEmpty()){
-                        mContext?.let { context ->
-                            Glide.with(context)
-                                .asBitmap()
-                                .load(picture)
-                                .thumbnail(0.1f)
-                                .into(object : SimpleTarget<Bitmap>() {
-                                    override fun onLoadStarted(placeholder: Drawable?) {
-                                        canvas.save()
-                                        drawCenter(context.getString(R.string.pic_loading), canvas)
-                                        canvas.restore()
-                                    }
-
-                                    override fun onResourceReady(
-                                        resource: Bitmap,
-                                        transition: Transition<in Bitmap>?
-                                    ) {
-                                        var realBitmap = resource
-                                        if (resource.width > mDisplayWidth) {
-                                            val scaleBitmap = scaleBitmap(resource)
-                                            if (scaleBitmap != null) {
-                                                realBitmap = scaleBitmap
-                                            }
-                                        }
-
-                                        val pivotX =
-                                            ((mDisplayWidth - resource.width) shr 1).toFloat()
-                                        val pivotY =
-                                            ((mDisplayHeight - resource.height) shr 1).toFloat()
-
-                                        val currentPicture = getCurrentPage()?.picture
-
-                                        if(!currentPicture.isNullOrEmpty()){
-                                            canvas.drawBitmap(realBitmap,pivotX,pivotY,mTextPaint)
-                                            mPageView?.invalidate()
-                                        }
-
-                                    }
-                                })
-                        }
-
-                    }
-                }
+    private fun getPreLastPage(): TextPage {
+        val position = mCurPageList.size - 1
+        mPageChangeListener?.onPageChange(position)
+        return mCurPageList[position]
+    }
+    /**
+     * 中心文字绘制
+     */
+    private fun drawCenter(tip: String, canvas: Canvas){
+        mTextPaint?.let {
+            val fontMetrics = it.fontMetrics
+            val textHeight = fontMetrics.top - fontMetrics.bottom
+            val textWidth = it.measureText(tip)
+            val pivotX = (mDisplayWidth - textWidth) / 2
+            val pivotY = (mDisplayHeight - textHeight) / 2
+            mTextPaint?.let { paint ->
+                canvas.drawText(tip, pivotX, pivotY, paint)
             }
         }
     }
+
+
+    /**
+     * 绘制页面，暴露给外部的方法
+     */
+    fun drawPage(bitmap: Bitmap, isUpdate: Boolean) {
+        mPageView?.let {
+            it.getBgBitmap()?.let { bit ->
+                drawBackground(bit, isUpdate)
+            }
+        }
+        if(!isUpdate){
+            drawContent(bitmap)
+        }
+        //更新绘制
+        mPageView?.invalidate()
+    }
+
+
+    /**
+     * 重新计算当前页面
+     */
+    private fun dealLoadPageList(currentChapterPosition: Int) {
+        try {
+            loadPageList(currentChapterPosition)?.let {
+                mCurPageList = it
+            }
+            if (mCurPageList != null) {
+                if (mCurPageList.isEmpty()) {
+                    mStatus = STATUS_EMPTY
+
+                    //添加一个空数据
+                    val page = TextPage()
+                    page.lines = ArrayList(1)
+                    mCurPageList.add(page)
+                } else {
+                    mStatus = STATUS_FINISH
+                }
+            } else {
+                mStatus = STATUS_LOADING
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            LogUtils.e("PageLoader", "dealLoadPageList error is $e")
+
+            mCurPageList.clear()
+            mStatus = STATUS_ERROR
+        }
+
+        //回调
+        chapterChangeCallback()
+    }
+
+
+    /****************private fun********************/
+
+    /**
+     * 判断上一章节是否为空
+     */
+    private fun hasPreChapter(): Boolean {
+        if (mCurrentChapterPosition - 1 < 0) {
+            return false
+        }
+        return true
+    }
+
+    private fun scaleBitmap(origin: Bitmap?): Bitmap?{
+        if(origin == null){
+            return null
+        }
+        val width = origin.width
+        val height = origin.height
+        val matrix = Matrix()
+        matrix.preScale(0.5f, 0.5f)
+        val createBitmap = Bitmap.createBitmap(
+            origin, 0, 0,
+            width, height,
+            matrix, false
+        )
+        if(createBitmap == origin){
+            return createBitmap
+        }
+        return createBitmap
+    }
+
+    /**
+     * 获取当前显示页根据Position
+     */
+    private fun getCurrentPage(position: Int): TextPage {
+        if (mPageChangeListener != null) {
+            mPageChangeListener!!.onPageCountChange(position)
+        }
+        return mCurPageList[position]
+    }
+
+    /****************getState fun********************/
+
+    /**
+     * 页面是否处于关闭状态
+     */
+    fun isClose(): Boolean {
+        return isClose
+    }
+
+    /**
+     * 章节是否打开
+     */
+    fun isChapterOpen(): Boolean {
+        return isChapterOpen
+    }
+
+    /**
+     * 设置页面翻页回调
+     */
+    private fun chapterChangeCallback() {
+        mPageChangeListener?.onChapterChange(mCurrentChapterPosition)
+
+        mPageChangeListener?.onPageCountChange(mCurPageList.size)
+    }
+
+    /**
+     * 取消翻页
+     */
+    fun pageCancel() {
+        if (mCurPage?.position == 0
+            && mCurrentChapterPosition > mLastChapterPosition) {
+            //加载到下一章取消
+            if (mPrePageList != null) {
+                cancelNextChapter()
+            } else {
+                mCurPage = if (parsePreChapter()) {
+                    getPreLastPage()
+                } else {
+                    TextPage()
+                }
+            }
+        } else if (mCurPageList == null
+            || (mCurPage?.position == mCurPageList.size
+                    && mCurrentChapterPosition < mLastChapterPosition)) {
+            if (mNextPageList != null) {
+                cancelPreChapter()
+            } else {
+                mCurPage = if (parseNextChapter()) {
+                    mCurPageList[0]
+                } else {
+                    TextPage()
+                }
+            }
+        } else {
+            // 假如加载到下一页，又取消了。那么需要重新装载
+            mCurPage = mCancelPage
+        }
+    }
+
+
+    /**
+     * 判断是否还有下一章节
+     */
+    private fun hasNextChapter(): Boolean {
+        if (mCurrentChapterPosition + 1 >= mCurPageList.size) {
+            return false
+        }
+        return true
+    }
+
+    /**
+     * 获取当前页
+     */
+    fun getCurrentPage(): TextPage?{
+        return mCurPage
+    }
+
+    /**
+     * 设置当前页
+     */
+    fun setCurrentPage(currentPage: TextPage){
+        this.mCurPage = currentPage
+    }
+
+    /**
+     * 获取当前页列表
+     */
+    fun getCurrentPageList(): List<TextPage> {
+        return mCurPageList
+    }
+
+    /**
+     * 获取下一页列表
+     */
+    fun getNextPageList(): List<TextPage>{
+        return mNextPageList
+    }
+    /**
+     * 设置页面切换监听
+     *@param listener
+     */
+    fun setOnPageChangeListener(listener: OnPageChangeListener) {
+        mPageChangeListener = listener
+
+        // 如果目录加载完之后才设置监听器，那么会默认回调
+        if (isChapterListPrepare) {
+            mPageChangeListener?.onCategoryFinish(mChapterList)
+        }
+    }
+
+    /**
+     * 获取当前页的状态
+     */
+    fun getPageStatus(): Int {
+        return mStatus
+    }
+
+    /**
+     * 获取书籍信息
+     */
+    fun getCoolBook(): CoolBookBean? {
+        return mCoolBook
+    }
+
+    /**
+     * 获取章节目录
+     */
+    fun getChapterCategory(): List<TextChapter> {
+        return mChapterList
+    }
+
+    /**
+     * 获取当前页的页码
+     */
+    fun getPagePosition(): Int? {
+        return mCurPage?.position
+    }
+
+    /**
+     * 获取当前书籍的章节位置
+     */
+    fun getChapterPosition(): Int {
+        return mCurrentChapterPosition
+    }
+
+    /**
+     * 获取显示内容距离屏幕的高度
+     */
+    fun getMarginHeight(): Int {
+        return mMarginHeight
+    }
+
+
+    /****************operation fun********************/
+    /**
+     * 翻页动画
+     *
+     * @param pageMode 翻页模式
+     */
+    fun setPageMode(pageMode: PageMode) {
+        mPageMode = pageMode
+        mPageView?.setPageMode(mPageMode)
+        mPageMode?.let {
+            mSettingManager?.setPageMode(it)
+        }
+        // 重新绘制的前页
+        mPageView?.drawCurrentPage(false)
+    }
+
+    /**
+     * 设置内容与屏幕的间距
+     *
+     * @param marginWidth px
+     * @param marginHeight px
+     */
+    fun setMargin(marginWidth: Int, marginHeight: Int) {
+        mMarginWidth = marginWidth
+        mMarginWidth = marginHeight
+
+        // 如果是滑动动画，则需要重新创建
+        if (mPageMode == PageMode.SCROLL) {
+            mPageView?.setPageMode(PageMode.SCROLL)
+        }
+
+        mPageView?.drawCurrentPage(false)
+    }
+
+    /**
+     * 初始化PageView
+     */
+    private fun initPageView() {
+        //设置参数
+        mPageView?.setPageMode(mPageMode)
+        mPageView?.setBgColor(mBgColor)
+    }
+
+
+
+
+
+    /**
+     * 来吧，准备展示
+     */
+    fun prepareDisplay(w: Int, h: Int) {
+        // 获取PageView的宽高
+        mDisplayWidth = w
+        mDisplayHeight = h
+        // 获取内容显示位置的大小
+        mVisibleWidth = mDisplayWidth - mMarginWidth * 2
+        mVisibleHeight = mDisplayHeight - mMarginHeight * 2
+        //重置 PageMode
+        mPageView?.setPageMode(mPageMode)
+
+
+        if (!isChapterOpen) {
+            //展示加载页面
+            mPageView?.drawCurrentPage(false)
+            //如果在 display 之前调用 openChapter 肯定是无法打开的
+            //所以需要通过display再重新调用一次
+            if (!isFirstOpen) {
+                openChapter()
+            }
+        } else {
+            //如果章节已显示，那么就重新计算页面
+            if (mStatus == STATUS_FINISH) {
+                dealLoadPageList(mCurrentChapterPosition)
+                //重新设置文章指针的位置
+                mCurPage?.let {
+                    mCurPage = getCurrentPage(it.position)
+                }
+            }
+            mPageView?.drawCurrentPage(false)
+        }
+    }
+
 
     /**
      * 跳转到上一章
@@ -813,113 +951,114 @@ abstract class PageLoader {
     }
 
 
+
+
     /**
-     * 判断上一章节是否为空
+     * 获取下个页面
      */
-    private fun hasPreChapter(): Boolean {
-        if (mCurrentChapterPosition - 1 < 0) {
+    private fun getNextPage(): TextPage? {
+        var position = 0
+        mCurPage?.let {
+            position = it.position + 1
+        }
+        if (position >= mCurPageList.size) {
+            return null
+        }
+        mPageChangeListener?.onPageChange(position)
+        return mCurPageList[position]
+    }
+
+
+    /**
+     * 获取上个页面
+     */
+    private fun getPrePage(): TextPage? {
+        var position = -1
+        mCurPage?.let {
+            position = it.position - 1
+        }
+        if (position < 0) {
+            return null
+        }
+        mPageChangeListener?.onPageChange(position)
+        return mCurPageList[position]
+    }
+
+
+    /**
+     * 翻到下一页
+     * @return 是否允许翻页
+     */
+    fun next(): Boolean {
+        //以下情况禁止翻页
+        if (!canTurnPage()) {
             return false
         }
+        if (mStatus == STATUS_FINISH) {
+            //先查看是否存在下一页
+            val nextPage = getNextPage()
+            if (nextPage != null) {
+                mCancelPage = mCurPage
+                mCurPage = nextPage
+                mPageView?.drawNextPage()
+                return true
+            }
+        }
+
+        if (!hasNextChapter()) {
+            return false
+        }
+
+
+        mCancelPage = mCurPage
+        //解析下一章数据
+        mCurPage = if (parseNextChapter()) {
+            mCurPageList.first()
+        } else {
+            TextPage()
+        }
+        mPageView?.drawNextPage()
         return true
     }
 
 
     /**
-     * 设置与文字相关的参数
+     * 翻阅上一页
+     *
+     * @return 操作是否成功
      */
-    private fun setUpTextParams(textSize: Int) {
-        // 文字大小
-        mTextSize = textSize
-        mTitleSize = textSize + ScreenUtils.spToPx(EXTRA_TITLE_SIZE)
-        // 行间距（大小为字体的一半）
-        mTextInterval = mTextSize / 2
-        mTitleInterval = mTextSize / 2
-        // 段落间距（大小为字体的高度）
-        mTextPara = mTextSize
-        mTitlePara = mTitleSize
-    }
-
-    /**
-     * 设置页面切换监听
-     *@param listener
-     */
-    fun setOnPageChangeListener(listener: OnPageChangeListener) {
-        mPageChangeListener = listener
-
-        // 如果目录加载完之后才设置监听器，那么会默认回调
-        if (isChapterListPrepare) {
-            mPageChangeListener?.onCategoryFinish(mChapterList)
-        }
-    }
-
-    /**
-     * 获取当前页的状态
-     */
-    fun getPageStatus(): Int {
-        return mStatus
-    }
-
-    /**
-     * 获取书籍信息
-     */
-    fun getCoolBook(): CoolBookBean? {
-        return mCoolBook
-    }
-
-    /**
-     * 获取章节目录
-     */
-    fun getChapterCategory(): List<TextChapter> {
-        return mChapterList
-    }
-
-    /**
-     * 获取当前页的页码
-     */
-    fun getPagePosition(): Int? {
-        return mCurPage?.position
-    }
-
-    /**
-     * 获取当前书籍的章节位置
-     */
-    fun getChapterPosition(): Int {
-        return mCurrentChapterPosition
-    }
-
-    /**
-     * 获取显示内容距离屏幕的高度
-     */
-    fun getMarginHeight(): Int {
-        return mMarginHeight
-    }
-
-
-    /**
-     * 保存阅读记录
-     * unFinish
-     */
-    fun saveRecord() {
-        if (mChapterList.isEmpty()) {
-            return
+    fun pre(): Boolean {
+        //以下情况禁止翻页
+        if (!canTurnPage()) {
+            return false
         }
 
-        mCoolBook?.let {
-            mBookRecord?.bookId = it.id
-            mBookRecord?.chapter = mCurrentChapterPosition
-        }
-
-        if (mCurPage != null) {
-            mBookRecord?.let {
-                it.pagePos = mCurPage!!.position
+        if (mStatus == STATUS_FINISH) {
+            //先查看是否存在上一页
+            val prePage = getPrePage()
+            if (prePage != null) {
+                mCancelPage = mCurPage
+                mCurPage = prePage
+                mPageView?.drawNextPage()
+                return true
             }
-        } else {
-            mBookRecord?.pagePos = 0
         }
 
-        //数据库存储操作(BookRecord)
-        //unFinish
+        if (!hasPreChapter()) {
+            return false
+        }
+
+        mCancelPage = mCurPage
+        mCurPage = if (parsePreChapter()) {
+            getPreLastPage()
+        } else {
+            TextPage()
+        }
+        mPageView?.drawNextPage()
+        return true
     }
+
+
 
     /**
      * 打开指定章节
@@ -996,131 +1135,86 @@ abstract class PageLoader {
         mCurPage = null
     }
 
-
-    /**
-     * 获取当前页
-     */
-    fun getCurrentPage(): TextPage?{
-        return mCurPage
+    /****************abstract fun********************/
+    interface OnPageChangeListener {
+        fun onChapterChange(pos: Int)
+        fun requestChapters(requestChapters: List<TextChapter>)
+        fun onCategoryFinish(chapter: List<TextChapter>)
+        fun onPageCountChange(count: Int)
+        fun onPageChange(pos: Int)
     }
 
     /**
-     * 设置当前页
+     * 判断章节数据是否存在
      */
-    fun setCurrentPage(currentPage: TextPage){
-        this.mCurPage = currentPage
-    }
+    protected abstract fun hasChapterData(chapter: TextChapter): Boolean
 
     /**
-     * 获取当前页列表
+     * 获取章节的文件流
      */
-    fun getCurrentPageList(): List<TextPage> {
-        return mCurPageList
-    }
-
-    /**
-     * 获取下一页列表
-     */
-    fun getNextPageList(): List<TextPage>{
-        return mNextPageList
-    }
-
+    @Throws(Exception::class)
+    protected abstract fun getChapterReader(chapter: TextChapter): BufferedReader
 
 
     /**
-     * 获取当前显示页根据Position
+     * 刷新章节列表
      */
-    private fun getCurrentPage(position: Int): TextPage {
-        if (mPageChangeListener != null) {
-            mPageChangeListener!!.onPageCountChange(position)
+    abstract fun refreshChapterList()
+
+
+
+
+
+    /****************unFinish fun********************/
+
+
+
+    /**
+     * 初始化书籍(将书籍数据储存入本地数据库)
+     * unFinish
+     */
+    private fun prepareBook() {
+        // 对mBookRecord进行赋值(从数据库根据Id的形式)
+        //unFinish
+        // 原来使用了GreenDao现使用Room
+        if (mBookRecord == null) {
+            mBookRecord = BookRecordBean()
         }
-        return mCurPageList[position]
+        var currentChapterPosition = 0
+        mBookRecord?.let {
+            currentChapterPosition = it.chapter
+        }
+        mCurrentChapterPosition = currentChapterPosition
+        mLastChapterPosition = mCurrentChapterPosition
     }
 
 
     /**
-     * 翻阅上一页
-     *
-     * @return 是否允许翻阅上一页
+     * 保存阅读记录
+     * unFinish
      */
-    fun pre(): Boolean {
-        //以下情况禁止翻页
-        if (!canTurnPage()) {
-            return false
+    fun saveRecord() {
+        if (mChapterList.isEmpty()) {
+            return
         }
 
-        if (mStatus == STATUS_FINISH) {
-            //先查看是否存在上一页
-            val prePage = getPrePage()
-            if (prePage != null) {
-                mCancelPage = mCurPage
-                mCurPage = prePage
-                mPageView?.drawNextPage()
-                return true
+        mCoolBook?.let {
+            mBookRecord?.bookId = it.id
+            mBookRecord?.chapter = mCurrentChapterPosition
+        }
+
+        if (mCurPage != null) {
+            mBookRecord?.let {
+                it.pagePos = mCurPage!!.position
             }
-        }
-
-        if (!hasPreChapter()) {
-            return false
-        }
-
-        mCancelPage = mCurPage
-        mCurPage = if (parsePreChapter()) {
-            getPreLastPage()
         } else {
-            TextPage()
+            mBookRecord?.pagePos = 0
         }
-        mPageView?.drawNextPage()
-        return true
+
+        //数据库存储操作(BookRecord)
+        //unFinish
     }
 
-    /**
-     * 翻到下一页
-     * @return 是否允许翻页
-     */
-    fun next(): Boolean {
-        //以下情况禁止翻页
-        if (!canTurnPage()) {
-            return false
-        }
-        if (mStatus == STATUS_FINISH) {
-            //先查看是否存在下一页
-            val nextPage = getNextPage()
-            if (nextPage != null) {
-                mCancelPage = mCurPage
-                mCurPage = nextPage
-                mPageView?.drawNextPage()
-                return true
-            }
-        }
-
-        if (!hasNextChapter()) {
-            return false
-        }
-
-
-        mCancelPage = mCurPage
-        //解析下一章数据
-        mCurPage = if (parseNextChapter()) {
-            mCurPageList.first()
-        } else {
-            TextPage()
-        }
-        mPageView?.drawNextPage()
-        return true
-    }
-
-
-    /**
-     * 解析当前书籍的目录
-     */
-    private fun parseCurrentChapter(): Boolean {
-        //解析数据
-        dealLoadPageList(mCurrentChapterPosition)
-        //预加载下一页面
-        preLoadNextChapter()
-        return mCurPageList != null
-    }
 
     /**
      * 预加载下一章
@@ -1131,7 +1225,7 @@ abstract class PageLoader {
 
         //如果不存在下一章，且下一章没有数据，则不进行加载
         if (!hasNextChapter() ||
-                !hasChapterData(mChapterList[nextChapter])) {
+            !hasChapterData(mChapterList[nextChapter])) {
             return
         }
 
@@ -1146,39 +1240,172 @@ abstract class PageLoader {
     }
 
 
+    /****************unConfirm fun********************/
+
+
     /**
-     * 取消翻页
+     * 绘制主体内容
      */
-    fun pageCancel() {
-        if (mCurPage?.position == 0
-                && mCurrentChapterPosition > mLastChapterPosition) {
-            //加载到下一章取消
-            if (mPrePageList != null) {
-                cancelNextChapter()
-            } else {
-                mCurPage = if (parsePreChapter()) {
-                    getPreLastPage()
-                } else {
-                    TextPage()
+    private fun drawContent(bitmap: Bitmap) {
+        val canvas = Canvas(bitmap)
+        if (mPageMode == PageMode.SCROLL) {
+            canvas.drawColor(mBgColor)
+        }
+
+        if (mStatus != STATUS_FINISH) {
+            //绘制字体
+            var tip = ""
+            when (mStatus) {
+                STATUS_LOADING -> {
+                    tip = "正在拼命加载中..."
+                }
+                STATUS_ERROR -> {
+                    tip = "加载失败(点击边缘重试)"
+                }
+                STATUS_EMPTY -> {
+                    tip = "文字内容为空"
+                }
+                STATUS_PARING -> {
+                    tip = "正在排版请等待..."
+                }
+                STATUS_PARSE_ERROR -> {
+                    tip = "文件解析错误"
+                }
+                STATUS_CATEGORY_EMPTY -> {
+                    tip = "目录列表为空"
                 }
             }
-        } else if (mCurPageList == null
-                || (mCurPage?.position == mCurPageList.size
-                        && mCurrentChapterPosition < mLastChapterPosition)) {
-            if (mNextPageList != null) {
-                cancelPreChapter()
-            } else {
-                mCurPage = if (parseNextChapter()) {
-                    mCurPageList[0]
-                } else {
-                    TextPage()
-                }
+
+            //将提示语句放正中间
+            mTextPaint?.let {
+                val fontMetrics = it.fontMetrics
+                val textHeight = fontMetrics.top - fontMetrics.bottom
+                val textWidth = it.measureText(tip)
+
+                val pivotX = (mDisplayWidth - textWidth) / 2
+                val pivotY = (mDisplayHeight - textHeight) / 2
+                canvas.drawText(tip, pivotX, pivotY, it)
             }
         } else {
-            // 假如加载到下一页，又取消了。那么需要重新装载
-            mCurPage = mCancelPage
+            var top = 0f
+            if (mPageMode == PageMode.SCROLL) {
+                mTextPaint?.let {
+                    top = -it.fontMetrics.top
+                }
+            } else {
+                mTextPaint?.let {
+                    top = mMarginHeight - it.fontMetrics.top
+                }
+            }
+
+
+            //设置总距离
+            var interval = 0
+            var para = 0
+            var titleInterval = 0
+            var titlePara = 0
+            var str = ""
+            mTitlePaint?.let {
+                titleInterval = mTitleInterval + it.textSize.toInt()
+            }
+            mTextPaint?.let {
+                interval = mTextInterval + it.textSize.toInt()
+                para = mTextPara + it.textSize.toInt()
+                titlePara = mTitlePara + it.textSize.toInt()
+            }
+
+            //对标题进行绘制
+            mCurPage?.let {
+                val titleLines = it.titleLines
+                //unConfirm
+                for (i in 0.until(titleLines)) {
+                    str = it.lines[i]
+
+                    //设置顶部间距
+                    if (i == 0) {
+                        top += mTitlePara
+                    }
+
+
+                    //计算文字的显示起始点
+                    mTitlePaint?.let { paint ->
+                        val start = ((mDisplayWidth - paint.measureText(str)) / 2).toInt()
+                        //进行绘制
+                        canvas.drawText(str, start.toFloat(), top, paint)
+                    }
+
+                    //设置尾部间距
+                    top += if (i == it.titleLines - 1) {
+                        titlePara
+                    } else {
+                        //行间距
+                        titleInterval
+                    }
+                    //对内容进行绘制
+                    mCurPage?.let { textPage ->
+                        for (index in textPage.titleLines.until(textPage.lines.size)) {
+                            str = textPage.lines[index]
+                            mTextPaint?.let { paint ->
+                                canvas.drawText(str, mMarginWidth.toFloat(), top, paint)
+                            }
+                            top += if (str.endsWith("\n")) {
+                                para
+                            } else {
+                                interval
+                            }
+                        }
+                    }
+
+
+                    val picture = getCurrentPage()?.picture
+                    if(!picture.isNullOrEmpty()){
+                        mContext?.let { context ->
+                            Glide.with(context)
+                                .asBitmap()
+                                .load(picture)
+                                .thumbnail(0.1f)
+                                .into(object : SimpleTarget<Bitmap>() {
+                                    override fun onLoadStarted(placeholder: Drawable?) {
+                                        canvas.save()
+                                        drawCenter(context.getString(R.string.pic_loading), canvas)
+                                        canvas.restore()
+                                    }
+
+                                    override fun onResourceReady(
+                                        resource: Bitmap,
+                                        transition: Transition<in Bitmap>?
+                                    ) {
+                                        var realBitmap = resource
+                                        if (resource.width > mDisplayWidth) {
+                                            val scaleBitmap = scaleBitmap(resource)
+                                            if (scaleBitmap != null) {
+                                                realBitmap = scaleBitmap
+                                            }
+                                        }
+
+                                        val pivotX =
+                                            ((mDisplayWidth - resource.width) shr 1).toFloat()
+                                        val pivotY =
+                                            ((mDisplayHeight - resource.height) shr 1).toFloat()
+
+                                        val currentPicture = getCurrentPage()?.picture
+
+                                        if(!currentPicture.isNullOrEmpty()){
+                                            canvas.drawBitmap(realBitmap,pivotX,pivotY,mTextPaint)
+                                            mPageView?.invalidate()
+                                        }
+
+                                    }
+                                })
+                        }
+
+                    }
+                }
+            }
         }
     }
+
+
 
 
     /**
@@ -1235,44 +1462,6 @@ abstract class PageLoader {
         mCancelPage = null
     }
 
-    /**
-     * 获取上一个章节的最后一页
-     */
-    private fun getPreLastPage(): TextPage {
-        val position = mCurPageList.size - 1
-        mPageChangeListener?.onPageChange(position)
-        return mCurPageList[position]
-    }
-
-
-    /**
-     * 取消下一页
-     * unConfirm
-     */
-    private fun cancelNextChapter() {
-        val temp = mLastChapterPosition
-        mLastChapterPosition = mCurrentChapterPosition
-        mCurrentChapterPosition = temp
-
-        mNextPageList = mCurPageList
-        mCurPageList = mPrePageList
-        mPrePageList.clear()
-
-        chapterChangeCallback()
-
-        mCurPage = getPreLastPage()
-        mCancelPage = null
-    }
-
-
-    /**
-     * 设置页面翻页回调
-     */
-    private fun chapterChangeCallback() {
-        mPageChangeListener?.onChapterChange(mCurrentChapterPosition)
-
-        mPageChangeListener?.onPageCountChange(mCurPageList.size)
-    }
 
     /**
      * 解析上一章的数据
@@ -1298,68 +1487,46 @@ abstract class PageLoader {
     }
 
 
+
+
     /**
-     * 判断是否还有下一章节
+     * 根据当前状态决定是否能够翻页
      */
-    private fun hasNextChapter(): Boolean {
-        if (mCurrentChapterPosition + 1 >= mCurPageList.size) {
-            return false
+    private fun canTurnPage(): Boolean {
+        var canTurn = true
+        if (!isChapterListPrepare) {
+            canTurn = false
         }
-        return true
+        //是否为错误状态 或 准备状态
+        if (mStatus == STATUS_PARSE_ERROR || mStatus == STATUS_PARING) {
+            canTurn = false
+        } else if (mStatus == STATUS_ERROR) {
+            //unConfirm
+            mStatus = STATUS_LOADING
+        }
+
+        return canTurn
     }
 
+
     /**
-     * 重新计算当前页面
+     * 取消下一页
+     * unConfirm
      */
-    private fun dealLoadPageList(currentChapterPosition: Int) {
-        try {
-            loadPageList(currentChapterPosition)?.let {
-                mCurPageList = it
-            }
-            if (mCurPageList != null) {
-                if (mCurPageList.isEmpty()) {
-                    mStatus = STATUS_EMPTY
+    private fun cancelNextChapter() {
+        val temp = mLastChapterPosition
+        mLastChapterPosition = mCurrentChapterPosition
+        mCurrentChapterPosition = temp
 
-                    //添加一个空数据
-                    val page = TextPage()
-                    page.lines = ArrayList(1)
-                    mCurPageList.add(page)
-                } else {
-                    mStatus = STATUS_FINISH
-                }
-            } else {
-                mStatus = STATUS_LOADING
-            }
+        mNextPageList = mCurPageList
+        mCurPageList = mPrePageList
+        mPrePageList.clear()
 
-        } catch (e: Exception) {
-            e.printStackTrace()
-            LogUtils.e("PageLoader", "dealLoadPageList error is $e")
-
-            mCurPageList.clear()
-            mStatus = STATUS_ERROR
-        }
-
-        //回调
         chapterChangeCallback()
-    }
 
-    /**
-     * 加载页面列表
-     *@param chapterPosition : 章节序号
-     */
-    @Throws(java.lang.Exception::class)
-    private fun loadPageList(chapterPosition: Int): ArrayList<TextPage>? {
-        //获取章节
-        val chapter = mChapterList[chapterPosition]
-        //判断章节是否存在
-        if (!hasChapterData(chapter)) {
-            return null
-        }
-        // 获取章节的文本流
-        val chapterReader = getChapterReader(chapter)
-        return loadPages(chapter, chapterReader)
+        mCurPage = getPreLastPage()
+        mCancelPage = null
     }
-    abstract fun refreshChapterList()
 
 
     /**
@@ -1509,140 +1676,5 @@ abstract class PageLoader {
         }
 
         return pages
-    }
-
-
-    /**
-     * 根据当前状态决定是否能够翻页
-     */
-    private fun canTurnPage(): Boolean {
-        var canTurn = true
-        if (!isChapterListPrepare) {
-            canTurn = false
-        }
-        //是否为错误状态 或 准备状态
-        if (mStatus == STATUS_PARSE_ERROR || mStatus == STATUS_PARING) {
-            canTurn = false
-        } else if (mStatus == STATUS_ERROR) {
-            //unConfirm
-            mStatus = STATUS_LOADING
-        }
-
-        return canTurn
-    }
-
-    /**
-     * 绘制页面，暴露给外部的方法
-     */
-    fun drawPage(bitmap: Bitmap, isUpdate: Boolean) {
-        mPageView?.let {
-            it.getBgBitmap()?.let { bit ->
-                drawBackground(bit, isUpdate)
-            }
-        }
-        if(!isUpdate){
-            drawContent(bitmap)
-        }
-        //更新绘制
-        mPageView?.invalidate()
-    }
-
-
-    /**
-     * 中心文字绘制
-     */
-    private fun drawCenter(tip: String, canvas: Canvas){
-        mTextPaint?.let {
-            val fontMetrics = it.fontMetrics
-            val textHeight = fontMetrics.top - fontMetrics.bottom
-            val textWidth = it.measureText(tip)
-            val pivotX = (mDisplayWidth - textWidth) / 2
-            val pivotY = (mDisplayHeight - textHeight) / 2
-            mTextPaint?.let { paint ->
-                canvas.drawText(tip, pivotX, pivotY, paint)
-            }
-        }
-    }
-
-
-    private fun scaleBitmap(origin: Bitmap?): Bitmap?{
-        if(origin == null){
-            return null
-        }
-        val width = origin.width
-        val height = origin.height
-        val matrix = Matrix()
-        matrix.preScale(0.5f, 0.5f)
-        val createBitmap = Bitmap.createBitmap(
-            origin, 0, 0,
-            width, height,
-            matrix, false
-        )
-        if(createBitmap == origin){
-            return createBitmap
-        }
-        return createBitmap
-    }
-
-    /**
-     * 获取上个页面
-     */
-    private fun getPrePage(): TextPage? {
-        var position = -1
-        mCurPage?.let {
-            position = it.position - 1
-        }
-        if (position < 0) {
-            return null
-        }
-        mPageChangeListener?.onPageChange(position)
-        return mCurPageList[position]
-    }
-
-    /**
-     * 获取下个页面
-     */
-    private fun getNextPage(): TextPage? {
-        var position = 0
-        mCurPage?.let {
-            position = it.position + 1
-        }
-        if (position >= mCurPageList.size) {
-            return null
-        }
-        mPageChangeListener?.onPageChange(position)
-        return mCurPageList[position]
-    }
-
-    /**
-     * 页面是否处于关闭状态
-     */
-    fun isClose(): Boolean {
-        return isClose
-    }
-
-    /**
-     * 章节是否打开
-     */
-    fun isChapterOpen(): Boolean {
-        return isChapterOpen
-    }
-
-    /**
-     * 判断章节数据是否存在
-     */
-    protected abstract fun hasChapterData(chapter: TextChapter): Boolean
-
-    /**
-     * 获取章节的文件流
-     */
-    @Throws(Exception::class)
-    protected abstract fun getChapterReader(chapter: TextChapter): BufferedReader
-    interface OnPageChangeListener {
-        fun onChapterChange(pos: Int)
-        fun requestChapters(requestChapters: List<TextChapter>)
-        fun onCategoryFinish(chapter: List<TextChapter>)
-        fun onPageCountChange(count: Int)
-        fun onPageChange(pos: Int)
     }
 }
