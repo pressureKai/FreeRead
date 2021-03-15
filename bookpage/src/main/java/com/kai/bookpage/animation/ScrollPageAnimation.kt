@@ -486,4 +486,14 @@ class ScrollPageAnimation : PageAnimation {
                 Integer.MAX_VALUE)
 
     }
+    fun resetBitmap(){
+        isRefresh = true
+        for(value in mActiveViews){
+            mScrapViews?.add(value)
+        }
+
+        mActiveViews.clear()
+        onLayout()
+        isRefresh = false
+    }
 }

@@ -703,7 +703,10 @@ abstract class PageLoader {
      */
     fun setPageMode(pageMode: PageMode) {
         mPageMode = pageMode
-        mPageView?.setPageMode(mPageMode)
+        mPageMode?.let {
+            mPageView?.setPageMode(it)
+        }
+
         mPageMode?.let {
             mSettingManager?.setPageMode(it)
         }
@@ -734,7 +737,9 @@ abstract class PageLoader {
      */
     private fun initPageView() {
         //设置参数
-        mPageView?.setPageMode(mPageMode)
+        mPageMode?.let {
+            mPageView?.setPageMode(it)
+        }
         mPageView?.setBgColor(mBgColor)
     }
 
@@ -753,8 +758,9 @@ abstract class PageLoader {
         mVisibleWidth = mDisplayWidth - mMarginWidth * 2
         mVisibleHeight = mDisplayHeight - mMarginHeight * 2
         //重置 PageMode
-        mPageView?.setPageMode(mPageMode)
-
+        mPageMode?.let {
+            mPageView?.setPageMode(it)
+        }
 
         if (!isChapterOpen) {
             //展示加载页面
