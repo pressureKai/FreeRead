@@ -1,3 +1,4 @@
+include ':commonMvvm'
 include ':learn'
 include ':app',
         ':common',

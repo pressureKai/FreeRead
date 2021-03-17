@@ -7,8 +7,8 @@ import java.io.Reader
 
 /**
  *
- * @ProjectName:    CommonApplication
- * @Description:     java类作用描述
+ * @ProjectName:    PageLoader
+ * @Description:    页面加载工具负责页面视图的绘制
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/15 10:42
  */

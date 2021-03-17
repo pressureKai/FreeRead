@@ -1,4 +1,6 @@
 package com.kai.learn.rxjava3.activity
 
-class RxjavaMainActivity {
+import androidx.appcompat.app.AppCompatActivity
+
+class RxjavaMainActivity  :AppCompatActivity(){
 }
