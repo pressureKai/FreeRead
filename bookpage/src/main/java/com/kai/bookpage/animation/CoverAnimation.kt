@@ -31,12 +31,10 @@ class CoverAnimation : BasePageAnimation {
 
     constructor(screenWidth: Int, screenHeight: Int,
                 view: View,
-                onPageChangeListener: OnPageChangeListener) : super(
+                onPageChangeListener: OnPageChangeListener) : this(
             screenWidth, screenHeight,
             0, 0,
-            view, onPageChangeListener) {
-        init()
-    }
+            view, onPageChangeListener)
 
 
     private fun init() {

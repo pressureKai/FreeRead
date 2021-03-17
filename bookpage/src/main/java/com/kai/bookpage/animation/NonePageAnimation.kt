@@ -17,13 +17,13 @@ class NonePageAnimation :BasePageAnimation {
                 onPageChangeListener: OnPageChangeListener) : super(
             screenWidth, screenHeight,
             marginWidth, marginHeight,
-            view, onPageChangeListener) {}
+            view, onPageChangeListener)
     constructor(screenWidth: Int, screenHeight: Int,
                 view: View,
-                onPageChangeListener: OnPageChangeListener) : super(
+                onPageChangeListener: OnPageChangeListener) : this(
             screenWidth, screenHeight,
             0, 0,
-            view, onPageChangeListener) {}
+            view, onPageChangeListener)
 
     override fun drawStatic(canvas: Canvas) {
         if(isCancel){

@@ -9,8 +9,8 @@ import kotlin.math.abs
 
 /**
  *
- * @ProjectName:    My Application
- * @Description:     java类作用描述
+ * @ProjectName:    bookPage
+ * @Description:    BasePageAnimation 阅读界面动画基类
  * @Author:         pressureKai
  * @UpdateDate:     2021/1/19 11:58
  */
@@ -36,8 +36,7 @@ abstract class BasePageAnimation : PageAnimation {
             super(screenWidth, screenHeight,
                     marginWidth, marginHeight,
                     view,
-                    onPageChangeListener) {
-    }
+                    onPageChangeListener)
 
 
     constructor(screenWidth: Int, screenHeight: Int,
@@ -46,8 +45,7 @@ abstract class BasePageAnimation : PageAnimation {
             super(screenWidth, screenHeight,
                     0, 0,
                     view,
-                    onPageChangeListener) {
-    }
+                    onPageChangeListener)
 
 
     fun changePage() {
