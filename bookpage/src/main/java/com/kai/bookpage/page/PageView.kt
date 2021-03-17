@@ -14,7 +14,7 @@ import com.kai.bookpage.model.CoolBookBean
 class PageView :View{
 
     private val TAG = "PageView"
-    //当前View的宽
+    //当前View的宽呃呃
     private var mViewWidth = 0
     //当前View的高
     private var mViewHeight = 0
