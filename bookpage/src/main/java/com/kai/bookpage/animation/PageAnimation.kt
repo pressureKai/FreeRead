@@ -148,7 +148,10 @@ abstract class PageAnimation {
         mView = null
     }
 
-
+    /**
+     * des 监听触摸事件
+     * @param event 触摸事件
+     */
     abstract fun onTouchEvent(event :MotionEvent) :Boolean
 
     abstract fun draw(canvas: Canvas)
