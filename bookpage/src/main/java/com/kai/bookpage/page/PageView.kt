@@ -7,9 +7,12 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import com.kai.bookpage.animation.*
 import com.kai.bookpage.model.CoolBookBean
+import com.kai.common.utils.LogUtils
+import kotlin.math.abs
 
 class PageView :View{
 
@@ -77,14 +80,23 @@ class PageView :View{
     }
 
     fun hasPrePage() :Boolean{
-        return false
+        mTouchListener?.prePage()
+        var hasPre = false
+        mPageLoader?.let {
+            hasPre = it.pre()
+        }
+        return hasPre
     }
 
 
     override fun onDraw(canvas: Canvas?) {
         canvas?.let {
             //绘制背景
-            it.drawColor(mBgColor)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                it.drawColor(mBgColor)
+            } else {
+                it.drawColor(context.resources.getColor(android.R.color.white))
+            }
             //绘制动画
             mPageAnimation?.draw(canvas)
         }
@@ -93,24 +105,89 @@ class PageView :View{
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         super.onTouchEvent(event)
+        event?.let {
+            if(!canTouch && event.action != MotionEvent.ACTION_DOWN){
+                return true
+            }
 
-        return super.onTouchEvent(event)
+
+            val x = event.x.toInt()
+            val y = event.y.toInt()
+            when(event.action){
+                MotionEvent.ACTION_DOWN -> {
+                    mStartX = x
+                    mStartY = y
+                    isMove = false
+                    mTouchListener?.let {
+                        canTouch = it.onTouch()
+                    }
+                    mPageAnimation?.onTouchEvent(event)
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    //判断是否大于最小滑动值
+                    val slop = ViewConfiguration.get(context).scaledTouchSlop
+                    if (!isMove){
+                        isMove = abs(mStartX - event.x) > slop
+                                || abs(mStartY - event.y) > slop
+                    }
+
+                    if (isMove) {
+                        //如果滑动了，则进行翻页
+                        mPageAnimation?.onTouchEvent(event)
+                    }
+                    LogUtils.e("PageView","MotionEvent.ACTION_MOVE")
+                }
+                MotionEvent.ACTION_UP -> {
+                    if(!isMove){
+                        //设置中间区域范围
+                        if(mCenterRect == null){
+                            mCenterRect = RectF(mViewWidth.toFloat() / 5,
+                                    mViewHeight.toFloat() /3,
+                                    mViewHeight.toFloat() * 4 / 5,
+                                    mViewHeight.toFloat() * 2 /3)
+                        }
+
+                        //是否点击了中间
+                        val contains = mCenterRect?.contains(x.toFloat(), y.toFloat())
+                        if(contains != null){
+                            if(contains){
+                                mTouchListener?.center()
+                                return true
+                            }
+                        }
+                    }
+                    mPageAnimation?.onTouchEvent(event)
+                }
+                else -> {
+                    return true
+                }
+            }
+        }
+        return true
     }
 
 
     fun hasNextPage():Boolean{
-        return false
+        mTouchListener?.nextPage()
+        var hasNext = false
+        mPageLoader?.let {
+            hasNext = it.next()
+        }
+        return hasNext
     }
 
 
     fun pageCancel(){
-
+        mTouchListener?.cancel()
+        mPageLoader?.pageCancel()
     }
 
-    private fun init(){
 
+    override fun computeScroll() {
+        //进行滑动
+        mPageAnimation?.scrollAnimation()
+        super.computeScroll()
     }
-
 
 
 
