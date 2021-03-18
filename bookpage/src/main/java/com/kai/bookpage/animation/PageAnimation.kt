@@ -45,7 +45,13 @@ abstract class PageAnimation {
     protected var mLastTouchY = 0f
 
     /**
-     * PageAnimation 初始化方法
+     * des PageAnimation 初始化方法
+     * @param screenWidth  : 外部传入的屏幕宽度
+     * @param screenHeight : 外部传入的屏幕高度
+     * @param marginWidth  : 显示内容与屏幕之间的水平间距
+     * @param marginHeight : 显示内容与屏幕之间的竖直间距
+     * @param view : 动画作用的PageView
+     * @param onPageChangeListener : 页面行为发生改变的监听
      */
     private operator fun invoke(
         screenWidth: Int, screenHeight: Int,
@@ -69,6 +75,9 @@ abstract class PageAnimation {
     }
 
 
+    /**
+     * des 构造方法
+     */
     constructor(
         screenWidth: Int, screenHeight: Int,
         view: View,
@@ -78,7 +87,9 @@ abstract class PageAnimation {
     }
 
 
-
+    /**
+     * des 构造方法
+     */
     constructor( screenWidth: Int, screenHeight: Int,
                   marginWidth: Int, marginHeight: Int,
                   view: View,
@@ -154,16 +165,36 @@ abstract class PageAnimation {
      */
     abstract fun onTouchEvent(event :MotionEvent) :Boolean
 
+    /**
+     * des 页面绘制方法
+     * @canvas  画图面板
+     */
     abstract fun draw(canvas: Canvas)
 
+    /**
+     * des 滚动动画 必须放到computeScroll()方法中执行
+     */
     abstract fun scrollAnimation()
 
+    /**
+     * des 取消动画
+     */
     abstract fun abortAnimation()
 
+    /**
+     * 获取背景板
+     */
     abstract fun getBgBitmap() :Bitmap
 
+    /**
+     * 获取内容显示版面
+     */
     abstract fun getNextBitmap():Bitmap
 
+    /**
+     * des 枚举类手指触摸的方向
+     * @param isHorizontal 是否水平滑动
+     */
     enum class Direction(val isHorizontal: Boolean) {
         NONE(true),
         NEXT(true),
@@ -172,6 +203,9 @@ abstract class PageAnimation {
         DOWN(false);
     }
 
+    /**
+     * des  行为改变的监听
+     */
     public interface OnPageChangeListener{
         fun hasPrePage():Boolean
         fun hasNext():Boolean
