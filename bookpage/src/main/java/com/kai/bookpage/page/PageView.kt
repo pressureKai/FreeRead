@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import androidx.annotation.ColorInt
 import com.kai.bookpage.animation.*
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.common.utils.LogUtils
@@ -318,8 +317,8 @@ class PageView :View{
         if(!isPrepare){
             return
         }
-        if(mPageAnimation is BasePageAnimation){
-            (mPageAnimation as BasePageAnimation).changePage()
+        if(mPageAnimation is BaseHorizontalPageAnimation){
+            (mPageAnimation as BaseHorizontalPageAnimation).changePage()
         }
         getNextBitmap()?.let {
             mPageLoader?.drawPage(it,false)

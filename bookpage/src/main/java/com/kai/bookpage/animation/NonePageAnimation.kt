@@ -5,12 +5,15 @@ import android.view.View
 
 /**
  *
- * @ProjectName:    My Application
+ * @ProjectName:    bookpage
  * @Description:    翻页动画 - 无
  * @Author:         pressureKai
  * @UpdateDate:     2021/1/20 11:07
  */
-class NonePageAnimation :BasePageAnimation {
+class NonePageAnimation :BaseHorizontalPageAnimation {
+    /**
+     * des 构造方法
+     */
     constructor(screenWidth: Int, screenHeight: Int,
                 marginWidth: Int, marginHeight: Int,
                 view: View,
@@ -18,6 +21,10 @@ class NonePageAnimation :BasePageAnimation {
             screenWidth, screenHeight,
             marginWidth, marginHeight,
             view, onPageChangeListener)
+
+    /**
+     * des 构造方法
+     */
     constructor(screenWidth: Int, screenHeight: Int,
                 view: View,
                 onPageChangeListener: OnPageChangeListener) : this(
@@ -25,6 +32,9 @@ class NonePageAnimation :BasePageAnimation {
             0, 0,
             view, onPageChangeListener)
 
+    /**
+     * des 绘制静态页面即不响应触摸事件
+     */
     override fun drawStatic(canvas: Canvas) {
         if(isCancel){
             mCurrentBitmap?.let {
@@ -37,6 +47,9 @@ class NonePageAnimation :BasePageAnimation {
         }
     }
 
+    /**
+     * des 绘制动态页面即响应触摸事件
+     */
     override fun drawMove(canvas: Canvas) {
         if(isCancel){
             mCurrentBitmap?.let {

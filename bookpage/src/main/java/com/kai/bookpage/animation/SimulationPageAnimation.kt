@@ -6,7 +6,7 @@ import android.os.Build
 import android.view.View
 import kotlin.math.*
 
-class SimulationPageAnimation : BasePageAnimation {
+class SimulationPageAnimation : BaseHorizontalPageAnimation {
     val tag = "SimulationPageAnimation"
     //拖拽点对应的页脚
     private var mCornerX = 1

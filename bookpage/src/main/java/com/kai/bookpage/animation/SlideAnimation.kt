@@ -12,7 +12,7 @@ import kotlin.math.abs
  * @Author:         pressureKai
  * @UpdateDate:     2021/1/20 11:19
  */
-class SlideAnimation : BasePageAnimation {
+class SlideAnimation : BaseHorizontalPageAnimation {
     private lateinit var mSrcRect: Rect
     private lateinit var mDestRect: Rect
     private lateinit var mNextSrcRect: Rect
