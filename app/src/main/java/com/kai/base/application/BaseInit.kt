@@ -7,10 +7,10 @@ import com.kai.common.application.BaseAppInit
  */
 class BaseInit: BaseAppInit {
     override fun onInitSpeed(application: Application): Boolean {
-        return false
+        return true
     }
 
     override fun onInitLow(application: Application): Boolean {
-        return false
+        return true
     }
 }

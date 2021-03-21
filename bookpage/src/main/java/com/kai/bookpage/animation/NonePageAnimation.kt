@@ -61,4 +61,12 @@ class NonePageAnimation :BaseHorizontalPageAnimation {
             }
         }
     }
+
+
+    /**
+     * des startAnimation 继承自父类的空实现
+     */
+    override fun startAnimation() {
+        super.startAnimation()
+    }
 }
