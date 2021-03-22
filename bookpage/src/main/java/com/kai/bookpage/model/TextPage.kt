@@ -9,3 +9,8 @@ class TextPage {
     var lines: List<String> = ArrayList()
     var picture: String = ""
 }
+
+
+
+
+

@@ -6,6 +6,7 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.multidex.MultiDex
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.common.constant.Constant
@@ -14,9 +15,10 @@ import com.meituan.android.walle.WalleChannelReader
 import com.tencent.bugly.Bugly
 import com.tencent.bugly.beta.Beta
 import com.tencent.tinker.entry.DefaultApplicationLike
+import java.lang.Exception
 
 
-class BaseApplication(
+open class BaseApplication(
         application: Application, tinkerFlags: Int,
         tinkerLoadVerifyFlag: Boolean, applicationStartElapsedTime: Long,
         applicationStartMillisTime: Long, tinkerResultIntent: Intent
@@ -43,13 +45,17 @@ class BaseApplication(
         initARouter()
         initModelsSpeed()
         initModelsLow()
-        initBugly()
     }
 
     override fun onBaseContextAttached(base: Context?) {
         super.onBaseContextAttached(base)
-        MultiDex.install(base)
-        initTinker()
+        try {
+            MultiDex.install(base)
+            initTinker()
+        }catch (e:Exception){
+            Log.e("AppLike", "onBaseContextAttached : $e")
+        }
+
     }
 
 
@@ -58,7 +64,11 @@ class BaseApplication(
     }
 
     private fun initTinker(){
-        Beta.installTinker(application)
+        try {
+            Beta.installTinker(this)
+        }catch (e:Exception){
+            Log.e("BaseApplication","initTinker error is $e")
+        }
     }
 
 
@@ -96,11 +106,6 @@ class BaseApplication(
     }
 
 
-    private fun initBugly(){
-        val channel = WalleChannelReader.getChannel(application)
-        Bugly.setAppChannel(application, channel)
-        Bugly.init(application, Constant.buglyId, Constant.isDebug)
-    }
 
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)

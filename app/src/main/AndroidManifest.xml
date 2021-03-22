@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:debuggable="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:name=".application.TinkerAppLike"
         android:theme="@style/Theme.MyApplication"
         tools:ignore="HardcodedDebugMode">

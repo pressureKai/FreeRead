@@ -1,6 +1,6 @@
-include ':commonMvvm'
-include ':learn'
 include ':app',
         ':common',
-        ':bookpage'
+        ':bookpage',
+        ':learn',
+        ':commonMvvm'
 rootProject.name = "CommonApplication"

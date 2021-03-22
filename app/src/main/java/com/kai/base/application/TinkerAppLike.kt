@@ -5,8 +5,8 @@ import com.tencent.tinker.loader.shareutil.ShareConstants
 
 /**
  *
- * @ProjectName:    My Application
- * @Description:     java类作用描述
+ * @ProjectName:    common app
+ * @Description:    Tinker 占用的伪类
  * @Author:         pressureKai
  * @UpdateDate:     2021/1/8 10:42
  */
@@ -15,5 +15,4 @@ class TinkerAppLike :TinkerApplication(
     "com.kai.common.application.BaseApplication",
     "com.tencent.tinker.loader.TinkerLoader",
     false
-){
-}
+)

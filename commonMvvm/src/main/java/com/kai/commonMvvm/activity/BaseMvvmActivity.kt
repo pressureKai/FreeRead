@@ -1,4 +1,4 @@
-package com.kai.commonMvvm.activity
+package com.kai.commonmvvm.activity
 
 import androidx.appcompat.app.AppCompatActivity
 
