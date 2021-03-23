@@ -9,14 +9,19 @@ import com.gyf.immersionbar.ImmersionBar
 import kotlin.math.abs
 
 
-fun Activity.initImmersionBar(view: View, fitSystem: Boolean = false, @ColorInt color:Int ?= 0){
+fun Activity.initImmersionBar(
+    view: View? = null,
+    fitSystem: Boolean = false,
+    @ColorInt color: Int? = 0
+) {
     var immersionColor = 0
     color?.let {
-        if(it == 0){
+        if (it == 0) {
             immersionColor = android.R.color.white
         }
     }
-    ImmersionBar
+    if(view != null){
+        ImmersionBar
             .with(this)
             .statusBarDarkFont(true, 0.7f)
             .fitsSystemWindows(fitSystem)
@@ -24,29 +29,38 @@ fun Activity.initImmersionBar(view: View, fitSystem: Boolean = false, @ColorInt 
             .navigationBarColor(immersionColor)
             .autoNavigationBarDarkModeEnable(true, 0.8f)
             .init()
+    }else{
+        ImmersionBar
+            .with(this)
+            .statusBarDarkFont(true, 0.7f)
+            .fitsSystemWindows(fitSystem)
+            .navigationBarColor(immersionColor)
+            .autoNavigationBarDarkModeEnable(true, 0.8f)
+            .init()
+    }
 }
 
-fun Activity.getScreenWidth() :Int{
+fun Activity.getScreenWidth(): Int {
     val outMetrics = DisplayMetrics()
     windowManager.defaultDisplay.getMetrics(outMetrics)
     return outMetrics.widthPixels
 }
 
-fun Activity.getScreenHeightReal():Int{
+fun Activity.getScreenHeightReal(): Int {
     val dm = DisplayMetrics()
     return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
         windowManager.defaultDisplay.getRealMetrics(dm)
         dm.heightPixels
-    }else{
+    } else {
         resources.displayMetrics.heightPixels
     }
 }
 
-fun Activity.getScreenHeight() :Int{
+fun Activity.getScreenHeight(): Int {
     return resources.displayMetrics.heightPixels
 }
 
-fun Activity.getStatusBarHeight():Int{
+fun Activity.getStatusBarHeight(): Int {
     var statusHeight = -1
     try {
         val clazz = Class.forName("com.android.internal.R\$dimen")
@@ -58,12 +72,13 @@ fun Activity.getStatusBarHeight():Int{
     }
     return statusHeight
 }
-fun Activity.getNavigationBarHeight() :Int{
+
+fun Activity.getNavigationBarHeight(): Int {
     val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
     return resources.getDimensionPixelSize(resourceId)
 }
 
-fun Activity.getRealHeightWithKeyboard(keyboardHeight: Int) :Int{
+fun Activity.getRealHeightWithKeyboard(keyboardHeight: Int): Int {
     var realHeight = keyboardHeight
     //屏幕实际高度
     val screenHeightReal = getScreenHeightReal()
@@ -73,20 +88,20 @@ fun Activity.getRealHeightWithKeyboard(keyboardHeight: Int) :Int{
     val navigationBarHeight = getNavigationBarHeight()
 
     //屏幕导航栏高度加上屏幕可用高度小于屏幕实际高度视为正常情况(异常情况为某些机型上ROM添加了底部非系统手势线)
-    if(navigationBarHeight + screenHeight < screenHeightReal){
-         if(screenHeight != screenHeightReal){
-              realHeight += abs(screenHeightReal - screenHeight)
-              if(isNavigationBarExist()){
-                  realHeight -= navigationBarHeight
-              }
-         }
+    if (navigationBarHeight + screenHeight < screenHeightReal) {
+        if (screenHeight != screenHeightReal) {
+            realHeight += abs(screenHeightReal - screenHeight)
+            if (isNavigationBarExist()) {
+                realHeight -= navigationBarHeight
+            }
+        }
     }
 
     return realHeight
 }
 
 
-fun Activity.isNavigationBarExist() :Boolean{
+fun Activity.isNavigationBarExist(): Boolean {
     val vp = window.decorView as ViewGroup
     if (vp != null) {
         for (i in 0 until vp.childCount) {

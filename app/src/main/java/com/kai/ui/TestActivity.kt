@@ -1,10 +1,11 @@
-package com.kai.base
+package com.kai.ui
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
+import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.common.eventBusEntity.EventBusEntity
+import com.kai.common.extension.initImmersionBar
 import kotlinx.android.synthetic.main.activity_main.*
 
 class TestActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
@@ -17,18 +18,11 @@ class TestActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
 
     override fun initView() {
         super.initView()
-        text_view.setOnClickListener {
-            startActivity(Intent(this,MainActivity::class.java))
-            postStickyEvent("from main",code = MainActivity.STRING_CODE,message = MainActivity::class.java.name)
-        }
+        initImmersionBar(fitSystem = true)
+        splash_animation.cancelAnimation()
     }
 
     override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
         super.onMessageReceiver(eventBusEntity)
-        runOnUiThread {
-            if(eventBusEntity.code == INT_CODE){
-                text_view.text = eventBusEntity.data.toString()
-            }
-        }
     }
 }

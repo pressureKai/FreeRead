@@ -21,16 +21,16 @@
         android:name=".application.TinkerAppLike"
         android:theme="@style/Theme.MyApplication"
         tools:ignore="HardcodedDebugMode">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.kai.ui.SplashActivity"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
 
-        <activity android:name=".TestActivity"/>
+        <activity android:name="com.kai.ui.TestActivity"/>
     </application>
 
 </manifest>
