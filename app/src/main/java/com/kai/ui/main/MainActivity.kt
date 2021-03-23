@@ -1,4 +1,4 @@
-package com.kai.ui
+package com.kai.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import com.kai.base.R
@@ -6,9 +6,8 @@ import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.initImmersionBar
-import kotlinx.android.synthetic.main.activity_main.*
 
-class TestActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
+class MainActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
     companion object{
         const val INT_CODE = 0
     }
@@ -19,7 +18,6 @@ class TestActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
     override fun initView() {
         super.initView()
         initImmersionBar(fitSystem = true)
-        splash_animation.cancelAnimation()
     }
 
     override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {

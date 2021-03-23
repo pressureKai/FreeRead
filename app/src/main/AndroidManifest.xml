@@ -30,7 +30,7 @@
         </activity>
 
 
-        <activity android:name="com.kai.ui.TestActivity"/>
+        <activity android:name="com.kai.ui.main.MainActivity"/>
     </application>
 
 </manifest>

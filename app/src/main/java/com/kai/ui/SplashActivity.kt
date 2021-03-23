@@ -9,6 +9,7 @@ import com.kai.base.mvp.base.BasePresenter
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.initImmersionBar
 import com.kai.common.listener.CustomAnimatorListener
+import com.kai.ui.main.MainActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class SplashActivity : BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
@@ -16,7 +17,7 @@ class SplashActivity : BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
         const val STRING_CODE = 0
     }
     override fun setLayoutId(): Int {
-        return R.layout.activity_main
+        return R.layout.activity_splash
     }
 
     override fun initView() {
@@ -26,7 +27,7 @@ class SplashActivity : BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
                 super.onAnimationEnd(animation)
-                val intent = Intent(this@SplashActivity, TestActivity::class.java)
+                val intent = Intent(this@SplashActivity, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             }

@@ -9,6 +9,9 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
+/**
+ *
+ */
 abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatActivity(),IView {
     private var startEventBus = true
     private var mPresenter :P ?= null

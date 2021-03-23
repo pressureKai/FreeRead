@@ -13,5 +13,9 @@ abstract class BasePresenter<V> :IPresenter<V>{
         iView.clear()
     }
 
-    abstract fun getView() : V
+
+
+    fun getView() : V{
+        return iView.get() as V
+    }
 }
