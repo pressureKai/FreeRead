@@ -1,13 +1,12 @@
 package com.kai.ui.main
 
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
-import com.kai.base.mvp.base.BasePresenter
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.initImmersionBar
 
-class MainActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
+class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainContract.View{
     companion object{
         const val INT_CODE = 0
     }
@@ -16,11 +15,19 @@ class MainActivity :BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
     }
 
     override fun initView() {
-        super.initView()
+        mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
     }
 
     override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
         super.onMessageReceiver(eventBusEntity)
+    }
+
+    override fun createPresenter(): MainPresenter? {
+        return MainPresenter()
+    }
+
+    override fun onLoadBookRecommend() {
+        Log.e("MainPresenter","onLoadBookRecommend")
     }
 }

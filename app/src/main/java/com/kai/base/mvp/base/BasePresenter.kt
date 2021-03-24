@@ -2,8 +2,8 @@ package com.kai.base.mvp.base
 
 import java.lang.ref.WeakReference
 
-abstract class BasePresenter<V> :IPresenter<V>{
-    lateinit var iView :WeakReference<in V>
+abstract class BasePresenter<V : IView> :IPresenter<V>{
+    lateinit var iView :WeakReference<V>
     override fun register(view: V) {
         iView = WeakReference(view)
     }
@@ -12,7 +12,6 @@ abstract class BasePresenter<V> :IPresenter<V>{
     override fun unRegister() {
         iView.clear()
     }
-
 
 
     fun getView() : V{

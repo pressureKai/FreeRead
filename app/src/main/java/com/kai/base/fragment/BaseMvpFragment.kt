@@ -12,7 +12,7 @@ import com.gyf.immersionbar.components.ImmersionProxy
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 
-abstract class BaseMvpFragment<P : BasePresenter<Fragment>>:Fragment(), IView,ImmersionOwner {
+abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,ImmersionOwner {
     private var mPresenter :P ?= null
     lateinit var mRootView :View
     private var isCreate = false

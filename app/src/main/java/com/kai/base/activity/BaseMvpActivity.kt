@@ -10,11 +10,11 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
 /**
- *
+ *des  mvp
  */
-abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatActivity(),IView {
-    private var startEventBus = true
-    private var mPresenter :P ?= null
+abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivity(), IView {
+    private var enableEventBus = true
+    protected var mPresenter: P? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         init()
@@ -22,18 +22,18 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
     }
 
 
-    private fun init(){
+    private fun init() {
         this.setContentView(setLayoutId())
-        startEventBus = startEventBus()
-        if(startEventBus){
-            if(!EventBus.getDefault().isRegistered(this)){
+        bindView()
+        if (enableEventBus) {
+            if (!EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().register(this)
             }
         }
     }
-    open fun initView(){
 
-    }
+
+    abstract fun initView()
 
     /**
      * 用户第一次触发事件流中的MotionEvent.ACTION_DOWN时，Activity源码中调用的方法
@@ -42,19 +42,20 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
         super.onUserInteraction()
     }
 
-    abstract fun setLayoutId() :Int
-    open fun createPresenter():P? {
+    abstract fun setLayoutId(): Int
+    open fun createPresenter(): P? {
         return null
     }
-    open fun startEventBus():Boolean{
-        return true
+
+    open fun enableEventBus(enable: Boolean){
+        enableEventBus = enable
     }
 
 
     override fun onResume() {
         super.onResume()
-        if(startEventBus){
-            if(!EventBus.getDefault().isRegistered(this)){
+        if (enableEventBus) {
+            if (!EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().register(this)
             }
         }
@@ -63,31 +64,32 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
 
     override fun onDestroy() {
         super.onDestroy()
-        if(startEventBus){
-            if(EventBus.getDefault().isRegistered(this)){
+        if (enableEventBus) {
+            if (EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().unregister(this)
             }
         }
+        unBindView()
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC,sticky = true)
-    open fun <T> onMessageEvent(eventBusEntity : EventBusEntity<T>){
-        if(eventBusEntity.message == this::class.java.name){
+    @Subscribe(threadMode = ThreadMode.ASYNC, sticky = true)
+    open fun <T> onMessageEvent(eventBusEntity: EventBusEntity<T>) {
+        if (eventBusEntity.message == this::class.java.name) {
             EventBus.getDefault().removeStickyEvent(eventBusEntity)
             onMessageReceiver(eventBusEntity)
         }
     }
 
-    open fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>){
+    open fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
 
     }
 
 
-    fun <T> postStickyEvent(data :T,code :Int ?= 0,message :String ){
+    fun <T> postStickyEvent(data: T, code: Int? = 0, message: String) {
         val eventBusEntity = EventBusEntity<T>()
         eventBusEntity.data = data
         eventBusEntity.code = code!!
-        if(message.isNotEmpty()){
+        if (message.isNotEmpty()) {
             eventBusEntity.message = message
         }
         EventBus.getDefault().postSticky(eventBusEntity)
@@ -96,8 +98,8 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
 
     override fun onPause() {
         super.onPause()
-        if(startEventBus){
-            if(EventBus.getDefault().isRegistered(this)){
+        if (enableEventBus) {
+            if (EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().unregister(this)
             }
         }
@@ -105,11 +107,13 @@ abstract class BaseMvpActivity<P :BasePresenter<AppCompatActivity>> : AppCompatA
 
     override fun bindView() {
         mPresenter = createPresenter()
-        mPresenter?.register(this)
+        mPresenter?.register(this as V)
     }
 
 
     override fun unBindView() {
         mPresenter?.unRegister()
     }
+
+
 }

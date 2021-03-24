@@ -6,13 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.mvp.base.BasePresenter
+import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.initImmersionBar
 import com.kai.common.listener.CustomAnimatorListener
 import com.kai.ui.main.MainActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_splash.*
 
-class SplashActivity : BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
+class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
     companion object{
         const val STRING_CODE = 0
     }
@@ -21,7 +23,6 @@ class SplashActivity : BaseMvpActivity<BasePresenter<AppCompatActivity>>() {
     }
 
     override fun initView() {
-        super.initView()
         initImmersionBar(fitSystem = true)
         splash_animation.addAnimatorListener(object  :CustomAnimatorListener(){
             override fun onAnimationEnd(animation: Animator?) {
