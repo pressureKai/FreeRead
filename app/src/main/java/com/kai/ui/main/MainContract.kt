@@ -5,7 +5,7 @@ import com.kai.base.mvp.base.IView
 /**
  *
  * @ProjectName:    APP-bookPage
- * @Description:    契约类
+ * @Description:    契约类 Repository
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/24 10:42
  */
