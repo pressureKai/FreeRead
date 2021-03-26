@@ -2,7 +2,7 @@ package com.kai.ui.main
 
 import android.util.Log
 import com.kai.base.mvp.base.BasePresenter
-import com.kai.base.mvp.base.IView
+import com.kai.model.book.BookRepository
 
 /**
  *
@@ -11,12 +11,21 @@ import com.kai.base.mvp.base.IView
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/23 18:09
  */
-class MainPresenter: BasePresenter<MainContract.View>() {
+class MainPresenter : BasePresenter<MainContract.View>(), MainContract.Presenter {
+    var mBookRepository: BookRepository = BookRepository.get()
 
-    fun loadBookRecommend(){
-        Log.e("MainPresenter","loadBookRecommend")
-        getView().onLoadBookRecommend()
+    /**
+     * des 加载书籍推荐列表
+     */
+    override fun loadBookRecommend() {
+        mBookRepository.getBookRecommend()?.let { observable ->
+            observable.doOnError {
+
+            }.doOnComplete {
+
+            }.subscribe { list ->
+                getView().onLoadBookRecommend(list)
+            }
+        }
     }
-
-
 }

@@ -5,7 +5,11 @@ import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.initImmersionBar
+import kotlinx.android.synthetic.main.activity_main.*
 
+/**
+ * des 书籍主页面
+ */
 class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainContract.View{
     companion object{
         const val INT_CODE = 0
@@ -23,11 +27,12 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         super.onMessageReceiver(eventBusEntity)
     }
 
+
     override fun createPresenter(): MainPresenter? {
         return MainPresenter()
     }
 
-    override fun onLoadBookRecommend() {
-        Log.e("MainPresenter","onLoadBookRecommend")
+    override fun onLoadBookRecommend(list: List<String>) {
+        book_recommend.text = list.first()
     }
 }

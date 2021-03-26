@@ -43,6 +43,8 @@ abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivi
     }
 
     abstract fun setLayoutId(): Int
+
+
     open fun createPresenter(): P? {
         return null
     }
