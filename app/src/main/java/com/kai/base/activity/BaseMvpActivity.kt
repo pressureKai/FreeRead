@@ -2,29 +2,49 @@ package com.kai.base.activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.classic.common.MultipleStatusView
+import com.kai.base.R
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.EventBusEntity
+import com.kai.common.utils.LogUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
-/**
- *des  mvp
- */
-abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivity(), IView {
+abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActivity(), IView {
     private var enableEventBus = true
     protected var mPresenter: P? = null
+    private var mEventBusTarget = this::class.java.name
+    private var mMultipleStatusView: MultipleStatusView? = null
+    private val DEFAULT_LAYOUT_PARAMS = ConstraintLayout.LayoutParams( ConstraintLayout.LayoutParams.MATCH_PARENT,
+            ConstraintLayout.LayoutParams.MATCH_PARENT)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mEventBusTarget = resetEventBusTarget()
         init()
         initView()
     }
 
+    open fun resetEventBusTarget(): String {
+        return this::class.java.name
+    }
+
+    open fun getStatusView(): MultipleStatusView? {
+        var statusView: MultipleStatusView? = null
+        try {
+            statusView = findViewById(R.id.status)
+        } catch (e: Exception) {
+            LogUtils.e("BaseMvpActivity", e.toString())
+        }
+        return statusView
+    }
 
     private fun init() {
         this.setContentView(setLayoutId())
         bindView()
+        mMultipleStatusView = getStatusView()
         if (enableEventBus) {
             if (!EventBus.getDefault().isRegistered(this)) {
                 EventBus.getDefault().register(this)
@@ -49,7 +69,7 @@ abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivi
         return null
     }
 
-    open fun enableEventBus(enable: Boolean){
+    open fun enableEventBus(enable: Boolean) {
         enableEventBus = enable
     }
 
@@ -76,12 +96,17 @@ abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivi
 
     @Subscribe(threadMode = ThreadMode.ASYNC, sticky = true)
     open fun <T> onMessageEvent(eventBusEntity: EventBusEntity<T>) {
-        if (eventBusEntity.message == this::class.java.name) {
+        if (eventBusEntity.target == mEventBusTarget) {
             EventBus.getDefault().removeStickyEvent(eventBusEntity)
             onMessageReceiver(eventBusEntity)
         }
     }
 
+    /**
+     * des EventBus接收数据的方法通过基类EventBusEntity包装数据,
+     *      在项目中进行数据交换
+     * @param eventBusEntity  被传输的数据
+     */
     open fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
 
     }
@@ -92,7 +117,7 @@ abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivi
         eventBusEntity.data = data
         eventBusEntity.code = code!!
         if (message.isNotEmpty()) {
-            eventBusEntity.message = message
+            eventBusEntity.target = message
         }
         EventBus.getDefault().postSticky(eventBusEntity)
     }
@@ -118,4 +143,31 @@ abstract class  BaseMvpActivity<V: IView,P : BasePresenter<V>> : AppCompatActivi
     }
 
 
+    fun showErrorView() {
+        mMultipleStatusView?.showError()
+    }
+
+
+    fun showEmptyView() {
+        mMultipleStatusView?.showEmpty()
+    }
+
+
+    fun showLoadingView(layoutId: Int? = R.layout.layout_loading) {
+        mMultipleStatusView?.let {
+            runOnUiThread {
+                it.showLoading(layoutId!!,DEFAULT_LAYOUT_PARAMS)
+            }
+        }
+    }
+
+    fun showNoNetView() {
+        mMultipleStatusView?.showNoNetwork()
+    }
+
+    fun showContent(){
+        runOnUiThread {
+            mMultipleStatusView?.showContent()
+        }
+    }
 }

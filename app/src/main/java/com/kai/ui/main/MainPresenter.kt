@@ -1,6 +1,5 @@
 package com.kai.ui.main
 
-import android.util.Log
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.model.book.BookRepository
 

@@ -1,9 +1,7 @@
 package com.kai.ui.main
 
-import android.util.Log
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
-import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.initImmersionBar
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -19,20 +17,16 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
     }
 
     override fun initView() {
+        showLoadingView()
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
     }
-
-    override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
-        super.onMessageReceiver(eventBusEntity)
-    }
-
-
     override fun createPresenter(): MainPresenter? {
         return MainPresenter()
     }
 
     override fun onLoadBookRecommend(list: List<String>) {
-        book_recommend.text = list.first()
+        showContent()
+        book_recommend.text = list.last()
     }
 }

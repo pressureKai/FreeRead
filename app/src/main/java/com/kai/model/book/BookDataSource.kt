@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.core.Observable
  * 1.引入Rxjava 防止回调地狱
  *    思路 1). 在Model的实现类中 使用Rxjava向外传递一个 Observable 可观测数据 传递给Presenter
  *        2). presenter 层接收到可观测数据后 使用 subscribe 方法监听数据变化回调相应的View层中的方法
- *        3). 如何将Model与View关联并下沉到BasePresenter中
+ *        3). 保证重复读取同样的数据不会出现编写两次代码的情况,将数据获取包装在NameRepository中
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/23 18:15
  */

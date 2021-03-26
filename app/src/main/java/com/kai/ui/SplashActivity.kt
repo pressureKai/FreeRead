@@ -15,9 +15,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_splash.*
 
 class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
-    companion object{
-        const val STRING_CODE = 0
-    }
     override fun setLayoutId(): Int {
         return R.layout.activity_splash
     }
@@ -33,10 +30,5 @@ class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
                 finish()
             }
         })
-    }
-
-
-    override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
-        super.onMessageReceiver(eventBusEntity)
     }
 }

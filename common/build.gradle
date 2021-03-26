@@ -69,6 +69,7 @@ dependencies {
     api rootProject.ext.dependencies.glide
     api rootProject.ext.dependencies.room
     api rootProject.ext.dependencies.opencc
+    api rootProject.ext.dependencies.multiple_status_view
     testImplementation rootProject.ext.dependencies.room_testing
     annotationProcessor rootProject.ext.dependencies.glide_compiler
     annotationProcessor rootProject.ext.dependencies.arouter_processer
