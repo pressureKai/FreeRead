@@ -46,6 +46,21 @@ class SharedPreferenceUtils {
         return value
     }
 
+
+    fun getString(key :String,default: String):String{
+        var value = ""
+        sharedReadable?.let {
+            val string = it.getString(key, "")
+            if(string != null && string.isNotEmpty()){
+                value = string
+            }
+        }
+        if(value.isEmpty()){
+            value = default
+        }
+        return value
+    }
+
     fun putString(key: String,value:String){
         sharedWritable?.putString(key,value)
         sharedWritable?.commit()
