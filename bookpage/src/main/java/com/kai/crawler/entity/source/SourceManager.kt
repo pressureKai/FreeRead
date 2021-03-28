@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken
 import com.kai.common.application.BaseApplication
 import com.kai.common.utils.AssetsUtils
 import com.kai.common.utils.SharedPreferenceUtils
+import java.util.*
 
 /**
  *
@@ -17,8 +18,19 @@ import com.kai.common.utils.SharedPreferenceUtils
  */
 class SourceManager {
    companion object{
-      var CONFIGS: SparseArray<SourceConfig> = SparseArray()
+      val CONFIGS: SparseArray<SourceConfig> = SparseArray()
 
+      /**
+       * 初始化所有书源
+       */
+      val SOURCES: SparseArray<Source> = object : SparseArray<Source>() {
+         init {
+            put(
+               SourceID.LIEWEN,
+               Source(SourceID.LIEWEN, "猎文网", "https://www.liewen.cc/search.php?keyword=%s")
+            )
+         }
+      }
       init {
          init()
       }
@@ -28,7 +40,29 @@ class SourceManager {
          CONFIGS.clear()
       }
 
+      /**
+       * 保存可用状态的书源
+       */
+      fun saveSourceEnable(booleanArray: SparseBooleanArray?) {
+         if (booleanArray != null) {
+            val list: MutableList<SourceEnable> = ArrayList()
+            for (i in 0 until booleanArray.size()) {
+               val key = booleanArray.keyAt(i)
+               val value = booleanArray.valueAt(i)
+               val sourceEnable = SourceEnable(key, value)
+               list.add(sourceEnable)
+            }
+            SharedPreferenceUtils.getInstance()?.putString(
+               "source_setting_list",
+               Gson().toJson(list)
+            )
+         }
+      }
 
+
+      /**
+       * 获取可用状态的书源
+       */
       fun getSourceEnableSparseArray(): SparseBooleanArray {
          val json = SharedPreferenceUtils.getInstance()?.getString(
             "source_setting_list",

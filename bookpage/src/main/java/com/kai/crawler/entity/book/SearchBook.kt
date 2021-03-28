@@ -18,6 +18,10 @@ open class SearchBook{
 
     class SL{
         var link: String = ""
-        var source: Source = Source()
+        var source: Source = Source(
+            SourceID.LIEWEN,
+            "猎文网",
+            "https://www.liewen.cc/search.php?keyword=%s"
+        )
     }
 }

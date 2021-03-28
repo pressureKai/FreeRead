@@ -7,9 +7,9 @@ package com.kai.crawler.entity.source
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/22 11:14
  */
-class Source {
-    var id = 0L
-    var name:String = ""
-    var searchUrl = ""
+class Source(sourceID: Int, sourceName: String, searchUrl: String) {
+    var id = sourceID
+    var name = sourceName
+    var searchUrl = searchUrl
     var minKeyWord = ""
 }
