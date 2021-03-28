@@ -6,7 +6,7 @@ import com.kai.model.book.BookRepository
 /**
  *
  * @ProjectName:    APP-bookPage
- * @Description:    主页面 - Presenter
+ * @Description:    MainActivity - Presenter
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/23 18:09
  */

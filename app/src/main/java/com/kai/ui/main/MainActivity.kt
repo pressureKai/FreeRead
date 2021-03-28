@@ -17,9 +17,10 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
     }
 
     override fun initView() {
-        showLoadingView()
+        showErrorView()
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
+        checkNetworkState()
     }
     override fun createPresenter(): MainPresenter? {
         return MainPresenter()

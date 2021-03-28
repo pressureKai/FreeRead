@@ -1,6 +1,7 @@
 package com.kai.base.activity
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.classic.common.MultipleStatusView
@@ -9,6 +10,7 @@ import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.utils.LogUtils
+import com.kai.common.utils.RxNetworkObserver
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -25,6 +27,35 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
         mEventBusTarget = resetEventBusTarget()
         init()
         initView()
+        RxNetworkObserver.register(this)
+    }
+
+    fun checkNetworkState(){
+        RxNetworkObserver.subscribe {
+             when(it){
+                 RxNetworkObserver.NET_STATE_WIFI -> {
+                     onWifi()
+                 }
+                 RxNetworkObserver.NET_STATE_DISCONNECT -> {
+                     disConnect()
+                 }
+                 RxNetworkObserver.NET_STATE_MOBILE -> {
+                     onMobile()
+                 }
+             }
+        }
+    }
+
+    open fun disConnect(){
+        Toast.makeText(this,"disConnect",Toast.LENGTH_SHORT).show()
+    }
+
+    open fun onWifi(){
+        Toast.makeText(this,"onWifi",Toast.LENGTH_SHORT).show()
+    }
+
+    open fun onMobile(){
+        Toast.makeText(this,"onMobile",Toast.LENGTH_SHORT).show()
     }
 
     open fun resetEventBusTarget(): String {
@@ -91,6 +122,7 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 EventBus.getDefault().unregister(this)
             }
         }
+        RxNetworkObserver.unregister()
         unBindView()
     }
 
@@ -143,8 +175,13 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
     }
 
 
-    fun showErrorView() {
-        mMultipleStatusView?.showError()
+    fun showErrorView(layoutId: Int? = R.layout.layout_error) {
+        mMultipleStatusView?.let {
+            runOnUiThread {
+                it.showError(layoutId!!,DEFAULT_LAYOUT_PARAMS)
+            }
+        }
+
     }
 
 
