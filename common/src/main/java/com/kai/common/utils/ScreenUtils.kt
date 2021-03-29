@@ -7,8 +7,8 @@ import com.kai.common.application.BaseApplication
 
 /**
  *
- * @ProjectName:    My Application
- * @Description:     java类作用描述
+ * @ProjectName:    common
+ * @Description:    屏幕宽高，像素相关工具类
  * @Author:         pressureKai
  * @UpdateDate:     2021/2/22 9:47
  */

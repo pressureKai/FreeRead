@@ -79,7 +79,7 @@ class NodeTreeBuilderStateMachine {
                     if (!(xpath[stateMachine.cur] == '/' || xpath[stateMachine.cur] == '.')) {
                         stateMachine.state = AXIS
                         val xn = Node()
-                        stateMachine.context.xpathTr.add(xn)
+                        stateMachine.context.xpathTr!!.add(xn)
                         xn.scopeEm = instance.scopeEmMap[stateMachine.accum.toString()]
                         stateMachine.accum = StringBuilder()
                         break
@@ -95,7 +95,7 @@ class NodeTreeBuilderStateMachine {
                 val accumTmp = StringBuilder()
                 while (curtmp < xpath.size && xpath[curtmp] != '[' && xpath[curtmp] != '/') {
                     if (xpath[curtmp] == ':') {
-                        stateMachine.context.xpathTr.last.axis = accumTmp.toString()
+                        stateMachine.context.xpathTr!!.last.axis = accumTmp.toString()
                         stateMachine.cur = curtmp + 2
                         stateMachine.state = TAG
                         break
@@ -112,7 +112,7 @@ class NodeTreeBuilderStateMachine {
                     stateMachine.accum.append(xpath[stateMachine.cur])
                     stateMachine.cur += 1
                 }
-                stateMachine.context.xpathTr.last.tagName = stateMachine.accum.toString()
+                stateMachine.context.xpathTr!!.last.tagName = stateMachine.accum.toString()
                 stateMachine.accum = StringBuilder()
                 if (stateMachine.cur == xpath.size) {
                     stateMachine.state = END
@@ -138,7 +138,7 @@ class NodeTreeBuilderStateMachine {
                     stateMachine.cur += 1
                 }
                 val predicate = stateMachine.genPredicate(stateMachine.accum.toString())
-                stateMachine.context.xpathTr.last.predicate = predicate
+                stateMachine.context.xpathTr!!.last.predicate = predicate
                 stateMachine.accum = StringBuilder()
                 if (stateMachine.cur < xpath.size - 1) {
                     stateMachine.cur += 1

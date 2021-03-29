@@ -3,6 +3,7 @@ package com.kai.ui.main
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.common.extension.initImmersionBar
+import com.kai.crawler.Crawler
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -21,6 +22,9 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
         checkNetworkState()
+        Thread{
+            Crawler.search("圣墟")
+        }.start()
     }
     override fun createPresenter(): MainPresenter? {
         return MainPresenter()

@@ -4,11 +4,9 @@ import com.kai.crawler.xpath.model.Node
 import java.util.*
 
 class XContext {
-    lateinit var xpathTr: LinkedList<Node>
+    var xpathTr: LinkedList<Node> ?= null
 
-    init {
-        if (xpathTr == null) {
-            xpathTr = LinkedList()
-        }
+    constructor(){
+        xpathTr = LinkedList()
     }
 }

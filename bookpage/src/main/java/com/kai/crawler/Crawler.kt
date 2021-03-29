@@ -1,6 +1,5 @@
 package com.kai.crawler
 
-import android.text.TextUtils
 import android.util.Log
 import android.util.SparseBooleanArray
 import com.kai.common.utils.LogUtils
@@ -16,6 +15,8 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
 
+//Xpath  匹配规则
+//https://blog.csdn.net/weixin_44462294/article/details/104410755
 class Crawler {
     companion object {
         const val TAG = "Crawler"
@@ -25,6 +26,7 @@ class Crawler {
                 val id = SourceManager.CONFIGS.keyAt(i)
                 val config = SourceManager.CONFIGS.valueAt(i)
                 val source = SourceManager.SOURCES.get(id)
+
                 if (!checkedMap.get(id)) {
                     continue
                 }
@@ -43,7 +45,6 @@ class Crawler {
                         String.format(source.searchUrl, keyword)
                     }
                     LogUtils.e(TAG, "url = $url")
-                    //Jsoup.connect(url).validateTLSCertificates(false).get()
                     val connect = Jsoup.connect(url).get()
                     val jxDocument = JXDocument(connect)
                     resource.clear()
@@ -289,7 +290,7 @@ class Crawler {
         private fun urlVerification(link: String, linkWithHost: String): String? {
             var link = link
             var linkWithHost = linkWithHost
-            if (TextUtils.isEmpty(link)) {
+            if (link.isEmpty()) {
                 return link
             }
             if (link.startsWith("/")) {

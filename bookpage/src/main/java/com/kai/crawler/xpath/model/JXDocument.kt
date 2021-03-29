@@ -1,5 +1,6 @@
 package com.kai.crawler.xpath.model
 
+import com.kai.common.utils.LogUtils
 import com.kai.crawler.xpath.core.XpathEvaluator
 import com.kai.crawler.xpath.exception.NoSuchAxisException
 import com.kai.crawler.xpath.exception.NoSuchFunctionException
@@ -11,25 +12,28 @@ import java.util.*
 
 class JXDocument {
     private var elements: Elements
-    private val xpathEva = XpathEvaluator()
+    private var xpathEva:XpathEvaluator ?= null
 
     constructor(doc: Document) {
         elements = doc.children()
+        xpathEva = XpathEvaluator()
     }
 
     constructor(html: String?) {
         elements = Jsoup.parse(html).children()
+        xpathEva = XpathEvaluator()
     }
 
     constructor(els: Elements) {
         elements = els
+        xpathEva = XpathEvaluator()
     }
 
     @Throws(XpathSyntaxErrorException::class)
     fun sel(xpath: String?): List<Any?> {
         val res: MutableList<Any?> = LinkedList()
         try {
-            val jns = xpathEva.xpathParser(xpath!!, elements)
+            val jns = xpathEva!!.xpathParser(xpath!!, elements)
             for (j in jns) {
                 if (j!!.isText) {
                     res.add(j.textVal)
@@ -50,9 +54,12 @@ class JXDocument {
 
     @Throws(XpathSyntaxErrorException::class)
     fun selN(xpath: String?): List<JXNode?> {
+        LogUtils.e("Crawler"," xpath is : " + xpath!!)
+
         return try {
-            xpathEva.xpathParser(xpath!!, elements)
+            xpathEva!!.xpathParser(xpath, elements)
         } catch (e: Exception) {
+            LogUtils.e("Crawler","selN error is $e")
             var msg: String? = "please check the xpath syntax"
             if (e is NoSuchAxisException || e is NoSuchFunctionException) {
                 msg = e.message

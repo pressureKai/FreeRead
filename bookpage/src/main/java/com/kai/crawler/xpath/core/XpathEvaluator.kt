@@ -54,7 +54,7 @@ class XpathEvaluator {
         while (st.state !== NodeTreeBuilderStateMachine.BuilderState.END) {
             st.state.parser(st, xpath!!.toCharArray())
         }
-        return st.context.xpathTr
+        return st.context.xpathTr!!
     }
 
     /**
