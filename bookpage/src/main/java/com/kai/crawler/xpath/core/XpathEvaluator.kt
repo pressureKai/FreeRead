@@ -1,35 +1,24 @@
-package com.kai.crawler.xpath.core;
+package com.kai.crawler.xpath.core
 
-import com.kai.crawler.utils.CommonUtils;
-import com.kai.crawler.xpath.exception.NoSuchAxisException;
-import com.kai.crawler.xpath.exception.NoSuchFunctionException;
-import com.kai.crawler.xpath.model.JXNode;
+import com.kai.crawler.utils.CommonUtils.Companion.getElementIndexInSameTags
+import com.kai.crawler.utils.CommonUtils.Companion.getJMethodNameFromStr
+import com.kai.crawler.xpath.core.SingletonProducer.Companion.instance
+import com.kai.crawler.xpath.exception.NoSuchAxisException
+import com.kai.crawler.xpath.exception.NoSuchFunctionException
+import com.kai.crawler.xpath.model.JXNode
+import com.kai.crawler.xpath.model.JXNode.Companion.e
+import com.kai.crawler.xpath.model.JXNode.Companion.t
+import com.kai.crawler.xpath.model.Node
+import com.kai.crawler.xpath.model.ScopeEm
+import org.apache.commons.lang3.StringUtils
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
+import java.lang.reflect.Method
+import java.util.*
 
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.select.Elements;
-
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-public class XpathEvaluator {
-    private Map<String, Method> emFuncs;
-    private Map<String, Method> axisFuncs;
-
-    public XpathEvaluator() {
-        emFuncs = new HashMap<String, Method>();
-        axisFuncs = new HashMap<String, Method>();
-        for (Method m : Functions.class.getDeclaredMethods()) {
-            emFuncs.put(renderFuncKey(m.getName(), m.getParameterTypes()), m);
-        }
-        for (Method m : AxisSelector.class.getDeclaredMethods()) {
-            axisFuncs.put(renderFuncKey(m.getName(), m.getParameterTypes()), m);
-        }
-    }
+class XpathEvaluator {
+    private val emFuncs: MutableMap<String, Method>
+    private val axisFuncs: MutableMap<String, Method>
 
     /**
      * xpath解析器的总入口，同时预处理，如‘|’
@@ -38,18 +27,19 @@ public class XpathEvaluator {
      * @param root
      * @return
      */
-    public List<JXNode> xpathParser(String xpath, Elements root) throws NoSuchAxisException, NoSuchFunctionException {
-        if (xpath.contains("|")) {
-            List<JXNode> rs = new LinkedList<JXNode>();
-            String[] chiXpaths = xpath.split("\\|");
-            for (String chiXp : chiXpaths) {
-                if (chiXp.length() > 0) {
-                    rs.addAll(evaluate(chiXp.trim(), root));
+    @Throws(NoSuchAxisException::class, NoSuchFunctionException::class)
+    fun xpathParser(xpath: String, root: Elements): List<JXNode?> {
+        return if (xpath.contains("|")) {
+            val rs: MutableList<JXNode?> = LinkedList()
+            val chiXpaths = xpath.split("\\|".toRegex()).toTypedArray()
+            for (chiXp in chiXpaths) {
+                if (chiXp.length > 0) {
+                    rs.addAll(evaluate(chiXp.trim { it <= ' ' }, root))
                 }
             }
-            return rs;
+            rs
         } else {
-            return evaluate(xpath, root);
+            evaluate(xpath, root)
         }
     }
 
@@ -59,12 +49,12 @@ public class XpathEvaluator {
      * @param xpath
      * @return
      */
-    public List<Node> getXpathNodeTree(String xpath) {
-        NodeTreeBuilderStateMachine st = new NodeTreeBuilderStateMachine();
-        while (st.state != NodeTreeBuilderStateMachine.BuilderState.END) {
-            st.state.parser(st, xpath.toCharArray());
+    fun getXpathNodeTree(xpath: String?): List<Node> {
+        val st = NodeTreeBuilderStateMachine()
+        while (st.state !== NodeTreeBuilderStateMachine.BuilderState.END) {
+            st.state.parser(st, xpath!!.toCharArray())
         }
-        return st.context.xpathTr;
+        return st.context.xpathTr
     }
 
     /**
@@ -74,95 +64,98 @@ public class XpathEvaluator {
      * @param root
      * @return
      */
-    public List<JXNode> evaluate(String xpath, Elements root) throws NoSuchAxisException, NoSuchFunctionException {
-        List<JXNode> res = new LinkedList<JXNode>();
-        Elements context = root;
-        List<Node> xpathNodes = getXpathNodeTree(xpath);
-        for (int i = 0; i < xpathNodes.size(); i++) {
-            Node n = xpathNodes.get(i);
-            LinkedList<Element> contextTmp = new LinkedList<Element>();
-            if (n.getScopeEm() == ScopeEm.RECURSIVE || n.getScopeEm() == ScopeEm.CURREC) {
-                if (n.getTagName().startsWith("@")) {
-                    for (Element e : context) {
+    @Throws(NoSuchAxisException::class, NoSuchFunctionException::class)
+    fun evaluate(xpath: String?, root: Elements): List<JXNode?> {
+        var res: MutableList<JXNode?> = LinkedList()
+        var context = root
+        val xpathNodes = getXpathNodeTree(xpath)
+        for (i in xpathNodes.indices) {
+            val n = xpathNodes[i]
+            val contextTmp = LinkedList<Element>()
+            if (n.scopeEm === ScopeEm.RECURSIVE || n.scopeEm === ScopeEm.CURREC) {
+                if (n.tagName!!.startsWith("@")) {
+                    for (e in context) {
                         //处理上下文自身节点
-                        String key = n.getTagName().substring(1);
-                        if (key.equals("*")) {
-                            res.add(JXNode.t(e.attributes().toString()));
+                        val key = n.tagName!!.substring(1)
+                        if (key == "*") {
+                            res.add(t(e.attributes().toString()))
                         } else {
-                            String value = e.attr(key);
+                            val value = e.attr(key)
                             if (StringUtils.isNotBlank(value)) {
-                                res.add(JXNode.t(value));
+                                res.add(t(value))
                             }
                         }
                         //处理上下文子代节点
-                        for (Element dep : e.getAllElements()) {
-                            if (key.equals("*")) {
-                                res.add(JXNode.t(dep.attributes().toString()));
+                        for (dep in e.allElements) {
+                            if (key == "*") {
+                                res.add(t(dep.attributes().toString()))
                             } else {
-                                String value = dep.attr(key);
+                                val value = dep.attr(key)
                                 if (StringUtils.isNotBlank(value)) {
-                                    res.add(JXNode.t(value));
+                                    res.add(t(value))
                                 }
                             }
                         }
                     }
-                } else if (n.getTagName().endsWith("()")) {
+                } else if (n.tagName!!.endsWith("()")) {
                     //递归执行方法默认只支持text()
-                    res.add(JXNode.t(context.text()));
+                    res.add(t(context.text()))
                 } else {
-                    Elements searchRes = context.select(n.getTagName());
-                    for (Element e : searchRes) {
-                        Element filterR = filter(e, n);
+                    val searchRes = context.select(n.tagName)
+                    for (e in searchRes) {
+                        val filterR = filter(e, n)
                         if (filterR != null) {
-                            contextTmp.add(filterR);
+                            contextTmp.add(filterR)
                         }
                     }
-                    context = new Elements(contextTmp);
-                    if (i == xpathNodes.size() - 1) {
-                        for (Element e : contextTmp) {
-                            res.add(JXNode.e(e));
+                    context = Elements(contextTmp)
+                    if (i == xpathNodes.size - 1) {
+                        for (e in contextTmp) {
+                            res.add(e(e))
                         }
                     }
                 }
-
             } else {
-                if (n.getTagName().startsWith("@")) {
-                    for (Element e : context) {
-                        String key = n.getTagName().substring(1);
-                        if (key.equals("*")) {
-                            res.add(JXNode.t(e.attributes().toString()));
+                if (n.tagName!!.startsWith("@")) {
+                    for (e in context) {
+                        val key = n.tagName!!.substring(1)
+                        if (key == "*") {
+                            res.add(t(e.attributes().toString()))
                         } else {
-                            String value = e.attr(key);
+                            val value = e.attr(key)
                             if (StringUtils.isNotBlank(value)) {
-                                res.add(JXNode.t(value));
+                                res.add(t(value))
                             }
                         }
                     }
-                } else if (n.getTagName().endsWith("()")) {
-                    res = (List<JXNode>) callFunc(n.getTagName().substring(0, n.getTagName().length() - 2), context);
+                } else if (n.tagName!!.endsWith("()")) {
+                    res = callFunc(
+                        n.tagName!!.substring(0, n.tagName!!.length - 2),
+                        context
+                    ) as MutableList<JXNode?>
                 } else {
-                    for (Element e : context) {
-                        Elements filterScope = e.children();
-                        if (StringUtils.isNotBlank(n.getAxis())) {
-                            filterScope = getAxisScopeEls(n.getAxis(), e);
+                    for (e in context) {
+                        var filterScope = e.children()
+                        if (StringUtils.isNotBlank(n.axis)) {
+                            filterScope = getAxisScopeEls(n.axis, e)
                         }
-                        for (Element chi : filterScope) {
-                            Element fchi = filter(chi, n);
+                        for (chi in filterScope) {
+                            val fchi = filter(chi, n)
                             if (fchi != null) {
-                                contextTmp.add(fchi);
+                                contextTmp.add(fchi)
                             }
                         }
                     }
-                    context = new Elements(contextTmp);
-                    if (i == xpathNodes.size() - 1) {
-                        for (Element e : contextTmp) {
-                            res.add(JXNode.e(e));
+                    context = Elements(contextTmp)
+                    if (i == xpathNodes.size - 1) {
+                        for (e in contextTmp) {
+                            res.add(e(e))
                         }
                     }
                 }
             }
         }
-        return res;
+        return res
     }
 
     /**
@@ -172,47 +165,73 @@ public class XpathEvaluator {
      * @param node
      * @return
      */
-    public Element filter(Element e, Node node) throws NoSuchFunctionException, NoSuchAxisException {
-        if (node.getTagName().equals("*") || node.getTagName().equals(e.nodeName())) {
-            if (node.getPredicate() != null && StringUtils.isNotBlank(node.getPredicate().getValue())) {
-                Predicate p = node.getPredicate();
-                if (p.getOpEm() == null) {
-                    if (p.getValue().matches("\\d+") && getElIndex(e) == Integer.parseInt(p.getValue())) {
-                        return e;
-                    } else if (p.getValue().endsWith("()") && (Boolean) callFilterFunc(p.getValue().substring(0, p.getValue().length() - 2), e)) {
-                        return e;
-                    } else if (p.getValue().startsWith("@") && e.hasAttr(StringUtils.substringAfter(p.getValue(), "@"))) {
-                        return e;
+    @Throws(NoSuchFunctionException::class, NoSuchAxisException::class)
+    fun filter(e: Element, node: Node): Element? {
+        if (node.tagName == "*" || node.tagName == e.nodeName()) {
+            if (node.predicate != null && StringUtils.isNotBlank(node.predicate!!.value)) {
+                val p = node.predicate
+                if (p!!.opEm == null) {
+                    if (p.value!!.matches(Regex("\\d+")) && getElIndex(e) == p.value!!.toInt()) {
+                        return e
+                    } else if (p.value!!.endsWith("()") && callFilterFunc(
+                            p.value!!.substring(
+                                0,
+                                p.value!!.length - 2
+                            ), e
+                        ) as Boolean
+                    ) {
+                        return e
+                    } else if (p.value!!.startsWith("@") && e.hasAttr(
+                            StringUtils.substringAfter(
+                                p.value, "@"
+                            )
+                        )
+                    ) {
+                        return e
                     }
                 } else {
-                    if (p.getLeft().matches("[^/]+\\(\\)")) {
-                        Object filterRes = p.getOpEm().execute(callFilterFunc(p.getLeft().substring(0, p.getLeft().length() - 2), e).toString(), p.getRight());
-                        if (filterRes instanceof Boolean && (Boolean) filterRes) {
-                            return e;
-                        } else if (filterRes instanceof Integer && e.siblingIndex() == Integer.parseInt(filterRes.toString())) {
-                            return e;
+
+                    if (p.left!!.matches( Regex("[^/]+\\(\\)"))) {
+                        val filterRes = p.opEm!!.execute(
+                            callFilterFunc(
+                                p.left!!.substring(
+                                    0,
+                                    p.left!!.length - 2
+                                ), e
+                            ).toString(), p.right!!
+                        )
+                        if (filterRes is Boolean && filterRes) {
+                            return e
+                        } else if (filterRes is Int && e.siblingIndex() == filterRes.toString()
+                                .toInt()
+                        ) {
+                            return e
                         }
-                    } else if (p.getLeft().startsWith("@")) {
-                        String lValue = e.attr(p.getLeft().substring(1));
-                        Object filterRes = p.getOpEm().execute(lValue, p.getRight());
-                        if ((Boolean) filterRes) {
-                            return e;
+                    } else if (p.left!!.startsWith("@")) {
+                        val lValue = e.attr(p.left!!.substring(1))
+                        val filterRes = p.opEm!!.execute(lValue, p.right!!)
+                        if ((filterRes as Boolean?)!!) {
+                            return e
                         }
                     } else {
                         // 操作符左边不是函数、属性默认就是xpath表达式了
-                        List<Element> eltmp = new LinkedList<Element>();
-                        eltmp.add(e);
-                        List<JXNode> rstmp = evaluate(p.getLeft(), new Elements(eltmp));
-                        if ((Boolean) p.getOpEm().execute(StringUtils.join(rstmp, ""), p.getRight())) {
-                            return e;
+                        val eltmp: MutableList<Element> = LinkedList()
+                        eltmp.add(e)
+                        val rstmp = evaluate(p.left, Elements(eltmp))
+                        if ((p.opEm!!.execute(
+                                StringUtils.join(rstmp, ""),
+                                p.right!!
+                            ) as Boolean?)!!
+                        ) {
+                            return e
                         }
                     }
                 }
             } else {
-                return e;
+                return e
             }
         }
-        return null;
+        return null
     }
 
     /**
@@ -223,13 +242,14 @@ public class XpathEvaluator {
      * @return
      * @throws NoSuchAxisException
      */
-    public Elements getAxisScopeEls(String axis, Element e) throws NoSuchAxisException {
-        try {
-            String functionName = CommonUtil.getJMethodNameFromStr(axis);
-            Method axisSelector = axisFuncs.get(renderFuncKey(functionName, e.getClass()));
-            return (Elements) axisSelector.invoke(SingletonProducer.getInstance().getAxisSelector(), e);
-        } catch (Exception e1) {
-            throw new NoSuchAxisException("this axis is not supported,plase use other instead of '" + axis + "'");
+    @Throws(NoSuchAxisException::class)
+    fun getAxisScopeEls(axis: String?, e: Element): Elements {
+        return try {
+            val functionName = getJMethodNameFromStr(axis!!)
+            val axisSelector = axisFuncs[renderFuncKey(functionName, e.javaClass)]
+            axisSelector!!.invoke(instance.axisSelector, e) as Elements
+        } catch (e1: Exception) {
+            throw NoSuchAxisException("this axis is not supported,plase use other instead of '$axis'")
         }
     }
 
@@ -241,12 +261,13 @@ public class XpathEvaluator {
      * @return
      * @throws NoSuchFunctionException
      */
-    public Object callFunc(String funcname, Elements context) throws NoSuchFunctionException {
-        try {
-            Method function = emFuncs.get(renderFuncKey(funcname, context.getClass()));
-            return function.invoke(SingletonProducer.getInstance().getFunctions(), context);
-        } catch (Exception e) {
-            throw new NoSuchFunctionException("This function is not supported");
+    @Throws(NoSuchFunctionException::class)
+    fun callFunc(funcname: String?, context: Elements): Any {
+        return try {
+            val function = emFuncs[renderFuncKey(funcname, context.javaClass)]
+            function!!.invoke(instance.functions, context)
+        } catch (e: Exception) {
+            throw NoSuchFunctionException("This function is not supported")
         }
     }
 
@@ -258,24 +279,34 @@ public class XpathEvaluator {
      * @return
      * @throws NoSuchFunctionException
      */
-    public Object callFilterFunc(String funcname, Element el) throws NoSuchFunctionException {
-        try {
-            Method function = emFuncs.get(renderFuncKey(funcname, el.getClass()));
-            return function.invoke(SingletonProducer.getInstance().getFunctions(), el);
-        } catch (Exception e) {
-            throw new NoSuchFunctionException("This function is not supported");
+    @Throws(NoSuchFunctionException::class)
+    fun callFilterFunc(funcname: String?, el: Element): Any {
+        return try {
+            val function = emFuncs[renderFuncKey(funcname, el.javaClass)]
+            function!!.invoke(instance.functions, el)
+        } catch (e: Exception) {
+            throw NoSuchFunctionException("This function is not supported")
         }
     }
 
-    public int getElIndex(Element e) {
-        if (e != null) {
-            return CommonUtils.Companion.getElementIndexInSameTags(e);
+    fun getElIndex(e: Element?): Int {
+        return if (e != null) {
+            getElementIndexInSameTags(e)
+        } else 1
+    }
+
+    private fun renderFuncKey(funcName: String?, vararg params: Class<*>): String {
+        return funcName + "|" + StringUtils.join(params, ",")
+    }
+
+    init {
+        emFuncs = HashMap()
+        axisFuncs = HashMap()
+        for (m in Functions::class.java.declaredMethods) {
+            emFuncs[renderFuncKey(m.name, *m.parameterTypes)] = m
         }
-        return 1;
+        for (m in AxisSelector::class.java.declaredMethods) {
+            axisFuncs[renderFuncKey(m.name, *m.parameterTypes)] = m
+        }
     }
-
-    private String renderFuncKey(String funcName, Class... params) {
-        return funcName + "|" + StringUtils.join(params, ",");
-    }
-
 }

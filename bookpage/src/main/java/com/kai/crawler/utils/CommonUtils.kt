@@ -11,6 +11,24 @@ import org.jsoup.nodes.Element
  */
 class CommonUtils {
     companion object{
+
+
+        /**
+         * 从字符串中提取js方法名
+         * @param str
+         * @return
+         */
+        fun getJMethodNameFromStr(str: String): String? {
+            if (str.contains("-")) {
+                val pies = str.split("-".toRegex()).toTypedArray()
+                val sb = StringBuilder(pies[0])
+                for (i in 1 until pies.size) {
+                    sb.append(pies[i].substring(0, 1).toUpperCase()).append(pies[i].substring(1))
+                }
+                return sb.toString()
+            }
+            return str
+        }
         /**
          * 获取同胞中同名元素的数量
          *
