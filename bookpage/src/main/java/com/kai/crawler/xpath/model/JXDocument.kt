@@ -9,6 +9,9 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.util.*
 
+/**
+ *
+ */
 class JXDocument {
     private var elements: Elements
     private val xpathEva = XpathEvaluator()

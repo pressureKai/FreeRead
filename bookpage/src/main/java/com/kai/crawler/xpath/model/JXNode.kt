@@ -5,7 +5,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
 /**
- * XPath提取后的
+ * XPath提取后的 节点
  */
 class JXNode {
     var element: Element? = null
