@@ -76,7 +76,6 @@ class Crawler {
                                             book.cover = it
                                             LogUtils.e(TAG, "search $keyword cover = ${book.cover}")
                                         }
-
                                     }
                                 }
 

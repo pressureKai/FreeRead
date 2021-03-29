@@ -23,7 +23,7 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         initImmersionBar(fitSystem = true)
         checkNetworkState()
         Thread{
-            Crawler.search("圣墟")
+            Crawler.search("罗")
         }.start()
     }
     override fun createPresenter(): MainPresenter? {
