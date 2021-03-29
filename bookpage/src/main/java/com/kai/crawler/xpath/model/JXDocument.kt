@@ -9,9 +9,6 @@ import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.util.*
 
-/**
- *
- */
 class JXDocument {
     private var elements: Elements
     private val xpathEva = XpathEvaluator()
@@ -32,14 +29,15 @@ class JXDocument {
     fun sel(xpath: String?): List<Any?> {
         val res: MutableList<Any?> = LinkedList()
         try {
-            val jns = xpathEva.xpathParser(xpath, elements)
+            val jns = xpathEva.xpathParser(xpath!!, elements)
             for (j in jns) {
-                if (j.isText) {
+                if (j!!.isText) {
                     res.add(j.textVal)
                 } else {
                     res.add(j.element)
                 }
             }
+
         } catch (e: Exception) {
             var msg: String? = "please check the xpath syntax"
             if (e is NoSuchAxisException || e is NoSuchFunctionException) {
@@ -51,9 +49,9 @@ class JXDocument {
     }
 
     @Throws(XpathSyntaxErrorException::class)
-    fun selN(xpath: String?): List<JXNode> {
+    fun selN(xpath: String?): List<JXNode?> {
         return try {
-            xpathEva.xpathParser(xpath, elements)
+            xpathEva.xpathParser(xpath!!, elements)
         } catch (e: Exception) {
             var msg: String? = "please check the xpath syntax"
             if (e is NoSuchAxisException || e is NoSuchFunctionException) {

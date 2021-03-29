@@ -31,7 +31,7 @@ class JXNode {
     }
 
     @Throws(XpathSyntaxErrorException::class)
-    fun sel(xpath: String?): List<JXNode>? {
+    fun sel(xpath: String?): List<JXNode?>? {
         if (element == null) {
             return null
         }

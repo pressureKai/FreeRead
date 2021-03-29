@@ -1,6 +1,7 @@
 package com.kai.crawler.entity.book
 
 import com.kai.crawler.entity.source.Source
+import com.kai.crawler.entity.source.SourceID
 
 /**
  *
@@ -16,12 +17,8 @@ open class SearchBook{
     var descriptor : String = ""
     var sources: ArrayList<SL> = ArrayList()
 
-    class SL{
-        var link: String = ""
-        var source: Source = Source(
-            SourceID.LIEWEN,
-            "猎文网",
-            "https://www.liewen.cc/search.php?keyword=%s"
-        )
+    class SL(link: String, source: Source) {
+        var link: String = link
+        var source: Source = source
     }
 }
