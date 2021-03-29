@@ -1,16 +1,13 @@
 package com.kai.crawler.xpath.core;
 
-
-import com.qy.reader.crawler.xpath.exception.NoSuchAxisException;
-import com.qy.reader.crawler.xpath.exception.NoSuchFunctionException;
-import com.qy.reader.crawler.xpath.model.JXNode;
-import com.qy.reader.crawler.xpath.model.Node;
-import com.qy.reader.crawler.xpath.model.Predicate;
-import com.qy.reader.crawler.xpath.util.CommonUtil;
-import com.qy.reader.crawler.xpath.util.ScopeEm;
+import com.kai.crawler.utils.CommonUtils;
+import com.kai.crawler.xpath.exception.NoSuchAxisException;
+import com.kai.crawler.xpath.exception.NoSuchFunctionException;
+import com.kai.crawler.xpath.model.JXNode;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 import java.lang.reflect.Method;
@@ -272,7 +269,7 @@ public class XpathEvaluator {
 
     public int getElIndex(Element e) {
         if (e != null) {
-            return CommonUtil.getElIndexInSameTags(e);
+            return CommonUtils.Companion.getElementIndexInSameTags(e);
         }
         return 1;
     }

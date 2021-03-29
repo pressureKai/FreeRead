@@ -1,81 +1,82 @@
-package com.kai.crawler.xpath.model;
+package com.kai.crawler.xpath.model
 
+import com.kai.crawler.xpath.core.XpathEvaluator
+import com.kai.crawler.xpath.exception.NoSuchAxisException
+import com.kai.crawler.xpath.exception.NoSuchFunctionException
+import com.kai.crawler.xpath.exception.XpathSyntaxErrorException
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
+import java.util.*
 
-import com.kai.crawler.xpath.exception.XpathSyntaxErrorException;
+class JXDocument {
+    private var elements: Elements
+    private val xpathEva = XpathEvaluator()
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.util.LinkedList;
-import java.util.List;
-
-public class JXDocument {
-    private Elements elements;
-    private XpathEvaluator xpathEva = new XpathEvaluator();
-
-    public JXDocument(Document doc) {
-        elements = doc.children();
+    constructor(doc: Document) {
+        elements = doc.children()
     }
 
-    public JXDocument(String html) {
-        elements = Jsoup.parse(html).children();
+    constructor(html: String?) {
+        elements = Jsoup.parse(html).children()
     }
 
-    public JXDocument(Elements els) {
-        elements = els;
+    constructor(els: Elements) {
+        elements = els
     }
 
-    public List<Object> sel(String xpath) throws XpathSyntaxErrorException {
-        List<Object> res = new LinkedList<Object>();
+    @Throws(XpathSyntaxErrorException::class)
+    fun sel(xpath: String?): List<Any?> {
+        val res: MutableList<Any?> = LinkedList()
         try {
-            List<JXNode> jns = xpathEva.xpathParser(xpath, elements);
-            for (JXNode j : jns) {
-                if (j.isText()) {
-                    res.add(j.getTextVal());
+            val jns = xpathEva.xpathParser(xpath, elements)
+            for (j in jns) {
+                if (j.isText) {
+                    res.add(j.textVal)
                 } else {
-                    res.add(j.getElement());
+                    res.add(j.element)
                 }
             }
-        } catch (Exception e) {
-            String msg = "please check the xpath syntax";
-            if (e instanceof NoSuchAxisException || e instanceof NoSuchFunctionException) {
-                msg = e.getMessage();
+        } catch (e: Exception) {
+            var msg: String? = "please check the xpath syntax"
+            if (e is NoSuchAxisException || e is NoSuchFunctionException) {
+                msg = e.message
             }
-            throw new XpathSyntaxErrorException(msg);
+            throw XpathSyntaxErrorException(msg)
         }
-        return res;
+        return res
     }
 
-    public List<JXNode> selN(String xpath) throws XpathSyntaxErrorException {
-        try {
-            return xpathEva.xpathParser(xpath, elements);
-        } catch (Exception e) {
-            String msg = "please check the xpath syntax";
-            if (e instanceof NoSuchAxisException || e instanceof NoSuchFunctionException) {
-                msg = e.getMessage();
+    @Throws(XpathSyntaxErrorException::class)
+    fun selN(xpath: String?): List<JXNode> {
+        return try {
+            xpathEva.xpathParser(xpath, elements)
+        } catch (e: Exception) {
+            var msg: String? = "please check the xpath syntax"
+            if (e is NoSuchAxisException || e is NoSuchFunctionException) {
+                msg = e.message
             }
-            throw new XpathSyntaxErrorException(msg);
+            throw XpathSyntaxErrorException(msg)
         }
     }
 
-    public Object selOne(String xpath) throws XpathSyntaxErrorException {
-        JXNode jxNode = selNOne(xpath);
-        if (jxNode != null) {
-            if (jxNode.isText()) {
-                return jxNode.getTextVal();
+    @Throws(XpathSyntaxErrorException::class)
+    fun selOne(xpath: String?): Any? {
+        val jxNode = selNOne(xpath)
+        return if (jxNode != null) {
+            if (jxNode.isText) {
+                jxNode.textVal
             } else {
-                return jxNode.getElement();
+                jxNode.element
             }
-        }
-        return null;
+        } else null
     }
 
-    public JXNode selNOne(String xpath) throws XpathSyntaxErrorException {
-        List<JXNode> jxNodeList = selN(xpath);
-        if (jxNodeList != null && jxNodeList.size() > 0) {
-            return jxNodeList.get(0);
-        }
-        return null;
+    @Throws(XpathSyntaxErrorException::class)
+    fun selNOne(xpath: String?): JXNode? {
+        val jxNodeList = selN(xpath)
+        return if (jxNodeList != null && jxNodeList.size > 0) {
+            jxNodeList[0]
+        } else null
     }
 }

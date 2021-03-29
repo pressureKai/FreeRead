@@ -1,74 +1,65 @@
-package com.kai.crawler.xpath.model;
+package com.kai.crawler.xpath.model
 
-
-import com.kai.crawler.xpath.exception.XpathSyntaxErrorException;
-
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.List;
+import com.kai.crawler.xpath.exception.XpathSyntaxErrorException
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 
 /**
  * XPath提取后的
  */
-public class JXNode {
-    private Element element;
-    private boolean isText;
-    private String textVal;
+class JXNode {
+    var element: Element? = null
+        private set
+    var isText = false
+        private set
+    var textVal: String? = null
+        private set
 
-    public static JXNode e(Element element) {
-        JXNode n = new JXNode();
-        n.setElement(element).setText(false);
-        return n;
+    fun setElement(element: Element?): JXNode {
+        this.element = element
+        return this
     }
 
-    public static JXNode t(String txt) {
-        JXNode n = new JXNode();
-        n.setTextVal(txt).setText(true);
-        return n;
+    fun setText(text: Boolean): JXNode {
+        isText = text
+        return this
     }
 
-    public Element getElement() {
-        return element;
+    fun setTextVal(textVal: String?): JXNode {
+        this.textVal = textVal
+        return this
     }
 
-    public JXNode setElement(Element element) {
-        this.element = element;
-        return this;
-    }
-
-    public boolean isText() {
-        return isText;
-    }
-
-    public JXNode setText(boolean text) {
-        isText = text;
-        return this;
-    }
-
-    public String getTextVal() {
-        return textVal;
-    }
-
-    public JXNode setTextVal(String textVal) {
-        this.textVal = textVal;
-        return this;
-    }
-
-    public List<JXNode> sel(String xpath) throws XpathSyntaxErrorException {
+    @Throws(XpathSyntaxErrorException::class)
+    fun sel(xpath: String?): List<JXNode>? {
         if (element == null) {
-            return null;
+            return null
         }
-        JXDocument doc = new JXDocument(new Elements(element));
-        return doc.selN(xpath);
+        val doc = JXDocument(Elements(element))
+        return doc.selN(xpath)
     }
 
-    @Override
-    public String toString() {
-        if (isText) {
-            return textVal;
+    override fun toString(): String {
+        return if (isText) {
+            textVal!!
         } else {
-            return element.toString();
+            element.toString()
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun e(element: Element?): JXNode {
+            val n = JXNode()
+            n.setElement(element).setText(false)
+            return n
+        }
+
+        @JvmStatic
+        fun t(txt: String?): JXNode {
+            val n = JXNode()
+            n.setTextVal(txt).setText(true)
+            return n
         }
     }
 }
