@@ -23,7 +23,7 @@ class Crawler {
         const val TAG = "Crawler"
 
 
-        fun search(keyword: String): Observable<SearchBook> {
+        fun search(keyword: String): Observable<List<SearchBook>> {
            return Observable.create{ emitter ->
                val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
                for (i in 0.until(checkedMap.size())) {
@@ -130,19 +130,21 @@ class Crawler {
 
                                    if (bookLink.isNotEmpty()) {
                                        books.add(book)
-                                       emitter.onNext(book)
+
                                    }
 
                                }
                            }
-
                        }
+                       emitter.onNext(books)
+                       emitter.onComplete()
                    } catch (e: Exception) {
                        emitter.onError(e)
                        LogUtils.e(TAG, e.toString())
                    }
                }
-               emitter.onComplete()
+
+
             }
             //循环遍历完全部资源，搜索完毕
 

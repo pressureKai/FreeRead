@@ -1,4 +1,5 @@
 package com.kai.base.application
+
 import android.app.Application
 import com.kai.common.application.BaseAppInit
 import com.kai.common.constant.Constant
@@ -22,7 +23,7 @@ class BaseInit: BaseAppInit {
     }
     private fun initBugly(application: Application){
         try {
-            // val channel = WalleChannelReader.getChannel(application)  吧
+            // val channel = WalleChannelReader.getChannel(application)
             val strategy = UserStrategy(application)
             strategy.appChannel = "Channel${Random().nextInt(100000)}"
             strategy.appVersion = "1.0"

@@ -18,6 +18,7 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         return R.layout.activity_main
     }
 
+
     override fun initView() {
         showErrorView()
         mPresenter?.loadBookRecommend()
@@ -26,7 +27,7 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         Thread{
             var isRun = false
             Crawler.search("罗").subscribe {
-                for(SL in it.sources){
+                for(SL in it.first().sources){
                     if(!isRun){
                         Crawler.catalog(SL).subscribe { chapters ->
                             if(!isRun){
