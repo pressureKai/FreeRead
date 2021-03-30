@@ -7,7 +7,7 @@ import java.lang.Exception
 
 class LogUtils {
     companion object{
-        private const val splitCount = 3999
+        private const val splitCount = 1999
         fun e(messageTag :String,content :String){
             dealContent(0,messageTag,content)
         }
@@ -31,6 +31,7 @@ class LogUtils {
             if(!Constant.isDebug){
                 return
             }
+           Log.e("LogUtils","count is ${content.length}")
             if(content.length <= splitCount ){
                 printLog(type,messageTag,content)
                 return
@@ -40,12 +41,13 @@ class LogUtils {
             try {
                 var count = 0
                 while (count + splitCount < content.length){
+
                     var splitString = ""
                     if(count + splitCount < content.length ){
                         splitString = content.substring(count,count.plus(splitCount))
                     }
                     count += splitCount
-                    dealContent(type,messageTag,splitString)
+                    printLog(type,messageTag,splitString)
                 }
 
 
@@ -53,7 +55,7 @@ class LogUtils {
                     printLog(type,messageTag,content.substring(count,content.length))
                 }
             }catch (e:Exception){
-                Log.e(messageTag,"logcat error")
+                Log.e("LogUtils","logcat error")
             }
 
         }

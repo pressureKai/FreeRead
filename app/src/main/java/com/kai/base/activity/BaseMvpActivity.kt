@@ -24,10 +24,10 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
             ConstraintLayout.LayoutParams.MATCH_PARENT)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RxNetworkObserver.register(this)
         mEventBusTarget = resetEventBusTarget()
         init()
         initView()
-        RxNetworkObserver.register(this)
     }
 
     fun checkNetworkState(){

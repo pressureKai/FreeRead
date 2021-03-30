@@ -3,6 +3,7 @@ package com.kai.ui.main
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.common.extension.initImmersionBar
+import com.kai.common.utils.LogUtils
 import com.kai.crawler.Crawler
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -23,7 +24,19 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         initImmersionBar(fitSystem = true)
         checkNetworkState()
         Thread{
-            Crawler.search("罗")
+            var isRun = false
+            Crawler.search("罗").subscribe {
+                for(SL in it.sources){
+                    if(!isRun){
+                        Crawler.catalog(SL).subscribe { chapters ->
+                            if(!isRun){
+                                isRun = true
+                                Crawler.content(SL,chapters.first().link)
+                            }
+                        }
+                    }
+                }
+            }
         }.start()
     }
     override fun createPresenter(): MainPresenter? {
