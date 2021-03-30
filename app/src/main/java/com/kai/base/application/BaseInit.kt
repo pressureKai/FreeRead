@@ -22,7 +22,7 @@ class BaseInit: BaseAppInit {
     }
     private fun initBugly(application: Application){
         try {
-            // val channel = WalleChannelReader.getChannel(application)
+            // val channel = WalleChannelReader.getChannel(application)  吧
             val strategy = UserStrategy(application)
             strategy.appChannel = "Channel${Random().nextInt(100000)}"
             strategy.appVersion = "1.0"
