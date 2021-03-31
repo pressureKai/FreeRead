@@ -44,6 +44,11 @@ project.ext {
             "espresso"          :"androidx.test.espresso:espresso-core:3.3.0",
             "jetbrains"         :"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
             "opencc"            :"com.zqc.opencc.android.lib:lib-opencc-android:0.8.0@aar",
-            "multiple_status_view" :"com.classic.common:multiple-status-view:1.7"
+            "multiple_status_view" :"com.classic.common:multiple-status-view:1.7",
+            "paging_google"     :"",
+            "smart_refresh_kernel"     :"com.scwang.smart:refresh-layout-kernel:2.0.3",
+            "smart_refresh_header_classics"   :"com.scwang.smart:refresh-header-classics:2.0.3",
+            "smart_refresh_footer_classics"   :"com.scwang.smart:refresh-footer-classics:2.0.3",
+            "base_quick_adapter"              :"com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4"
     ]
 }

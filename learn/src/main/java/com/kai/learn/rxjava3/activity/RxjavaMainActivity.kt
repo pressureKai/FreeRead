@@ -19,8 +19,9 @@ class RxjavaMainActivity  : BaseMvvmActivity(){
 
     init{
 
+
        // ReadWriteProperty
-//        List<String>()
+       // List<String>()
     }
     /**
      *  java 基础
@@ -72,6 +73,7 @@ class RxjavaMainActivity  : BaseMvvmActivity(){
      *          fun print()
      *     }
      *
+     *     // 组合优于继承(多态的体现)
      *     class BaseImpl(val number: Int) :Base{
      *         override fun print(){
      *             print(number)
@@ -88,6 +90,29 @@ class RxjavaMainActivity  : BaseMvvmActivity(){
      *
      *     //kotlin 写法
      *     class Driver(val delegate :Base) :Base by delegate
+     *
+     *
+     *
+     *
+     *     // 利用委托模式写一个 recycleView 数据刷新的委托类
+     *     // 实现功能点
+     *     // 1. 上拉加载  - interface - onLoadMore()
+     *     // 2. 下拉刷新  - interface - onRefresh()
+     *     // 3. 状态变化展示 - interface - onStateChange()
+     *     // 面向接口编程
+     *     //
+     *
+     *     interface PageLoaderListener{
+     *         fun onLoadMore()
+     *         fun onRefresh()
+     *         fun onStateChange()
+     *     }
+     *
+     *     class TestActivity():PageLoaderListener {
+     *            PageLoader<T>(this)
+     *     }
+     *
+     *     class PageLoader<T>(val delegate :PageLoaderListener) : PageLoaderListener by delegate
      */
 
 }

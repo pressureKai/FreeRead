@@ -69,6 +69,10 @@ dependencies {
     implementation rootProject.ext.dependencies.appcompat
     implementation rootProject.ext.dependencies.material
     implementation rootProject.ext.dependencies.constraintlayout
+    implementation rootProject.ext.dependencies.smart_refresh_kernel
+    implementation rootProject.ext.dependencies.smart_refresh_header_classics
+    implementation rootProject.ext.dependencies.smart_refresh_footer_classics
+    implementation rootProject.ext.dependencies.base_quick_adapter
     api project(':common')
     api project(':bookpage')
     testImplementation rootProject.ext.dependencies.junit

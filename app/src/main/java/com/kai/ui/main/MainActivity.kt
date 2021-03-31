@@ -1,10 +1,12 @@
 package com.kai.ui.main
 
+import android.widget.TextView
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.widget.load.PageLoader
 import com.kai.common.extension.initImmersionBar
-import com.kai.common.utils.LogUtils
-import com.kai.crawler.Crawler
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -20,25 +22,31 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
 
 
     override fun initView() {
-        showErrorView()
+      //  showErrorView()
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
         checkNetworkState()
-        Thread{
-            var isRun = false
-            Crawler.search("罗").subscribe {
-                for(SL in it.first().sources){
-                    if(!isRun){
-                        Crawler.catalog(SL).subscribe { chapters ->
-                            if(!isRun){
-                                isRun = true
-                                Crawler.content(SL,chapters.first().link)
-                            }
-                        }
-                    }
-                }
-            }
-        }.start()
+        val pageLoader = PageLoader(recycler, mSmartRefreshLayout = refresh,mAdapter = TestBaseQuickAdapter())
+        val source = ArrayList<String>()
+        for(index in 0.until(120)){
+            source.add(index.toString())
+        }
+        pageLoader.loadNewData(source)
+//        Thread{
+//            var isRun = false
+//            Crawler.search("罗").subscribe {
+//                for(SL in it.first().sources){
+//                    if(!isRun){
+//                        Crawler.catalog(SL).subscribe { chapters ->
+//                            if(!isRun){
+//                                isRun = true
+//                                Crawler.content(SL,chapters.first().link)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }.start()
     }
     override fun createPresenter(): MainPresenter? {
         return MainPresenter()
@@ -48,4 +56,13 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         showContent()
         book_recommend.text = list.last()
     }
+
+
+
+    inner class TestBaseQuickAdapter: BaseQuickAdapter<String,BaseViewHolder>(R.layout.item_main_test){
+        override fun convert(holder: BaseViewHolder, item: String) {
+            holder.getView<TextView>(R.id.test).text = item
+        }
+    }
+
 }
