@@ -68,6 +68,26 @@ class RxjavaMainActivity  : BaseMvvmActivity(){
      *     Kotlin 中委托模式的实现 https://www.jianshu.com/p/bdf3bdfa15ce
      *
      *
+     *     interface Base {
+     *          fun print()
+     *     }
+     *
+     *     class BaseImpl(val number: Int) :Base{
+     *         override fun print(){
+     *             print(number)
+     *         }
+     *     }
+     *
+     *
+     *     // java 写法
+     *     class Driver(val delegate :Base):Base{
+     *         override fun print(){
+     *              delegate.print()
+     *         }
+     *     }
+     *
+     *     //kotlin 写法
+     *     class Driver(val delegate :Base) :Base by delegate
      */
 
 }
