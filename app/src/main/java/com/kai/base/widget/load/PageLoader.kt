@@ -194,6 +194,4 @@ class PageLoader<T>(
         }
         return canLoad
     }
-
-
 }
