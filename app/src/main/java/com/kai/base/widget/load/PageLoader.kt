@@ -43,13 +43,19 @@ class PageLoader<T>(
         const val STATE_EMPTY = 1
         const val STATE_LOADING = 2
         const val STATE_CONTENT = 3
+        const val SMART_LOAD_REFRESH = 5
+        const val SMART_LOAD_MORE = 6
+        const val SMART_LOAD_FINISH = 7
     }
 
     private val data: ArrayList<T> = ArrayList()
     private var viewState: Int = STATE_LOADING
 
-    //状态唯一性用于判断PageLoader 加载数据时是处于刷新状态和加载更多
-    private var isRefresh = false
+    private var pageIndex = 0
+    private var totalPage = 2
+    private var pageSize = 10
+    private var loadState = SMART_LOAD_FINISH
+
 
     init {
         initRecyclerView()
@@ -74,12 +80,16 @@ class PageLoader<T>(
                 } else {
                     STATE_CONTENT
                 }
-                isRefresh = true
-                onRefresh()
+                if(canLoadData(true)){
+                    onRefresh()
+                }
+
             }
             it.setOnLoadMoreListener {
-                isRefresh = false
-                loadMore()
+                if(canLoadData(false)){
+                    loadMore()
+                }
+
             }
         }
     }
@@ -115,12 +125,23 @@ class PageLoader<T>(
         refreshRecyclerView()
     }
 
-    private fun refreshState(){
-        if(isRefresh){
-            mSmartRefreshLayout?.finishRefresh()
-        }else{
-            mSmartRefreshLayout?.finishLoadMore()
+    private fun refreshState() {
+        when (loadState) {
+            SMART_LOAD_FINISH -> {
+                mSmartRefreshLayout?.finishLoadMore()
+                mSmartRefreshLayout?.finishRefresh()
+            }
+            SMART_LOAD_MORE -> {
+                mSmartRefreshLayout?.finishLoadMore()
+                loadState = SMART_LOAD_FINISH
+            }
+            SMART_LOAD_REFRESH -> {
+                mSmartRefreshLayout?.finishRefresh()
+                loadState = SMART_LOAD_FINISH
+            }
         }
+
+
     }
 
     //有可能由接口实现的方法
@@ -129,21 +150,50 @@ class PageLoader<T>(
     //将Presenter层获取的数据通过调用方法传递参数的形式赋值给pageLoader中的data
 
 
-    private fun loadMore(){
-        Handler(Looper.getMainLooper()).postDelayed({
-                refreshState()
-        },200)
-    }
-
-
-
-    private fun onRefresh(){
+    /**
+     * @desc 加载更多
+     */
+    private fun loadMore() {
+        loadState = SMART_LOAD_MORE
         Handler(Looper.getMainLooper()).postDelayed({
             refreshState()
-        },200)
+        }, 200)
     }
 
 
+    /**
+     * @desc 刷新数据
+     */
+    private fun onRefresh() {
+        loadState = SMART_LOAD_REFRESH
+        Handler(Looper.getMainLooper()).postDelayed({
+            refreshState()
+        }, 200)
+    }
+
+
+    /**
+     * @desc 是否能够进行数据的加载
+     */
+    open fun canLoadData(expectIsRefresh: Boolean): Boolean {
+        var canLoad = false
+        when (loadState) {
+            SMART_LOAD_FINISH -> {
+                canLoad = if(expectIsRefresh){
+                    true
+                }else{
+                    pageIndex < totalPage
+                }
+            }
+            SMART_LOAD_MORE -> {
+                canLoad = false
+            }
+            SMART_LOAD_REFRESH -> {
+                canLoad = false
+            }
+        }
+        return canLoad
+    }
 
 
 }
