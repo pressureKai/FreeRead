@@ -31,7 +31,6 @@ class LogUtils {
             if(!Constant.isDebug){
                 return
             }
-           Log.e("LogUtils","count is ${content.length}")
             if(content.length <= splitCount ){
                 printLog(type,messageTag,content)
                 return

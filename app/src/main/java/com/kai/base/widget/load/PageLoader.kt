@@ -10,6 +10,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.classic.common.MultipleStatusView
 import com.kai.base.R
 import com.kai.common.extension.customToast
+import com.kai.common.utils.LogUtils
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -69,7 +70,6 @@ class PageLoader<T>(
     init {
         initRecyclerView()
         initSmartRefreshLayout()
-        showMultipleStatusView()
         autoRefresh()
     }
 
@@ -79,7 +79,13 @@ class PageLoader<T>(
      */
     private fun autoRefresh(){
         if(autoRefreshEnable) run {
-            mSmartRefreshLayout?.autoRefresh(100)
+            if(canLoadData(true)){
+                viewState = STATE_VIEW_LOADING
+                showLoading()
+                LogUtils.e("PageLoader","load autoRefresh")
+                mSmartRefreshLayout?.autoRefresh(100)
+            }
+
         }
     }
 
@@ -122,23 +128,15 @@ class PageLoader<T>(
             it.setRefreshHeader(ClassicsHeader(mRecyclerView.context))
             it.setRefreshFooter(ClassicsFooter(mRecyclerView.context))
             it.setOnRefreshListener {
-                if(!checkIsLoading()){
-                    viewState = if (data.isEmpty()) {
-                        STATE_VIEW_LOADING
-                    } else {
-                        STATE_VIEW_CONTENT
-                    }
-                    showMultipleStatusView()
-                    if (canLoadData(true)) {
-                        onRefresh()
-                    }
+                LogUtils.e("PageLoader","check refresh")
+                if (canLoadData(true)) {
+                    LogUtils.e("PageLoader","load refresh")
+                    onRefresh()
                 }
             }
             it.setOnLoadMoreListener {
-                if(!checkIsLoading()){
-                    if (canLoadData(false)) {
-                        loadMore()
-                    }
+                if (canLoadData(false)) {
+                    loadMore()
                 }
             }
         }
@@ -176,6 +174,7 @@ class PageLoader<T>(
      * @desc 将原有数据清除并填充新的数据
      */
     fun loadNewData(source: List<T>) {
+        LogUtils.e("PageLoader","load form activity")
         data.clear()
         data.addAll(source)
         refreshState()
@@ -245,7 +244,6 @@ class PageLoader<T>(
      * @desc 刷新数据
      */
     private fun onRefresh() {
-        autoRefreshEnable = false
         loadState = SMART_LOAD_REFRESH
         refreshDataDelegate?.onRefresh() ?: run {
             Handler(Looper.getMainLooper()).postDelayed({
@@ -303,9 +301,7 @@ class PageLoader<T>(
      * @desc 显示加载页面
      */
     private fun showLoading() {
-        if(!autoRefreshEnable){
-            mMultipleStatusView?.showLoading(mLayoutLoadingResource!!,layoutParams)
-        }
+        mMultipleStatusView?.showLoading(mLayoutLoadingResource!!,layoutParams)
     }
 
     /**
@@ -343,18 +339,4 @@ class PageLoader<T>(
         mLayoutNotNetResource = noNetworkResource
     }
 
-    /**
-     * @desc 检查页面是否处于加载中防止用户做刷新或加载更多操作
-     */
-    private fun checkIsLoading(): Boolean{
-        val isLoading = viewState == STATE_VIEW_LOADING
-        if(isLoading){
-            try {
-                mRecyclerView.context.customToast("正在加载中...")
-            }catch (e: Exception){
-
-            }
-        }
-        return isLoading
-    }
 }

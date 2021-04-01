@@ -10,6 +10,7 @@ import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.PageLoader
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.extension.initImmersionBar
+import com.kai.common.utils.LogUtils
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -83,6 +84,7 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
             source.add(index.toString())
         }
         Handler(Looper.getMainLooper()).postDelayed({
+            LogUtils.e("PageLoader","load new data")
             pageLoader.loadNewData(source)
         },2000)
 
