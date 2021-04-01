@@ -1,7 +1,9 @@
 package com.kai.common.extension
 
+import android.app.Activity
 import android.content.Context
-
+import android.view.Gravity
+import es.dmoral.toasty.Toasty
 
 
 fun Context.getScreenWidth():Int{
@@ -24,4 +26,12 @@ fun Context.getStatusBarHeight():Int{
         e.printStackTrace()
     }
     return statusHeight
+}
+
+
+
+fun Context.customToast(charSequence: String) {
+    val normal = Toasty.normal(this, charSequence)
+    normal.setGravity(Gravity.CENTER, 0, 0)
+    normal.show()
 }

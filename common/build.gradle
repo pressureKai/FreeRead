@@ -46,6 +46,7 @@ dependencies {
     implementation rootProject.ext.dependencies.appcompat
     implementation rootProject.ext.dependencies.material
     implementation rootProject.ext.dependencies.constraintlayout
+    api rootProject.ext.dependencies.grender_toasty
     api rootProject.ext.dependencies.immersionbar_components
     api rootProject.ext.dependencies.immersionbar
     api rootProject.ext.dependencies.rxjava

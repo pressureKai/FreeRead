@@ -2,17 +2,19 @@ package com.kai.common.extension
 
 import android.app.Activity
 import android.util.DisplayMetrics
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import com.gyf.immersionbar.ImmersionBar
+import es.dmoral.toasty.Toasty
 import kotlin.math.abs
 
 
 fun Activity.initImmersionBar(
-    view: View? = null,
-    fitSystem: Boolean = false,
-    @ColorInt color: Int? = 0
+        view: View? = null,
+        fitSystem: Boolean = false,
+        @ColorInt color: Int? = 0
 ) {
     var immersionColor = 0
     color?.let {
@@ -20,23 +22,23 @@ fun Activity.initImmersionBar(
             immersionColor = android.R.color.white
         }
     }
-    if(view != null){
+    if (view != null) {
         ImmersionBar
-            .with(this)
-            .statusBarDarkFont(true, 0.7f)
-            .fitsSystemWindows(fitSystem)
-            .titleBar(view)
-            .navigationBarColor(immersionColor)
-            .autoNavigationBarDarkModeEnable(true, 0.8f)
-            .init()
-    }else{
+                .with(this)
+                .statusBarDarkFont(true, 0.7f)
+                .fitsSystemWindows(fitSystem)
+                .titleBar(view)
+                .navigationBarColor(immersionColor)
+                .autoNavigationBarDarkModeEnable(true, 0.8f)
+                .init()
+    } else {
         ImmersionBar
-            .with(this)
-            .statusBarDarkFont(true, 0.7f)
-            .fitsSystemWindows(fitSystem)
-            .navigationBarColor(immersionColor)
-            .autoNavigationBarDarkModeEnable(true, 0.8f)
-            .init()
+                .with(this)
+                .statusBarDarkFont(true, 0.7f)
+                .fitsSystemWindows(fitSystem)
+                .navigationBarColor(immersionColor)
+                .autoNavigationBarDarkModeEnable(true, 0.8f)
+                .init()
     }
 }
 
@@ -107,11 +109,18 @@ fun Activity.isNavigationBarExist(): Boolean {
         for (i in 0 until vp.childCount) {
             vp.getChildAt(i).context.packageName
             if (vp.getChildAt(i).id != View.NO_ID && "navigationBarBackground" == resources
-                    .getResourceEntryName(vp.getChildAt(i).id)
+                            .getResourceEntryName(vp.getChildAt(i).id)
             ) {
                 return true
             }
         }
     }
     return false
+}
+
+
+fun Activity.customToast(charSequence: String) {
+    val normal = Toasty.normal(this, charSequence)
+    normal.setGravity(Gravity.CENTER, 0, 0)
+    normal.show()
 }

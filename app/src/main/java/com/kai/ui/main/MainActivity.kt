@@ -1,37 +1,40 @@
 package com.kai.ui.main
 
+import android.os.Handler
+import android.os.Looper
 import android.widget.TextView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.PageLoader
+import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.extension.initImmersionBar
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * des 书籍主页面
  */
-class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainContract.View{
+class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainContract.View,RefreshDataListener{
     companion object{
         const val INT_CODE = 0
     }
+
+    private lateinit var pageLoader: PageLoader<String>
     override fun setLayoutId(): Int {
         return R.layout.activity_main
     }
-
 
     override fun initView() {
       //  showErrorView()
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
         checkNetworkState()
-        val pageLoader = PageLoader(recycler, mSmartRefreshLayout = refresh,mAdapter = TestBaseQuickAdapter())
-        val source = ArrayList<String>()
-        for(index in 0.until(120)){
-            source.add(index.toString())
-        }
-        pageLoader.loadNewData(source)
+        pageLoader = PageLoader(recycler,
+            refreshDataDelegate = this,
+            mSmartRefreshLayout = refresh,
+            mMultipleStatusView = status,
+            mAdapter = TestBaseQuickAdapter())
 //        Thread{
 //            var isRun = false
 //            Crawler.search("罗").subscribe {
@@ -53,7 +56,6 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
     }
 
     override fun onLoadBookRecommend(list: List<String>) {
-        showContent()
         book_recommend.text = list.last()
     }
 
@@ -63,6 +65,27 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
         override fun convert(holder: BaseViewHolder, item: String) {
             holder.getView<TextView>(R.id.test).text = item
         }
+    }
+
+    /**
+     * @desc pageLoader加载更多数据接口
+     */
+    override fun onLoadMore(pageIndex: Int, pageSize: Int) {
+
+    }
+
+    /**
+     * @desc pageLoader 刷新数据接口
+     */
+    override fun onRefresh() {
+        val source = ArrayList<String>()
+        for(index in 0.until(120)){
+            source.add(index.toString())
+        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            pageLoader.loadNewData(source)
+        },2000)
+
     }
 
 }
