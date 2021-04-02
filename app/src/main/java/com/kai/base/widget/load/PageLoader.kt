@@ -3,6 +3,7 @@ package com.kai.base.widget.load
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -10,10 +11,14 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.classic.common.MultipleStatusView
 import com.kai.base.R
+import com.kai.common.extension.closeDefaultAnimation
+import com.kai.common.extension.customToast
+import com.kai.common.utils.LogUtils
 import com.kai.common.utils.RxNetworkObserver
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import java.lang.Exception
 
 /**
  *
@@ -57,6 +62,10 @@ class PageLoader<T>(
         const val SMART_LOAD_REFRESH = 5
         const val SMART_LOAD_MORE = 6
         const val SMART_LOAD_FINISH = 7
+
+        const val DATA_STATE_SUCCESS = 0
+        const val DATA_STATE_ERROR = 1
+        const val DATA_STATE_NO_NETWORK = 2
     }
 
     private val data: ArrayList<T> = ArrayList()
@@ -66,7 +75,13 @@ class PageLoader<T>(
     private var totalPage = 0
     private var pageSize = 10
 
+    private var mErrorView: View? = null
+    private var mEmptyView: View? = null
+    private var mLoadingView: View? = null
+    private var mNoNetworkView: View? = null
 
+    private var lastNetWorkState: Int = -2
+    private var netWorkState: Int = -2
 
     private var mInflate = LayoutInflater.from(mRecyclerView.context)
     private val layoutParams = LinearLayout.LayoutParams(
@@ -77,9 +92,39 @@ class PageLoader<T>(
     init {
         initRecyclerView()
         initSmartRefreshLayout()
-        autoRefresh()
+        initNetWorkState()
     }
 
+
+    /**
+     * @desc 初始化网络监听状态
+     */
+    private fun initNetWorkState(){
+        //在MainActivity中注册一个网络状态监听
+        RxNetworkObserver.subscribe {
+            if(lastNetWorkState == -2){
+                //第一次接收到网络状态并做同步操作自动刷新数据
+                lastNetWorkState = it
+                netWorkState = it
+                if(it != RxNetworkObserver.NET_STATE_DISCONNECT){
+                    autoRefresh()
+                } else {
+                    //第一次检测为无网络状态
+                    updateStatusView(MultipleStatusView.STATUS_NO_NETWORK)
+                }
+            } else {
+                lastNetWorkState = netWorkState
+                netWorkState = it
+                if (lastNetWorkState != netWorkState
+                    && netWorkState != RxNetworkObserver.NET_STATE_DISCONNECT
+                    && lastNetWorkState == RxNetworkObserver.NET_STATE_DISCONNECT
+                ) {
+                    //网络状态改变由无网络变成有网络链接
+                    autoRefresh()
+                }
+            }
+        }
+    }
 
     /**
      * @desc 自动刷新
@@ -112,9 +157,9 @@ class PageLoader<T>(
                 showNoNetwork()
             }
         }
-        if(!autoRefreshEnable){
+        if (!autoRefreshEnable) {
             setEnableLoad(mMultipleStatusView?.viewStatus != MultipleStatusView.STATUS_LOADING)
-        } else{
+        } else if(mMultipleStatusView?.viewStatus == MultipleStatusView.STATUS_LOADING) {
             autoRefreshEnable = false
         }
     }
@@ -134,26 +179,30 @@ class PageLoader<T>(
      * @desc 检查加载更多是否可用
      * @return 是否可用
      */
-    private fun loadMoreEnable(): Boolean{
+    private fun loadMoreEnable(): Boolean {
         var enable = false
         chargeLoadMoreListener?.let {
-            enable = chargeLoadMoreListener.couldLoadMore(pageIndex,totalPage)
-        } ?:run{
+            enable = chargeLoadMoreListener.couldLoadMore(pageIndex, totalPage)
+        } ?: run {
             enable == pageIndex < totalPage
         }
-        if(!enable){
+        if (!enable) {
             mSmartRefreshLayout?.finishLoadMore()
         }
         return enable
     }
+
     /**
      * @desc 显示网络状态
      * @param callBack 网络正常时回调刷新数据
      */
     private fun checkNetWorkState(callBack: () -> Unit) {
-        RxNetworkObserver.subscribe { netState ->
-            if (netState == RxNetworkObserver.NET_STATE_DISCONNECT) {
-                loadData(responseState = 2)
+        if(netWorkState == -2){
+            refreshState()
+            mRecyclerView.context.customToast("正在同步网络状态,请稍后再试")
+        } else {
+            if (netWorkState == RxNetworkObserver.NET_STATE_DISCONNECT) {
+                loadData(responseState = DATA_STATE_NO_NETWORK)
             } else {
                 callBack.invoke()
             }
@@ -171,7 +220,7 @@ class PageLoader<T>(
             }
             it.setOnLoadMoreListener {
                 checkNetWorkState {
-                    if(loadMoreEnable()){
+                    if (loadMoreEnable()) {
                         loadMore()
                     }
                 }
@@ -181,6 +230,7 @@ class PageLoader<T>(
 
     private fun initRecyclerView() {
         mRecyclerView.layoutManager = getLayoutManager()
+        mRecyclerView.closeDefaultAnimation()
         mAdapter?.let {
             mRecyclerView.adapter = it
             it.setNewInstance(data)
@@ -212,7 +262,7 @@ class PageLoader<T>(
      * @param source 即将刷新的数据源
      * @param responseState 回调状态  0: success,1: fail, 2 :no_net
      */
-    fun loadData(source: List<T> = ArrayList(), responseState: Int = 0) {
+    fun loadData(source: List<T> = ArrayList(), responseState: Int = DATA_STATE_SUCCESS) {
         if (responseState == 0) {
             //回调状态为0时,即代表数据请求成功,处理数据。
             if (loadState == SMART_LOAD_REFRESH) {
@@ -303,38 +353,51 @@ class PageLoader<T>(
      */
     private fun showContent() {
         mMultipleStatusView?.showContent()
+        clearAllView()
     }
 
     /**
      * @desc 显示错误页面
      */
     private fun showError() {
-        val errorView = mInflate.inflate(mLayoutErrorResource!!, null)
-        mMultipleStatusView?.showError(errorView,layoutParams)
+        mErrorView ?: run {
+            mErrorView = mInflate.inflate(mLayoutErrorResource!!, null)
+        }
+        mMultipleStatusView?.showError(mErrorView, layoutParams)
+        clearAllView()
     }
 
     /**
      * @desc 显示空页面
      */
     private fun showEmpty() {
-        val emptyView = mInflate.inflate(mLayoutEmptyResource!!, null)
-        mMultipleStatusView?.showEmpty(emptyView, layoutParams)
+        mEmptyView ?: run {
+            mEmptyView = mInflate.inflate(mLayoutEmptyResource!!, null)
+        }
+        mMultipleStatusView?.showEmpty(mEmptyView, layoutParams)
+        clearAllView()
     }
 
     /**
      * @desc 显示加载页面
      */
     private fun showLoading() {
-        val loadingView = mInflate.inflate(mLayoutLoadingResource!!, null)
-        mMultipleStatusView?.showLoading(loadingView, layoutParams)
+        mLoadingView ?: run {
+            mLoadingView = mInflate.inflate(mLayoutLoadingResource!!, null)
+        }
+        mMultipleStatusView?.showLoading(mLoadingView, layoutParams)
+        clearAllView()
     }
 
     /**
      * @desc 显示无网络页面
      */
     private fun showNoNetwork() {
-        val noNetworkView = mInflate.inflate(mLayoutNotNetResource!!, null)
-        mMultipleStatusView?.showNoNetwork(noNetworkView, layoutParams)
+        mNoNetworkView ?: run {
+            mNoNetworkView = mInflate.inflate(mLayoutNotNetResource!!, null)
+        }
+        mMultipleStatusView?.showNoNetwork(mNoNetworkView, layoutParams)
+        clearAllView()
     }
 
     /**
@@ -363,6 +426,50 @@ class PageLoader<T>(
      */
     fun setNoNetworkResource(noNetworkResource: Int) {
         mLayoutNotNetResource = noNetworkResource
+    }
+
+
+    /**
+     * @desc 由于MultipleStatusView 会出现状态重叠的bug 使用此方法辅助修复
+     */
+    private fun clearAllView() {
+        try {
+            when (mMultipleStatusView?.viewStatus) {
+                MultipleStatusView.STATUS_NO_NETWORK -> {
+                    mEmptyView?.visibility = View.INVISIBLE
+                    mErrorView?.visibility = View.INVISIBLE
+                    mNoNetworkView?.visibility = View.VISIBLE
+                    mLoadingView?.visibility = View.INVISIBLE
+                }
+                MultipleStatusView.STATUS_ERROR -> {
+                    mEmptyView?.visibility = View.INVISIBLE
+                    mErrorView?.visibility = View.VISIBLE
+                    mNoNetworkView?.visibility = View.INVISIBLE
+                    mLoadingView?.visibility = View.INVISIBLE
+                }
+                MultipleStatusView.STATUS_CONTENT -> {
+                    mEmptyView?.visibility = View.INVISIBLE
+                    mErrorView?.visibility = View.INVISIBLE
+                    mNoNetworkView?.visibility = View.INVISIBLE
+                    mLoadingView?.visibility = View.INVISIBLE
+                }
+                MultipleStatusView.STATUS_EMPTY -> {
+                    mEmptyView?.visibility = View.VISIBLE
+                    mErrorView?.visibility = View.INVISIBLE
+                    mNoNetworkView?.visibility = View.INVISIBLE
+                    mLoadingView?.visibility = View.INVISIBLE
+                }
+                MultipleStatusView.STATUS_LOADING -> {
+                    mEmptyView?.visibility = View.INVISIBLE
+                    mErrorView?.visibility = View.INVISIBLE
+                    mNoNetworkView?.visibility = View.INVISIBLE
+                    mLoadingView?.visibility = View.VISIBLE
+                }
+            }
+        } catch (e: Exception) {
+
+        }
+
     }
 
 }

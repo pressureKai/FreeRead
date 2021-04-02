@@ -2,6 +2,8 @@ package com.kai.common.extension
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -45,4 +47,12 @@ fun String.isContainChinese(string: String) :Boolean{
     val p: Pattern = Pattern.compile("[\u4e00-\u9fa5]")
     val m: Matcher = p.matcher(string)
     return m.find()
+}
+
+fun RecyclerView.closeDefaultAnimation(){
+    this.itemAnimator?.addDuration = 0
+    this.itemAnimator?.changeDuration = 0
+    this.itemAnimator?.moveDuration = 0
+    this.itemAnimator?.removeDuration = 0
+    (this.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 }

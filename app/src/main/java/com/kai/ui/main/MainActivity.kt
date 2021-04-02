@@ -29,7 +29,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
     override fun initView() {
-        //  showErrorView()
         RxNetworkObserver.register(this)
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
@@ -98,7 +97,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
     override fun couldLoadMore(pageIndex: Int, totalPage: Int): Boolean {
-        return false
+        return pageIndex < totalPage
     }
 
 }
