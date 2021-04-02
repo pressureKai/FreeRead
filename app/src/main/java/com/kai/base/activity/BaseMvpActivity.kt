@@ -24,38 +24,9 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
             ConstraintLayout.LayoutParams.MATCH_PARENT)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        RxNetworkObserver.register(this)
         mEventBusTarget = resetEventBusTarget()
         init()
         initView()
-    }
-
-    fun checkNetworkState(){
-        RxNetworkObserver.subscribe {
-             when(it){
-                 RxNetworkObserver.NET_STATE_WIFI -> {
-                     onWifi()
-                 }
-                 RxNetworkObserver.NET_STATE_DISCONNECT -> {
-                     disConnect()
-                 }
-                 RxNetworkObserver.NET_STATE_MOBILE -> {
-                     onMobile()
-                 }
-             }
-        }
-    }
-
-    open fun disConnect(){
-        Toast.makeText(this,"disConnect",Toast.LENGTH_SHORT).show()
-    }
-
-    open fun onWifi(){
-        Toast.makeText(this,"onWifi",Toast.LENGTH_SHORT).show()
-    }
-
-    open fun onMobile(){
-        Toast.makeText(this,"onMobile",Toast.LENGTH_SHORT).show()
     }
 
     open fun resetEventBusTarget(): String {
@@ -122,7 +93,6 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 EventBus.getDefault().unregister(this)
             }
         }
-        RxNetworkObserver.unregister()
         unBindView()
     }
 

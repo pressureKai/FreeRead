@@ -7,17 +7,19 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.PageLoader
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.extension.initImmersionBar
 import com.kai.common.utils.LogUtils
+import com.kai.common.utils.RxNetworkObserver
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * des 书籍主页面
  */
-class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainContract.View,RefreshDataListener{
-    companion object{
+class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View, RefreshDataListener, ChargeLoadMoreListener {
+    companion object {
         const val INT_CODE = 0
     }
 
@@ -27,15 +29,16 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
     }
 
     override fun initView() {
-      //  showErrorView()
+        //  showErrorView()
+        RxNetworkObserver.register(this)
         mPresenter?.loadBookRecommend()
         initImmersionBar(fitSystem = true)
-        checkNetworkState()
         pageLoader = PageLoader(recycler,
-            refreshDataDelegate = this,
-            mSmartRefreshLayout = refresh,
-            mMultipleStatusView = status,
-            mAdapter = TestBaseQuickAdapter())
+                refreshDataDelegate = this,
+                chargeLoadMoreListener = this,
+                mSmartRefreshLayout = refresh,
+                mMultipleStatusView = status,
+                mAdapter = TestBaseQuickAdapter())
 //        Thread{
 //            var isRun = false
 //            Crawler.search("罗").subscribe {
@@ -52,6 +55,7 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
 //            }
 //        }.start()
     }
+
     override fun createPresenter(): MainPresenter? {
         return MainPresenter()
     }
@@ -61,8 +65,7 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
     }
 
 
-
-    inner class TestBaseQuickAdapter: BaseQuickAdapter<String,BaseViewHolder>(R.layout.item_main_test){
+    inner class TestBaseQuickAdapter : BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_main_test) {
         override fun convert(holder: BaseViewHolder, item: String) {
             holder.getView<TextView>(R.id.test).text = item
         }
@@ -80,14 +83,22 @@ class MainActivity :BaseMvpActivity<MainContract.View,MainPresenter>(), MainCont
      */
     override fun onRefresh() {
         val source = ArrayList<String>()
-        for(index in 0.until(120)){
+        for (index in 0.until(120)) {
             source.add(index.toString())
         }
         Handler(Looper.getMainLooper()).postDelayed({
-            LogUtils.e("PageLoader","load new data")
-            pageLoader.loadNewData(source)
-        },2000)
+            pageLoader.loadData(source)
+        }, 2000)
+    }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        RxNetworkObserver.unregister()
+    }
+
+    override fun couldLoadMore(pageIndex: Int, totalPage: Int): Boolean {
+        return false
     }
 
 }

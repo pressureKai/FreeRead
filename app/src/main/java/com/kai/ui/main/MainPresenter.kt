@@ -23,7 +23,7 @@ class MainPresenter : BasePresenter<MainContract.View>(), MainContract.Presenter
             }.doOnComplete {
 
             }.subscribe { list ->
-                getView().onLoadBookRecommend(list)
+                getView()?.onLoadBookRecommend(list)
             }
         }
     }

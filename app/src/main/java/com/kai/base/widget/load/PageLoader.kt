@@ -2,6 +2,7 @@ package com.kai.base.widget.load
 
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -9,12 +10,11 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.classic.common.MultipleStatusView
 import com.kai.base.R
-import com.kai.common.extension.customToast
-import com.kai.common.utils.LogUtils
+import com.kai.common.utils.RxNetworkObserver
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import java.lang.Exception
+
 /**
  *
  * @ProjectName:    app
@@ -28,43 +28,50 @@ import java.lang.Exception
  *                  presenter 与 model 不应持有此类的实例化对象
  *
  *                  页数与页码如何做数据同步(通过外部赋值耦合度高)
+ *
+ *                  SmartRefreshLayout在做刷新和加载更多操作时，
+ *                  如果MultipleStatusView做更新界面操作,
+ *                  SmartRefreshLayout会被隐藏
+ *                  so 不要在 SmartRefreshLayout 正在加载或正在加载更多时，去做MultipleStatusView的页面操作
+ *                  换言之 MultipleStatusView 的操作必须在SmartRefreshLayout做数据操作之前
+ *                  MultipleStatusView 可做操作的条件是
+ *                  1. SmartRefreshLayout 不在做数据加载操作
+ *                  2. 页面数据为空
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/31 14:53
  */
 class PageLoader<T>(
-    private val mRecyclerView: RecyclerView,
-    private val refreshDataDelegate: RefreshDataListener? = null,
-    private val mMultipleStatusView: MultipleStatusView? = null,
-    private val mSmartRefreshLayout: SmartRefreshLayout? = null,
-    private val mAdapter: BaseQuickAdapter<T, BaseViewHolder>? = null,
-    private var mLayoutErrorResource: Int? = R.layout.layout_error,
-    private var mLayoutEmptyResource: Int? = R.layout.layout_empty,
-    private var mLayoutLoadingResource: Int? = R.layout.layout_loading,
-    private var mLayoutNotNetResource: Int? = R.layout.layout_no_net,
-    private var autoRefreshEnable: Boolean = true
+        private val mRecyclerView: RecyclerView,
+        private val refreshDataDelegate: RefreshDataListener? = null,
+        private val chargeLoadMoreListener: ChargeLoadMoreListener? = null,
+        private val mMultipleStatusView: MultipleStatusView? = null,
+        private val mSmartRefreshLayout: SmartRefreshLayout? = null,
+        private val mAdapter: BaseQuickAdapter<T, BaseViewHolder>? = null,
+        private var mLayoutErrorResource: Int? = R.layout.layout_error,
+        private var mLayoutEmptyResource: Int? = R.layout.layout_empty,
+        private var mLayoutLoadingResource: Int? = R.layout.layout_loading,
+        private var mLayoutNotNetResource: Int? = R.layout.layout_no_net,
+        private var autoRefreshEnable: Boolean = true
 ) {
     companion object {
-        const val STATE_VIEW_ERROR = 0
-        const val STATE_VIEW_EMPTY = 1
-        const val STATE_VIEW_LOADING = 2
-        const val STATE_VIEW_CONTENT = 3
-        const val STATE_VIEW_NO_NETWORK = 4
         const val SMART_LOAD_REFRESH = 5
         const val SMART_LOAD_MORE = 6
         const val SMART_LOAD_FINISH = 7
     }
 
     private val data: ArrayList<T> = ArrayList()
-    private var viewState: Int = STATE_VIEW_CONTENT
     private var loadState = SMART_LOAD_FINISH
 
     private var pageIndex = 0
-    private var totalPage = 2
+    private var totalPage = 0
     private var pageSize = 10
 
+
+
+    private var mInflate = LayoutInflater.from(mRecyclerView.context)
     private val layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.MATCH_PARENT
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
     )
 
     init {
@@ -77,40 +84,39 @@ class PageLoader<T>(
     /**
      * @desc 自动刷新
      */
-    private fun autoRefresh(){
-        if(autoRefreshEnable) run {
-            if(canLoadData(true)){
-                viewState = STATE_VIEW_LOADING
-                showLoading()
-                LogUtils.e("PageLoader","load autoRefresh")
-                mSmartRefreshLayout?.autoRefresh(100)
-            }
-
+    private fun autoRefresh() {
+        if (autoRefreshEnable) run {
+            updateStatusView(MultipleStatusView.STATUS_LOADING)
+            mSmartRefreshLayout?.autoRefresh(100)
         }
     }
 
     /**
-     * @desc 检查页面的显示状态
+     * @desc 更新页面显示状态
      */
-    private fun showMultipleStatusView() {
-        when (viewState) {
-            STATE_VIEW_ERROR -> {
+    private fun updateStatusView(expectStatus: Int) {
+        when (expectStatus) {
+            MultipleStatusView.STATUS_ERROR -> {
                 showError()
             }
-            STATE_VIEW_EMPTY -> {
+            MultipleStatusView.STATUS_EMPTY -> {
                 showEmpty()
             }
-            STATE_VIEW_LOADING -> {
+            MultipleStatusView.STATUS_LOADING -> {
                 showLoading()
             }
-            STATE_VIEW_CONTENT -> {
+            MultipleStatusView.STATUS_CONTENT -> {
                 showContent()
             }
-            STATE_VIEW_NO_NETWORK -> {
+            MultipleStatusView.STATUS_NO_NETWORK -> {
                 showNoNetwork()
             }
         }
-        setEnableLoad(viewState != STATE_VIEW_LOADING)
+        if(!autoRefreshEnable){
+            setEnableLoad(mMultipleStatusView?.viewStatus != MultipleStatusView.STATUS_LOADING)
+        } else{
+            autoRefreshEnable = false
+        }
     }
 
 
@@ -118,9 +124,40 @@ class PageLoader<T>(
      * @desc smartRefreshLayout 刷新数据操作是否能够进行
      * @param enable 是否启动数据刷新
      */
-    private fun setEnableLoad(enable: Boolean){
+    private fun setEnableLoad(enable: Boolean) {
         mSmartRefreshLayout?.setEnableRefresh(enable)
         mSmartRefreshLayout?.setEnableLoadMore(enable)
+    }
+
+
+    /**
+     * @desc 检查加载更多是否可用
+     * @return 是否可用
+     */
+    private fun loadMoreEnable(): Boolean{
+        var enable = false
+        chargeLoadMoreListener?.let {
+            enable = chargeLoadMoreListener.couldLoadMore(pageIndex,totalPage)
+        } ?:run{
+            enable == pageIndex < totalPage
+        }
+        if(!enable){
+            mSmartRefreshLayout?.finishLoadMore()
+        }
+        return enable
+    }
+    /**
+     * @desc 显示网络状态
+     * @param callBack 网络正常时回调刷新数据
+     */
+    private fun checkNetWorkState(callBack: () -> Unit) {
+        RxNetworkObserver.subscribe { netState ->
+            if (netState == RxNetworkObserver.NET_STATE_DISCONNECT) {
+                loadData(responseState = 2)
+            } else {
+                callBack.invoke()
+            }
+        }
     }
 
     private fun initSmartRefreshLayout() {
@@ -128,15 +165,15 @@ class PageLoader<T>(
             it.setRefreshHeader(ClassicsHeader(mRecyclerView.context))
             it.setRefreshFooter(ClassicsFooter(mRecyclerView.context))
             it.setOnRefreshListener {
-                LogUtils.e("PageLoader","check refresh")
-                if (canLoadData(true)) {
-                    LogUtils.e("PageLoader","load refresh")
+                checkNetWorkState {
                     onRefresh()
                 }
             }
             it.setOnLoadMoreListener {
-                if (canLoadData(false)) {
-                    loadMore()
+                checkNetWorkState {
+                    if(loadMoreEnable()){
+                        loadMore()
+                    }
                 }
             }
         }
@@ -171,18 +208,52 @@ class PageLoader<T>(
 
 
     /**
-     * @desc 将原有数据清除并填充新的数据
+     * @desc 装载数据
+     * @param source 即将刷新的数据源
+     * @param responseState 回调状态  0: success,1: fail, 2 :no_net
      */
-    fun loadNewData(source: List<T>) {
-        LogUtils.e("PageLoader","load form activity")
-        data.clear()
-        data.addAll(source)
+    fun loadData(source: List<T> = ArrayList(), responseState: Int = 0) {
+        if (responseState == 0) {
+            //回调状态为0时,即代表数据请求成功,处理数据。
+            if (loadState == SMART_LOAD_REFRESH) {
+                data.clear()
+                data.addAll(source)
+            } else {
+                data.addAll(source)
+            }
+        }
         refreshState()
+        refreshMultipleStatusView(responseState)
         refreshRecyclerView()
     }
 
     /**
-     * @desc 刷新数据
+     * @desc 刷新MultipleStatusView显示状态
+     * @param responseState 回调状态
+     */
+    private fun refreshMultipleStatusView(responseState: Int) {
+        if (loadState == SMART_LOAD_FINISH) {
+            if (data.size > 0) {
+                updateStatusView(MultipleStatusView.STATUS_CONTENT)
+            } else {
+                when (responseState) {
+                    0 -> {
+                        updateStatusView(MultipleStatusView.STATUS_EMPTY)
+                    }
+                    1 -> {
+                        //回调状态为1且数据为空
+                        updateStatusView(MultipleStatusView.STATUS_ERROR)
+                    }
+                    else -> {
+                        updateStatusView(MultipleStatusView.STATUS_NO_NETWORK)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @desc 刷新SmartRefreshLayout的显示状态
      */
     private fun refreshState() {
         when (loadState) {
@@ -199,33 +270,7 @@ class PageLoader<T>(
                 loadState = SMART_LOAD_FINISH
             }
         }
-        checkViewState()
     }
-
-
-    /**
-     * @desc  数据更新后检查页面状态
-     */
-    private fun checkViewState(){
-         if(viewState != STATE_VIEW_NO_NETWORK && viewState != STATE_VIEW_ERROR){
-             viewState = if(loadState == SMART_LOAD_FINISH){
-                 if(data.size > 0){
-                     STATE_VIEW_CONTENT
-                 } else {
-                     STATE_VIEW_EMPTY
-                 }
-             } else {
-                 STATE_VIEW_LOADING
-             }
-         }
-        showMultipleStatusView()
-    }
-
-    //有可能由接口实现的方法
-    //(由于是网络请求或本地数据库的获取,并不能直接判断下拉加载和上拉刷新的操作是否成功)
-    //必定存在回调(换言之必定存在接口的定义)
-    //将Presenter层获取的数据通过调用方法传递参数的形式赋值给pageLoader中的data
-
 
     /**
      * @desc 加载更多
@@ -254,29 +299,6 @@ class PageLoader<T>(
 
 
     /**
-     * @desc 是否能够进行数据的加载
-     */
-    private fun canLoadData(expectIsRefresh: Boolean): Boolean {
-        var canLoad = false
-        when (loadState) {
-            SMART_LOAD_FINISH -> {
-                canLoad = if (expectIsRefresh) {
-                    true
-                } else {
-                    pageIndex < totalPage
-                }
-            }
-            SMART_LOAD_MORE -> {
-                canLoad = false
-            }
-            SMART_LOAD_REFRESH -> {
-                canLoad = false
-            }
-        }
-        return canLoad
-    }
-
-    /**
      * @desc 显示内容布局
      */
     private fun showContent() {
@@ -287,28 +309,32 @@ class PageLoader<T>(
      * @desc 显示错误页面
      */
     private fun showError() {
-        mMultipleStatusView?.showError(mLayoutErrorResource!!,layoutParams)
+        val errorView = mInflate.inflate(mLayoutErrorResource!!, null)
+        mMultipleStatusView?.showError(errorView,layoutParams)
     }
 
     /**
      * @desc 显示空页面
      */
     private fun showEmpty() {
-        mMultipleStatusView?.showEmpty(mLayoutEmptyResource!!,layoutParams)
+        val emptyView = mInflate.inflate(mLayoutEmptyResource!!, null)
+        mMultipleStatusView?.showEmpty(emptyView, layoutParams)
     }
 
     /**
      * @desc 显示加载页面
      */
     private fun showLoading() {
-        mMultipleStatusView?.showLoading(mLayoutLoadingResource!!,layoutParams)
+        val loadingView = mInflate.inflate(mLayoutLoadingResource!!, null)
+        mMultipleStatusView?.showLoading(loadingView, layoutParams)
     }
 
     /**
      * @desc 显示无网络页面
      */
-    private fun showNoNetwork(){
-        mMultipleStatusView?.showNoNetwork(mLayoutNotNetResource!!,layoutParams)
+    private fun showNoNetwork() {
+        val noNetworkView = mInflate.inflate(mLayoutNotNetResource!!, null)
+        mMultipleStatusView?.showNoNetwork(noNetworkView, layoutParams)
     }
 
     /**
@@ -322,20 +348,20 @@ class PageLoader<T>(
      * @desc 设置加载布局资源
      */
     fun setLoadingResource(loadingResource: Int) {
-         mLayoutLoadingResource = loadingResource
+        mLayoutLoadingResource = loadingResource
     }
 
     /**
      * @desc 设置错误布局资源
      */
-    fun setErrorResource(errorResource: Int){
+    fun setErrorResource(errorResource: Int) {
         mLayoutErrorResource = errorResource
     }
 
     /**
      * @desc 设置无网络资源布局
      */
-    fun setNoNetworkResource(noNetworkResource: Int){
+    fun setNoNetworkResource(noNetworkResource: Int) {
         mLayoutNotNetResource = noNetworkResource
     }
 

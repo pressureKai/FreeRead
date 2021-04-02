@@ -1,5 +1,6 @@
 package com.kai.base.mvp.base
 
+import java.lang.Exception
 import java.lang.ref.WeakReference
 
 /**
@@ -17,7 +18,11 @@ abstract class BasePresenter<V : IView> :IPresenter<V>{
     }
 
 
-    fun getView() : V{
-        return iView.get() as V
+    fun getView() : V?{
+        return  try {
+            iView.get() as V
+        }catch (e :Exception){
+            null
+        }
     }
 }
