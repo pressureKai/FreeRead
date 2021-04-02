@@ -86,7 +86,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             source.add(index.toString())
         }
         Handler(Looper.getMainLooper()).postDelayed({
-            pageLoader.loadData(source)
+            pageLoader.loadData()
         }, 2000)
     }
 

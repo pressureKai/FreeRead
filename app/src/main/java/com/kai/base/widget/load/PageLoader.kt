@@ -467,9 +467,7 @@ class PageLoader<T>(
                 }
             }
         } catch (e: Exception) {
-
+            LogUtils.e("PageLoader","error is $e")
         }
-
     }
-
 }
