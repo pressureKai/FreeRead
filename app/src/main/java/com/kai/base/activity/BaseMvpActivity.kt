@@ -1,19 +1,20 @@
 package com.kai.base.activity
 
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.classic.common.MultipleStatusView
+import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.utils.LogUtils
-import com.kai.common.utils.RxNetworkObserver
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import skin.support.SkinCompatManager
 
 abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActivity(), IView {
     private var enableEventBus = true
@@ -175,6 +176,51 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
     fun showContent(){
         runOnUiThread {
             mMultipleStatusView?.showContent()
+        }
+    }
+
+
+    fun initImmersionBar(
+        view: View? = null,
+        fitSystem: Boolean = false,
+        color: Int? = 0
+    ) {
+        var immersionColor = R.color.app_background
+        color?.let {
+            if (it != 0) {
+                immersionColor = it
+            }
+        }
+
+        var fontIsDark = true
+        try {
+            val curSkinName = SkinCompatManager.getInstance().curSkinName
+            if(curSkinName.isEmpty()){
+                fontIsDark = true
+            } else if(curSkinName == "night"){
+                fontIsDark = false
+            }
+        }catch (e :java.lang.Exception){
+            LogUtils.e("BaseMvpActivity","getCurrentSkinName error is $e")
+        }
+
+        if (view != null) {
+            ImmersionBar
+                .with(this)
+                .statusBarDarkFont(fontIsDark, 0.7f)
+                .fitsSystemWindows(fitSystem)
+                .titleBar(view)
+                .navigationBarColor(immersionColor)
+                .autoNavigationBarDarkModeEnable(fontIsDark, 0.8f)
+                .init()
+        } else {
+            ImmersionBar
+                .with(this)
+                .statusBarDarkFont(fontIsDark, 0.7f)
+                .fitsSystemWindows(fitSystem)
+                .navigationBarColor(immersionColor)
+                .autoNavigationBarDarkModeEnable(fontIsDark, 0.8f)
+                .init()
         }
     }
 }

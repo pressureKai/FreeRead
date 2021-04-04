@@ -49,6 +49,12 @@ project.ext {
             "smart_refresh_header_classics"   :"com.scwang.smart:refresh-header-classics:2.0.3",
             "smart_refresh_footer_classics"   :"com.scwang.smart:refresh-footer-classics:2.0.3",
             "base_quick_adapter"              :"com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4",
-            "grender_toasty"            :"com.github.GrenderG:Toasty:1.5.0"
+            "grender_toasty"            :"com.github.GrenderG:Toasty:1.5.0",
+            "circleImageView"    :"de.hdodenhof:circleimageview:3.1.0",
+            "skin_base"          :"skin.support:skin-support:4.0.5",
+            "skin_design"        :"skin.support:skin-support-design:4.0.5",
+            "skin_card_view"     :"skin.support:skin-support-cardview:4.0.5",
+            "skin_constraint_layout" :"skin.support:skin-support-constraint-layout:4.0.5",
+            "skin_appcompat"     :"skin.support:skin-support-appcompat:4.0.5"
     ]
 }

@@ -12,6 +12,7 @@ import com.kai.base.mvp.base.IView
 class MainContract {
     interface View :IView{
         fun onLoadBookRecommend(list: List<String>)
+
     }
 
     interface Presenter{

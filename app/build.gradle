@@ -53,6 +53,12 @@ android {
     }
 
 
+    sourceSets{
+        main{
+            res.srcDirs = ['src/main/res', 'src/main/res-night']
+        }
+    }
+
     walle {
         // 指定渠道包的输出路径
         apkOutputFolder = new File("${project.buildDir}/outputs/channels");
@@ -64,11 +70,6 @@ android {
 }
 
 dependencies {
-    implementation rootProject.ext.dependencies.jetbrains
-    implementation rootProject.ext.dependencies.ktx
-    implementation rootProject.ext.dependencies.appcompat
-    implementation rootProject.ext.dependencies.material
-    implementation rootProject.ext.dependencies.constraintlayout
     implementation rootProject.ext.dependencies.smart_refresh_kernel
     implementation rootProject.ext.dependencies.smart_refresh_header_classics
     implementation rootProject.ext.dependencies.smart_refresh_footer_classics

@@ -2,11 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/app_background">
 
     <TextView
         android:gravity="center"
         android:text="出现错误了"
+        android:textColor="@color/app.font.color"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

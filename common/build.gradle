@@ -41,11 +41,11 @@ android {
 }
 
 dependencies {
-    implementation rootProject.ext.dependencies.jetbrains
-    implementation rootProject.ext.dependencies.ktx
-    implementation rootProject.ext.dependencies.appcompat
-    implementation rootProject.ext.dependencies.material
-    implementation rootProject.ext.dependencies.constraintlayout
+    api rootProject.ext.dependencies.jetbrains
+    api rootProject.ext.dependencies.ktx
+    api rootProject.ext.dependencies.appcompat
+    api rootProject.ext.dependencies.material
+    api rootProject.ext.dependencies.constraintlayout
     api rootProject.ext.dependencies.grender_toasty
     api rootProject.ext.dependencies.immersionbar_components
     api rootProject.ext.dependencies.immersionbar
@@ -71,6 +71,12 @@ dependencies {
     api rootProject.ext.dependencies.room
     api rootProject.ext.dependencies.opencc
     api rootProject.ext.dependencies.multiple_status_view
+    api rootProject.ext.dependencies.circleImageView
+    api rootProject.ext.dependencies.skin_base
+    api rootProject.ext.dependencies.skin_design
+    api rootProject.ext.dependencies.skin_card_view
+    api rootProject.ext.dependencies.skin_constraint_layout
+    api rootProject.ext.dependencies.skin_appcompat
     testImplementation rootProject.ext.dependencies.room_testing
     annotationProcessor rootProject.ext.dependencies.glide_compiler
     annotationProcessor rootProject.ext.dependencies.arouter_processer

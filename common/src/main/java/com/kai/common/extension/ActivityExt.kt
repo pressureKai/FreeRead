@@ -5,7 +5,6 @@ import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import com.gyf.immersionbar.ImmersionBar
 import es.dmoral.toasty.Toasty
 import kotlin.math.abs
@@ -14,7 +13,7 @@ import kotlin.math.abs
 fun Activity.initImmersionBar(
         view: View? = null,
         fitSystem: Boolean = false,
-        @ColorInt color: Int? = 0
+        color: Int? = 0
 ) {
     var immersionColor = 0
     color?.let {
