@@ -1,7 +1,5 @@
 package com.kai.ui.main
 
-import android.os.Handler
-import android.os.Looper
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -13,6 +11,13 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.appcompat.widget.SwitchCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.alibaba.android.arouter.launcher.ARouter
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
@@ -24,22 +29,25 @@ import com.kai.common.extension.getScreenWidth
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
+import com.kai.crawler.Crawler
+import com.kai.crawler.entity.book.SearchBook
 import kotlinx.android.synthetic.main.activity_main.*
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
+import java.lang.Exception
 
 
 /**
  * des 书籍主页面
  */
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View,
-    RefreshDataListener, ChargeLoadMoreListener ,SkinCompatSupportable{
+    RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
     companion object {
         const val INT_CODE = 0
         const val IS_DAY = "is_day"
     }
 
-    private lateinit var pageLoader: PageLoader<String>
+    private lateinit var pageLoader: PageLoader<SearchBook>
     private var drawLayoutIsOpen = false
     private var isDay = true
     override fun setLayoutId(): Int {
@@ -49,14 +57,26 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     override fun initView() {
         RxNetworkObserver.register(this)
         mPresenter?.loadBookRecommend()
-        initImmersionBar(fitSystem = false,color = R.color.app_background)
+        initImmersionBar(fitSystem = false, color = R.color.app_background)
+        val testBaseQuickAdapter = TestBaseQuickAdapter()
+        testBaseQuickAdapter.setOnItemClickListener { adapter, _, position ->
+            val searchBook = adapter.data[position] as SearchBook
+            ARouter.getInstance().build("/learn/rx").navigation()
+            try {
+//                Crawler.catalog(SL).subscribe { chapters ->
+//                    Crawler.content(SL, chapters.first().link)
+//                }
+            } catch (e: Exception) {
+
+            }
+        }
         pageLoader = PageLoader(
             recycler,
             refreshDataDelegate = this,
             chargeLoadMoreListener = this,
             mSmartRefreshLayout = refresh,
             mMultipleStatusView = status,
-            mAdapter = TestBaseQuickAdapter()
+            mAdapter = testBaseQuickAdapter
         )
 
 
@@ -66,7 +86,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         draw_content.layoutParams.width = ((getScreenWidth() / 6f) * 5).toInt()
         draw_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                if(SkinCompatManager.getInstance().curSkinName != "night"){
+                if (SkinCompatManager.getInstance().curSkinName != "night") {
                     val d = (0.5 * slideOffset).toFloat()
                     shadow_view.alpha = d
                 } else {
@@ -77,7 +97,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             }
 
             override fun onDrawerOpened(drawerView: View) {
-                if(SkinCompatManager.getInstance().curSkinName != "night"){
+                if (SkinCompatManager.getInstance().curSkinName != "night") {
                     shadow_view.alpha = 0.5f
                 } else {
                     shadow_view.alpha = 0.2f
@@ -133,26 +153,25 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         dayNightModelSwitchView.isChecked = !isDay
         dayNightModelIcon.setImageResource(R.drawable.night)
         dayNightModelSwitchView.setOnClickListener {
-              SharedPreferenceUtils.getInstance()?.let {
+            SharedPreferenceUtils.getInstance()?.let {
 
 
-
-                  it.putBoolean(IS_DAY, !isDay)
-                  isDay = it.getBoolean(IS_DAY, true)
-                  dayNightModelSwitchView.isChecked = !isDay
-
-
-                  if(isDay){
-                      SkinCompatManager.getInstance().restoreDefaultTheme()
-                  } else {
-                      SkinCompatManager.getInstance().loadSkin(
-                          "night",
-                          SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN
-                      )
-                  }
+                it.putBoolean(IS_DAY, !isDay)
+                isDay = it.getBoolean(IS_DAY, true)
+                dayNightModelSwitchView.isChecked = !isDay
 
 
-              }
+                if (isDay) {
+                    SkinCompatManager.getInstance().restoreDefaultTheme()
+                } else {
+                    SkinCompatManager.getInstance().loadSkin(
+                        "night",
+                        SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN
+                    )
+                }
+
+
+            }
         }
 
         val scanIcon = scan.findViewById<ImageView>(R.id.icon)
@@ -162,7 +181,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         scan.setOnClickListener {
 
         }
-
 
 
         val wifiIcon = wifi.findViewById<ImageView>(R.id.icon)
@@ -183,7 +201,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         }
 
 
-
         val fontIcon = font.findViewById<ImageView>(R.id.icon)
         val fontName = font.findViewById<TextView>(R.id.name)
         fontIcon.setImageResource(R.drawable.font)
@@ -191,7 +208,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         font.setOnClickListener {
 
         }
-
 
 
         val unRegisterIcon = un_register.findViewById<ImageView>(R.id.icon)
@@ -203,7 +219,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         }
 
 
-
         val quitAppIcon = quit_app.findViewById<ImageView>(R.id.icon)
         val quitAppName = quit_app.findViewById<TextView>(R.id.name)
         quitAppIcon.setImageResource(R.drawable.quit)
@@ -211,7 +226,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         quit_app.setOnClickListener {
             finish()
         }
-
 
 
         val skinIcon = skin.findViewById<ImageView>(R.id.icon)
@@ -225,7 +239,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         SkinCompatManager.getInstance().curSkinName
 
 
-
         val sourceIcon = source.findViewById<ImageView>(R.id.icon)
         val sourceName = source.findViewById<TextView>(R.id.name)
         sourceIcon.setImageResource(R.drawable.liabrary)
@@ -234,23 +247,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
         }
 
-
-
-//        Thread{
-//            var isRun = false
-//            Crawler.search("罗").subscribe {
-//                for(SL in it.first().sources){
-//                    if(!isRun){
-//                        Crawler.catalog(SL).subscribe { chapters ->
-//                            if(!isRun){
-//                                isRun = true
-//                                Crawler.content(SL,chapters.first().link)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }.start()
     }
 
     override fun createPresenter(): MainPresenter? {
@@ -263,9 +259,25 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
 
     inner class TestBaseQuickAdapter :
-        BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_main_test) {
-        override fun convert(holder: BaseViewHolder, item: String) {
-            holder.getView<TextView>(R.id.test).text = item
+        BaseQuickAdapter<SearchBook, BaseViewHolder>(R.layout.item_main_test) {
+        override fun convert(holder: BaseViewHolder, item: SearchBook) {
+            holder.getView<TextView>(R.id.title).text = item.title.replace(" ", "").trim()
+            holder.getView<TextView>(R.id.des).text = item.descriptor.replace(" ", "").trim()
+            holder.getView<TextView>(R.id.author).text = item.author.replace(" ", "").trim()
+            val view = holder.getView<View>(R.id.divider)
+
+            val itemPosition = getItemPosition(item)
+            if (itemPosition == data.size - 1) {
+                view.visibility = View.GONE
+            } else {
+                view.visibility = View.VISIBLE
+            }
+
+            val options = RequestOptions()
+                .transform(MultiTransformation(CenterCrop(), RoundedCorners(16)))
+                .diskCacheStrategy(DiskCacheStrategy.ALL);
+            val cover = holder.getView<ImageView>(R.id.cover)
+            Glide.with(cover).load(item.cover).apply(options).into(cover)
         }
     }
 
@@ -290,13 +302,9 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
      * @desc pageLoader 刷新数据接口
      */
     override fun onRefresh() {
-        val source = ArrayList<String>()
-        for (index in 0.until(120)) {
-            source.add(index.toString())
+        Crawler.search("罗").subscribe {
+            pageLoader.loadData(it)
         }
-        Handler(Looper.getMainLooper()).postDelayed({
-            pageLoader.loadData()
-        }, 2000)
     }
 
 
@@ -316,18 +324,18 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             false
         } else {
             ev?.let {
-                return if(ev.action == MotionEvent.ACTION_DOWN){
-                    if(it.rawX > ((getScreenWidth() / 6f) * 5).toInt()){
+                return if (ev.action == MotionEvent.ACTION_DOWN) {
+                    if (it.rawX > ((getScreenWidth() / 6f) * 5).toInt()) {
                         draw_layout.closeDrawer(Gravity.LEFT)
                         false
-                    }else {
+                    } else {
                         super.dispatchTouchEvent(ev)
                     }
                 } else {
                     super.dispatchTouchEvent(ev)
                 }
-            }?:run {
-               return  super.dispatchTouchEvent(ev)
+            } ?: run {
+                return super.dispatchTouchEvent(ev)
             }
 
         }
@@ -341,5 +349,12 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
     override fun applySkin() {
         initImmersionBar(fitSystem = false)
+        if (drawLayoutIsOpen) {
+            if (SkinCompatManager.getInstance().curSkinName == "night") {
+                shadow_view.alpha = 0.2f
+            } else {
+                shadow_view.alpha = 0.5f
+            }
+        }
     }
 }

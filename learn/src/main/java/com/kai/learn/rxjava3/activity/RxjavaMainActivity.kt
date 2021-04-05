@@ -11,9 +11,11 @@ package com.kai.learn.rxjava3.activity
  * 3. android基础 -> kotlin  - 3
  * 4. 第三方库(Rxjava,glide,oKHttp,retrofit) - 1
  */
+import com.alibaba.android.arouter.facade.annotation.Route
 import com.kai.commonmvvm.activity.BaseMvvmActivity
 import kotlin.properties.ReadWriteProperty
 
+@Route(path = "/learn/rx")
 class RxjavaMainActivity  : BaseMvvmActivity(){
 
 

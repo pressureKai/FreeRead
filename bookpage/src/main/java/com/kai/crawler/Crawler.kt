@@ -10,7 +10,9 @@ import com.kai.crawler.entity.source.SourceManager
 import com.kai.crawler.xpath.exception.XpathSyntaxErrorException
 import com.kai.crawler.xpath.model.JXDocument
 import com.kai.crawler.xpath.model.JXNode
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.jsoup.Jsoup
 import java.net.URI
 import java.net.URISyntaxException
@@ -24,7 +26,7 @@ class Crawler {
 
 
         fun search(keyword: String): Observable<List<SearchBook>> {
-           return Observable.create{ emitter ->
+           return Observable.create<List<SearchBook>> { emitter ->
                val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
                for (i in 0.until(checkedMap.size())) {
                    val id = SourceManager.CONFIGS.keyAt(i)
@@ -144,8 +146,7 @@ class Crawler {
                    }
                }
 
-
-            }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
             //循环遍历完全部资源，搜索完毕
 
         }

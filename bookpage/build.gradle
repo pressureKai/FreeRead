@@ -4,11 +4,6 @@ plugins {
     id 'kotlin-kapt'
 }
 
-kapt {
-    arguments {
-        arg("moduleName", project.getName())
-    }
-}
 
 android {
     compileSdkVersion 30
@@ -21,6 +16,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+
+        kapt {
+            arguments {
+                arg("AROUTER_MODULE_NAME", project.getName())
+            }
+        }
     }
 
     buildTypes {
@@ -47,7 +48,7 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
+    kapt rootProject.ext.dependencies.arouter_processer
     implementation project(':commonMvvm')
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.apache.commons:commons-lang3:3.8.1'

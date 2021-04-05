@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.L
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.classic.common.MultipleStatusView
@@ -16,14 +15,10 @@ import com.kai.common.extension.closeDefaultAnimation
 import com.kai.common.extension.customToast
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.RxNetworkObserver
+import com.kai.crawler.entity.book.SearchBook
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import com.scwang.smart.refresh.layout.api.RefreshFooter
-import com.scwang.smart.refresh.layout.api.RefreshHeader
-import com.scwang.smart.refresh.layout.api.RefreshLayout
-import com.scwang.smart.refresh.layout.constant.RefreshState
-import com.scwang.smart.refresh.layout.listener.OnMultiListener
 import java.lang.Exception
 
 /**

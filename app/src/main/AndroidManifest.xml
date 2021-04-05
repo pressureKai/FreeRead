@@ -31,6 +31,8 @@
 
 
         <activity android:name="com.kai.ui.main.MainActivity"/>
+
+        <activity android:name="com.kai.ui.bookdetail.BookDetailActivity"/>
     </application>
 
 </manifest>

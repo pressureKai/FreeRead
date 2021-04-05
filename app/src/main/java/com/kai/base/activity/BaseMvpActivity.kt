@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.alibaba.android.arouter.launcher.ARouter
 import com.classic.common.MultipleStatusView
 import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R

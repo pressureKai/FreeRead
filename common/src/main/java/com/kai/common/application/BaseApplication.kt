@@ -8,11 +8,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.multidex.MultiDex
-import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.common.constant.Constant
 import com.kai.common.utils.LogUtils
-import com.meituan.android.walle.WalleChannelReader
-import com.tencent.bugly.Bugly
 import com.tencent.bugly.beta.Beta
 import com.tencent.tinker.entry.DefaultApplicationLike
 import java.lang.Exception
@@ -42,7 +39,6 @@ open class BaseApplication(
         super.onCreate()
         sInstance = application.baseContext
         Constant.init(application)
-        initARouter()
         initModelsSpeed()
         initModelsLow()
     }
@@ -58,10 +54,6 @@ open class BaseApplication(
 
     }
 
-
-    private fun initARouter(){
-        ARouter.init(application)
-    }
 
     private fun initTinker(){
         try {

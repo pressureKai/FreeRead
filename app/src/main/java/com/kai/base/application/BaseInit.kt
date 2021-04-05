@@ -1,6 +1,7 @@
 package com.kai.base.application
 
 import android.app.Application
+import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.common.application.BaseAppInit
 import com.kai.common.constant.Constant
 import com.kai.common.utils.LogUtils
@@ -25,6 +26,13 @@ class BaseInit: BaseAppInit {
     override fun onInitLow(application: Application): Boolean {
         initBugly(application)
         initSkin(application)
+        try {
+            ARouter.openLog()
+            ARouter.openDebug()
+            ARouter.init(application)
+        }catch (e: java.lang.Exception){
+            LogUtils.e("ARouter","init error is $e")
+        }
         return true
     }
     private fun initBugly(application: Application){

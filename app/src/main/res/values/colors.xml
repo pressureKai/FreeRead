@@ -43,6 +43,10 @@
 
     <color name="app_background">#F7F7F7</color>
     <color name="app.font.color">#484848</color>
+    <color name="app.font.second.color">#585858</color>
     <color name="app.draw.content.background">#ffffff</color>
+
+
+    <color name="draw.item">#E8EAF6</color>
 
 </resources>
