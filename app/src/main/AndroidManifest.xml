@@ -30,9 +30,11 @@
         </activity>
 
 
-        <activity android:name="com.kai.ui.main.MainActivity"/>
+        <activity android:name="com.kai.ui.main.MainActivity"
+            android:launchMode="singleTask"/>
 
         <activity android:name="com.kai.ui.bookdetail.BookDetailActivity"/>
+        <activity android:name="com.kai.ui.fonts.FontsActivity"/>
     </application>
 
 </manifest>

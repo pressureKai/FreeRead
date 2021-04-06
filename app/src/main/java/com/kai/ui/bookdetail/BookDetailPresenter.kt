@@ -16,6 +16,4 @@ class BookDetailPresenter : BasePresenter<BookDetailContract.View>(), BookDetail
     override fun loadBookDetail() {
 
     }
-
-
 }

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.alibaba.android.arouter.launcher.ARouter
 import com.classic.common.MultipleStatusView
 import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R
@@ -116,7 +115,7 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
     }
 
 
-    fun <T> postStickyEvent(data: T, code: Int? = 0, message: String) {
+    fun <T> postStickyEvent(data: T, code: Int? = 0, message: String = "") {
         val eventBusEntity = EventBusEntity<T>()
         eventBusEntity.data = data
         eventBusEntity.code = code!!
@@ -224,4 +223,7 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 .init()
         }
     }
+
+
+
 }

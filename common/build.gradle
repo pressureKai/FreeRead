@@ -75,6 +75,8 @@ dependencies {
     api rootProject.ext.dependencies.skin_card_view
     api rootProject.ext.dependencies.skin_constraint_layout
     api rootProject.ext.dependencies.skin_appcompat
+    api rootProject.ext.dependencies.calligraphy
+    api rootProject.ext.dependencies.viewpump
     api rootProject.ext.dependencies.arouter
     kapt rootProject.ext.dependencies.arouter_processer
     testImplementation  rootProject.ext.dependencies.room_testing

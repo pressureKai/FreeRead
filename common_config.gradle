@@ -55,6 +55,8 @@ project.ext {
             "skin_design"        :"skin.support:skin-support-design:4.0.5",
             "skin_card_view"     :"skin.support:skin-support-cardview:4.0.5",
             "skin_constraint_layout" :"skin.support:skin-support-constraint-layout:4.0.5",
-            "skin_appcompat"     :"skin.support:skin-support-appcompat:4.0.5"
+            "skin_appcompat"     :"skin.support:skin-support-appcompat:4.0.5",
+            "calligraphy"       :"io.github.inflationx:calligraphy3:3.1.1",
+            "viewpump"          :"io.github.inflationx:viewpump:2.0.3"
     ]
 }

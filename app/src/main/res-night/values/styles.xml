@@ -1,0 +1,11 @@
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="GTWStyle">
+        <item name="fontPath">fonts/gtw.ttf</item>
+    </style>
+
+    <style name="RobotoStyle">
+        <item name="fontPath">fonts/RobotoCondensed-Regular.ttf</item>
+    </style>
+</resources>

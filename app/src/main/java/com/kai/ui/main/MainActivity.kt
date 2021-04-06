@@ -1,5 +1,7 @@
 package com.kai.ui.main
 
+import android.content.Context
+import android.content.Intent
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -24,17 +26,20 @@ import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.PageLoader
+import com.kai.base.widget.load.PageLoader.Companion.DATA_STATE_ERROR
 import com.kai.base.widget.load.RefreshDataListener
+import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.getScreenWidth
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.crawler.Crawler
 import com.kai.crawler.entity.book.SearchBook
+import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
+import org.greenrobot.eventbus.EventBus
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
-import java.lang.Exception
 
 
 /**
@@ -43,7 +48,7 @@ import java.lang.Exception
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View,
     RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
     companion object {
-        const val INT_CODE = 0
+        const val CODE_FROM_FONTS = 0x11
         const val IS_DAY = "is_day"
     }
 
@@ -71,12 +76,12 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             }
         }
         pageLoader = PageLoader(
-            recycler,
-            refreshDataDelegate = this,
-            chargeLoadMoreListener = this,
-            mSmartRefreshLayout = refresh,
-            mMultipleStatusView = status,
-            mAdapter = testBaseQuickAdapter
+                recycler,
+                refreshDataDelegate = this,
+                chargeLoadMoreListener = this,
+                mSmartRefreshLayout = refresh,
+                mMultipleStatusView = status,
+                mAdapter = testBaseQuickAdapter
         )
 
 
@@ -165,8 +170,8 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                     SkinCompatManager.getInstance().restoreDefaultTheme()
                 } else {
                     SkinCompatManager.getInstance().loadSkin(
-                        "night",
-                        SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN
+                            "night",
+                            SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN
                     )
                 }
 
@@ -206,7 +211,18 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         fontIcon.setImageResource(R.drawable.font)
         fontName.text = "全局字体"
         font.setOnClickListener {
-
+            ARouter.getInstance().build("/app/fonts").navigation()
+//            CalligraphyConfig.initDefault(
+//                    CalligraphyConfig.Builder()
+//                            .setDefaultFontPath("fonts/Oswald-Stencbab.ttf")
+//                            .build()
+//            )
+//            val intent = intent
+//            overridePendingTransition(0, 0)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+//            finish()
+//            overridePendingTransition(0, 0)
+//            startActivity(intent)
         }
 
 
@@ -235,9 +251,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         skin.setOnClickListener {
 
         }
-
-        SkinCompatManager.getInstance().curSkinName
-
 
         val sourceIcon = source.findViewById<ImageView>(R.id.icon)
         val sourceName = source.findViewById<TextView>(R.id.name)
@@ -302,8 +315,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
      * @desc pageLoader 刷新数据接口
      */
     override fun onRefresh() {
-        Crawler.search("罗").subscribe {
-            pageLoader.loadData(it)
+        Crawler.search("罗")
+                .doOnError {
+                    pageLoader.loadData(responseState = PageLoader.DATA_STATE_ERROR)
+                }.subscribe {
+               pageLoader.loadData(it)
         }
     }
 
@@ -355,6 +371,23 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             } else {
                 shadow_view.alpha = 0.5f
             }
+        }
+    }
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
+    }
+
+
+    override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
+        super.onMessageReceiver(eventBusEntity)
+        if(eventBusEntity.code == CODE_FROM_FONTS){
+            EventBus.getDefault().removeStickyEvent(eventBusEntity)
+            val intent = intent
+            overridePendingTransition(0, 0)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            finish()
+            overridePendingTransition(0, 0)
+            startActivity(intent)
         }
     }
 }

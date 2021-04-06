@@ -32,11 +32,9 @@ class Crawler {
                    val id = SourceManager.CONFIGS.keyAt(i)
                    val config = SourceManager.CONFIGS.valueAt(i)
                    val source = SourceManager.SOURCES.get(id)
-
                    if (!checkedMap.get(id)) {
                        continue
                    }
-
                    val resource = ArrayList<JXNode?>()
                    var url = ""
                    try {
@@ -132,7 +130,6 @@ class Crawler {
 
                                    if (bookLink.isNotEmpty()) {
                                        books.add(book)
-
                                    }
 
                                }
