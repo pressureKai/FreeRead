@@ -27,8 +27,8 @@ class SourceManager {
       val SOURCES: SparseArray<Source> = object : SparseArray<Source>() {
          init {
             put(
-               SourceID.LIEWEN,
-               Source(SourceID.LIEWEN, "猎文网", "https://www.liewen.la/search.php?q=%s")
+               SourceID.DINGDIAN,
+               Source(SourceID.DINGDIAN, "顶点小说", "http://www.ibooktxt.com/search.php?q=%s")
             )
          }
       }
