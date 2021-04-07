@@ -8,31 +8,322 @@
     tools:ignore="MissingPrefix"
     tools:context="com.kai.ui.fonts.FontsActivity">
 
-    <TextView
-        android:layout_marginTop="45dp"
-        android:id="@+id/test_gtw"
-        android:padding="@dimen/dp_10"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:text="test_gtw"
-        fontPath="fonts/gtw.ttf"
+
+    <include
+        layout="@layout/merge_toolbar"/>
+
+
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/app_background"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/current_font"
+                android:padding="16dp"
+                android:text="当前字体"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
 
 
-    <TextView
-        android:id="@+id/test_roboto"
-        android:padding="@dimen/dp_10"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:text="test_roboto"
-        fontPath="fonts/RobotoCondensed-Regular.ttf"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/pop_font"
+                android:padding="16dp"
+                android:text="pop字体"
+                fontPath="fonts/pop字体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+
+            <TextView
+                android:id="@+id/hkzh_font"
+                android:padding="16dp"
+                android:text="华康中黑字体"
+                fontPath="fonts/华康中黑字体.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/hkww_font"
+                android:padding="16dp"
+                android:text="华康娃娃字体"
+                fontPath="fonts/华康娃娃体.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+
+            <TextView
+                android:id="@+id/hksn_font"
+                android:padding="16dp"
+                android:text="华康少女字体"
+                fontPath="fonts/华康少女字体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/hwcy_font"
+                android:padding="16dp"
+                android:text="华文彩云字体"
+                fontPath="fonts/华文彩云.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/hwxs_font"
+                android:padding="16dp"
+                android:text="华文新宋字体"
+                fontPath="fonts/华文新宋.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/hwxw_font"
+                android:padding="16dp"
+                android:text="华文新魏字体"
+                fontPath="fonts/华文新魏.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/hwxk_font"
+                android:padding="16dp"
+                android:text="华文行楷字体"
+                fontPath="fonts/华文行楷.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/yy_font"
+                android:padding="16dp"
+                android:text="幼圆字体"
+                fontPath="fonts/幼圆.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/wryh_font"
+                android:padding="16dp"
+                android:text="微软雅黑字体"
+                fontPath="fonts/微软雅黑14M.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/wqywmh_font"
+                android:padding="16dp"
+                android:text="文泉驿微米黑字体"
+                fontPath="fonts/文泉驿微米黑.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzzy_font"
+                android:padding="16dp"
+                android:text="方正准圆字体"
+                fontPath="fonts/方正准圆.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzhl_font"
+                android:padding="16dp"
+                android:text="方正华隶字体"
+                fontPath="fonts/方正华隶.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzktjt_font"
+                android:padding="16dp"
+                android:text="方正卡通简体字体"
+                fontPath="fonts/方正卡通简体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/fzgl_font"
+                android:padding="16dp"
+                android:text="方正古隶字体"
+                fontPath="fonts/方正古隶.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/fzqtjt_font"
+                android:padding="16dp"
+                android:text="方正启体简体字体"
+                fontPath="fonts/方正启体简体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/fzxz_font"
+                android:padding="16dp"
+                android:text="方正小篆字体"
+                fontPath="fonts/方正小篆.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzzyuan_font"
+                android:padding="16dp"
+                android:text="方正正圆字体"
+                fontPath="fonts/方正正圆.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzlxtjt_font"
+                android:padding="16dp"
+                android:text="方正流行体简体字体"
+                fontPath="fonts/方正流行体简体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzybxs_font"
+                android:padding="16dp"
+                android:text="方正硬笔行书字体"
+                fontPath="fonts/方正硬笔行书.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/fzcy_font"
+                android:padding="16dp"
+                android:text="方正粗圆字体"
+                fontPath="fonts/方正粗圆.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzpty_font"
+                android:padding="16dp"
+                android:text="方正胖头鱼字体"
+                fontPath="fonts/方正胖头鱼.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/fzjljt_font"
+                android:padding="16dp"
+                android:text="方正静蕾简体字体"
+                fontPath="fonts/方正静蕾简体.TTF"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/ml_font"
+                android:padding="16dp"
+                android:text="明兰字体"
+                fontPath="fonts/明兰.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/kt_font"
+                android:padding="16dp"
+                android:text="楷体字体"
+                fontPath="fonts/楷体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/sjt_font"
+                android:padding="16dp"
+                android:text="瘦金体字体"
+                fontPath="fonts/瘦金体.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/pglh_font"
+                android:padding="16dp"
+                android:text="苹果丽黑字体"
+                fontPath="fonts/苹果丽黑.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+            <TextView
+                android:id="@+id/njygy_font"
+                android:padding="16dp"
+                android:text="诺基亚古印字体"
+                fontPath="fonts/诺基亚古印.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/ls_font"
+                android:padding="16dp"
+                android:text="隶书字体"
+                fontPath="fonts/隶书.ttf"
+                android:textColor="@color/app.font.color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
 
 </LinearLayout>

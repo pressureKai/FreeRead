@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+       <dimen name="toolbar.size">18sp</dimen>
+       <dimen name="toolbar.sub.title.size">10sp</dimen>
+       <dimen name="toolbar.cancel.size">16sp</dimen>
+       <dimen name="toolbar.more.size">54dp</dimen>
+       <dimen name="toolbar.back.size">54dp</dimen>
+       <dimen name="toolbar.padding">12dp</dimen>
+</resources>

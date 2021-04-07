@@ -6,6 +6,8 @@ import com.kai.base.R
 import com.kai.common.application.BaseAppInit
 import com.kai.common.constant.Constant
 import com.kai.common.utils.LogUtils
+import com.kai.common.utils.SharedPreferenceUtils
+import com.kai.ui.fonts.FontsActivity
 import com.tencent.bugly.Bugly
 import com.tencent.bugly.crashreport.CrashReport.UserStrategy
 import io.github.inflationx.calligraphy3.CalligraphyConfig
@@ -80,10 +82,14 @@ class BaseInit : BaseAppInit {
 
 
     private fun initCalligraphy() {
+        var fontPath = "fonts/方正准圆.ttf"
+        SharedPreferenceUtils.getInstance()?.let {
+            fontPath = it.getString(FontsActivity.CURRENT_FONT)
+        }
         ViewPump.init(ViewPump.builder()
                 .addInterceptor(CalligraphyInterceptor(
                         CalligraphyConfig.Builder()
-                                .setDefaultFontPath("fonts/gtw.ttf")
+                                .setDefaultFontPath(fontPath)
                                 .setFontAttrId(R.attr.fontPath)
                                 .build()))
                 .build())

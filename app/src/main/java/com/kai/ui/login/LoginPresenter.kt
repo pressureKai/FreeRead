@@ -1,4 +1,4 @@
-package com.kai.ui.fonts
+package com.kai.ui.login
 
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.model.book.BookRepository
@@ -10,9 +10,6 @@ import com.kai.model.book.BookRepository
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/23 18:09
  */
-class FontsPresenter : BasePresenter<FontsContract.View>(), FontsContract.Presenter {
-    var mBookRepository: BookRepository = BookRepository.get()
-    override fun loadFonts() {
+class LoginPresenter : BasePresenter<LoginContract.View>(), LoginContract.Presenter {
 
-    }
 }

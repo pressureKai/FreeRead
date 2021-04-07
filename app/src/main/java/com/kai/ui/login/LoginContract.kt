@@ -1,4 +1,4 @@
-package com.kai.ui.fonts
+package com.kai.ui.login
 
 import com.kai.base.mvp.base.IView
 
@@ -9,12 +9,13 @@ import com.kai.base.mvp.base.IView
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/24 10:42
  */
-class FontsContract {
+class LoginContract {
     interface View :IView{
-        fun onLoadFonts(list: List<String>)
+
+
     }
 
     interface Presenter{
-        fun loadFonts()
+
     }
 }

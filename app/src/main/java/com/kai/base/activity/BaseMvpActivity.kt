@@ -2,8 +2,10 @@ package com.kai.base.activity
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.marginTop
 import com.classic.common.MultipleStatusView
 import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R
@@ -11,6 +13,7 @@ import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.utils.LogUtils
+import com.kai.common.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -209,8 +212,8 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 .with(this)
                 .statusBarDarkFont(fontIsDark, 0.7f)
                 .fitsSystemWindows(fitSystem)
-                .titleBar(view)
                 .navigationBarColor(immersionColor)
+                .titleBar(view)
                 .autoNavigationBarDarkModeEnable(fontIsDark, 0.8f)
                 .init()
         } else {
@@ -223,7 +226,4 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 .init()
         }
     }
-
-
-
 }
