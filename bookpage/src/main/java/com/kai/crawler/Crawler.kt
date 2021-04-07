@@ -23,11 +23,11 @@ import java.net.URLEncoder
 class Crawler {
     companion object {
         const val TAG = "Crawler"
-
-
         fun search(keyword: String): Observable<List<SearchBook>> {
            return Observable.create<List<SearchBook>> { emitter ->
                val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+               val books: ArrayList<SearchBook> = ArrayList()
+               var connectError = false
                for (i in 0.until(checkedMap.size())) {
                    val id = SourceManager.CONFIGS.keyAt(i)
                    val config = SourceManager.CONFIGS.valueAt(i)
@@ -58,6 +58,7 @@ class Crawler {
                        }
                    } catch (e: Exception) {
                        LogUtils.e(TAG, "search getConnect error $e")
+                       connectError = true
                        continue
                    }
 
@@ -65,7 +66,7 @@ class Crawler {
                        continue
                    }
 
-                   val books: ArrayList<SearchBook> = ArrayList()
+
                    try {
                        for (jxNode in resource) {
                            var bookLink = ""
@@ -141,10 +142,17 @@ class Crawler {
                        emitter.onError(e)
                        LogUtils.e(TAG, e.toString())
                    }
+
+               }
+               //循环遍历完全部资源，搜索完毕
+
+               if(books.size == 0 && connectError){
+                   LogUtils.e(TAG, "search finish")
+                   emitter.onError(Exception())
                }
 
             }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-            //循环遍历完全部资源，搜索完毕
+
 
         }
 

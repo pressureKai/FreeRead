@@ -26,7 +26,6 @@ import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.PageLoader
-import com.kai.base.widget.load.PageLoader.Companion.DATA_STATE_ERROR
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.eventBusEntity.EventBusEntity
 import com.kai.common.extension.getScreenWidth
@@ -46,7 +45,7 @@ import skin.support.widget.SkinCompatSupportable
  * des 书籍主页面
  */
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View,
-    RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
+        RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
     companion object {
         const val CODE_FROM_FONTS = 0x11
         const val IS_DAY = "is_day"
@@ -212,17 +211,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         fontName.text = "全局字体"
         font.setOnClickListener {
             ARouter.getInstance().build("/app/fonts").navigation()
-//            CalligraphyConfig.initDefault(
-//                    CalligraphyConfig.Builder()
-//                            .setDefaultFontPath("fonts/Oswald-Stencbab.ttf")
-//                            .build()
-//            )
-//            val intent = intent
-//            overridePendingTransition(0, 0)
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-//            finish()
-//            overridePendingTransition(0, 0)
-//            startActivity(intent)
         }
 
 
@@ -260,6 +248,12 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
         }
 
+
+
+        info_layout.setOnClickListener {
+            ARouter.getInstance().build("/app/login").navigation()
+        }
+
     }
 
     override fun createPresenter(): MainPresenter? {
@@ -272,7 +266,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
 
     inner class TestBaseQuickAdapter :
-        BaseQuickAdapter<SearchBook, BaseViewHolder>(R.layout.item_main_test) {
+            BaseQuickAdapter<SearchBook, BaseViewHolder>(R.layout.item_main_test) {
         override fun convert(holder: BaseViewHolder, item: SearchBook) {
             holder.getView<TextView>(R.id.title).text = item.title.replace(" ", "").trim()
             holder.getView<TextView>(R.id.des).text = item.descriptor.replace(" ", "").trim()
@@ -287,8 +281,8 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             }
 
             val options = RequestOptions()
-                .transform(MultiTransformation(CenterCrop(), RoundedCorners(16)))
-                .diskCacheStrategy(DiskCacheStrategy.ALL);
+                    .transform(MultiTransformation(CenterCrop(), RoundedCorners(16)))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL);
             val cover = holder.getView<ImageView>(R.id.cover)
             Glide.with(cover).load(item.cover).apply(options).into(cover)
         }
@@ -319,8 +313,8 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 .doOnError {
                     pageLoader.loadData(responseState = PageLoader.DATA_STATE_ERROR)
                 }.subscribe {
-               pageLoader.loadData(it)
-        }
+                    pageLoader.loadData(it)
+                }
     }
 
 
@@ -373,6 +367,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             }
         }
     }
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
     }
@@ -380,7 +375,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
     override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
         super.onMessageReceiver(eventBusEntity)
-        if(eventBusEntity.code == CODE_FROM_FONTS){
+        if (eventBusEntity.code == CODE_FROM_FONTS) {
             EventBus.getDefault().removeStickyEvent(eventBusEntity)
             val intent = intent
             overridePendingTransition(0, 0)

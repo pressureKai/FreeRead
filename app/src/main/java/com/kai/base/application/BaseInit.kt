@@ -13,6 +13,7 @@ import com.tencent.bugly.crashreport.CrashReport.UserStrategy
 import io.github.inflationx.calligraphy3.CalligraphyConfig
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor
 import io.github.inflationx.viewpump.ViewPump
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import skin.support.SkinCompatManager
 import skin.support.app.SkinAppCompatViewInflater
 import skin.support.app.SkinCardViewInflater
@@ -35,6 +36,9 @@ class BaseInit : BaseAppInit {
         initSkin(application)
         initARouter(application)
         initCalligraphy()
+        RxJavaPlugins.setErrorHandler {
+
+        }
         return true
     }
 
