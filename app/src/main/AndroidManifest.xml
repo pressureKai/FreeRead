@@ -22,9 +22,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         tools:ignore="HardcodedDebugMode">
-        <meta-data
-            android:name="com.google.android.actions"
-            android:resource="@xml/actions" />
 
         <activity
             android:name="com.kai.ui.SplashActivity"

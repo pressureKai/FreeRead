@@ -53,5 +53,9 @@
     <color name="login.background.center">#080C2B</color>
     <color name="login.background.end">#03040E</color>
     <color name="login.card.background.color">#C8E7E9F5</color>
+    <color name="login.edit.line.color.normal">#3F50B4</color>
+    <color name="login.edit.line.color.focus">#1A237D</color>
+    <color name="login.edit.error">#c6174e</color>
+    <color name="login.edit.hint">#8c8c8c</color>
 
 </resources>
