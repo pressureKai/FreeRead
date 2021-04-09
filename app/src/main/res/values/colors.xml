@@ -49,4 +49,9 @@
 
     <color name="draw.item">#E8EAF6</color>
 
+    <color name="login.background">#0E154D</color>
+    <color name="login.background.center">#080C2B</color>
+    <color name="login.background.end">#03040E</color>
+    <color name="login.card.background.color">#C8E7E9F5</color>
+
 </resources>
