@@ -1,5 +1,8 @@
 package com.kai.common.utils
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 /**
  *
  * @ProjectName:    CommonApplication
@@ -10,9 +13,9 @@ package com.kai.common.utils
 class StringUtils {
     companion object{
         /**
-         * 新增增了中文的空格
-         * @param str
-         * @return
+         * # 去除空格，包含中文空格
+         * @param [str] 待去空格字符串
+         * @return 去空格后字符串
          */
         fun trim(str: String): String? {
             if (str.isEmpty()) {
@@ -27,6 +30,24 @@ class StringUtils {
                 len--
             }
             return if (st > 0 || len < str.length) str.substring(st, len) else str
+        }
+
+        /**
+         * # 检验字符串是否为手机格式
+         * @param [str] 待检验字符串
+         * @return 是否符合格式
+         */
+        fun verifyPhone(str: String): Boolean{
+            val regex = "^1[3456789]\\d{9}$"
+            val phone = str.replace(" ", "").trim()
+            return if (phone.length !== 11) {
+                false
+            } else {
+                val p: Pattern = Pattern.compile(regex)
+                val m: Matcher = p.matcher(phone)
+                val isMatch: Boolean = m.matches()
+                isMatch
+            }
         }
     }
 }

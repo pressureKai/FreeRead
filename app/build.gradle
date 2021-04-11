@@ -85,6 +85,7 @@ dependencies {
     implementation rootProject.ext.dependencies.base_quick_adapter
     api rootProject.ext.dependencies.arouter
     kapt rootProject.ext.dependencies.arouter_processer
+    kapt rootProject.ext.dependencies.room_kapt
     api project(':common')
     api project(':bookpage')
     api project(':learn')

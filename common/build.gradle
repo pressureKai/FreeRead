@@ -67,6 +67,8 @@ dependencies {
     api rootProject.ext.dependencies.walle
     api rootProject.ext.dependencies.glide
     api rootProject.ext.dependencies.room
+    api rootProject.ext.dependencies.room_run
+    kapt rootProject.ext.dependencies.room_kapt
     api rootProject.ext.dependencies.opencc
     api rootProject.ext.dependencies.multiple_status_view
     api rootProject.ext.dependencies.circleImageView

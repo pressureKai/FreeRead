@@ -23,6 +23,7 @@ class BookRepository private constructor(
                 return field
             }
 
+        @Synchronized
         fun get(): BookRepository {
             return instance!!
         }

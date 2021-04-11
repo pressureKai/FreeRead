@@ -1,8 +1,10 @@
 package com.kai.base.activity
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.marginTop
@@ -12,6 +14,7 @@ import com.kai.base.R
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.EventBusEntity
+import com.kai.common.listener.CustomAnimatorListener
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
@@ -225,5 +228,18 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 .autoNavigationBarDarkModeEnable(fontIsDark, 0.8f)
                 .init()
         }
+    }
+    fun beginAnimation(view: View, height: Float,customAnimatorListener: CustomAnimatorListener? = null){
+        val mAnimatorTranslateY: ObjectAnimator = ObjectAnimator.ofFloat(
+            view,
+            "translationY", view.translationY, height
+        )
+        mAnimatorTranslateY.duration = 200
+        mAnimatorTranslateY.interpolator = LinearInterpolator()
+        mAnimatorTranslateY.start()
+        customAnimatorListener?.let {
+            mAnimatorTranslateY.addListener(customAnimatorListener)
+        }
+
     }
 }

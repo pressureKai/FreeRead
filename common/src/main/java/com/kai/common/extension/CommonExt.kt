@@ -2,6 +2,7 @@ package com.kai.common.extension
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import java.util.regex.Matcher
@@ -55,4 +56,35 @@ fun RecyclerView.closeDefaultAnimation(){
     this.itemAnimator?.moveDuration = 0
     this.itemAnimator?.removeDuration = 0
     (this.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+}
+
+fun EditText.formatPhone(start: Int, isAdd: Boolean) {
+    val phone = this.text.toString().replace(" ", "").trim()
+    val account = phone.length
+    val stringBuilder = StringBuilder()
+    if(isAdd){
+        if(account in 4..7){
+            stringBuilder.append(phone.subSequence(0, 3))
+            stringBuilder.append(" ")
+            stringBuilder.append(phone.subSequence(3, account))
+        }else if(account > 7){
+            stringBuilder.append(phone.subSequence(0, 3))
+            stringBuilder.append(" ")
+            stringBuilder.append(phone.subSequence(3, 7))
+            stringBuilder.append(" ")
+            stringBuilder.append(phone.subSequence(7, account))
+        }
+    }
+
+
+    val newString = stringBuilder.toString()
+    val oldStringLength = this.text.toString().length
+    val newStringLength = newString.length
+    if(newString.isNotEmpty()){
+        if(this.text.toString() != newString){
+            this.setText(newString)
+            val newPosition =  start + (newStringLength - oldStringLength) + 1
+            this.setSelection(newPosition)
+        }
+    }
 }

@@ -5,12 +5,12 @@ import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.common.extension.getScreenWidth
 import com.kai.common.keyboard.KeyboardHeightObserver
 import com.kai.common.keyboard.KeyboardHeightProvider
-import com.kai.common.utils.LogUtils
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -22,9 +22,11 @@ import kotlinx.android.synthetic.main.activity_login.*
  * @UpdateDate:     2021/4/7 15:45
  */
 @Route(path = "/app/login")
-class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),KeyboardHeightObserver{
+class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
+    KeyboardHeightObserver {
 
     private lateinit var keyboardHeightProvider: KeyboardHeightProvider
+    private var loginCardOriginBottom = 0
     override fun initView() {
         keyboardHeightProvider = KeyboardHeightProvider(this)
         keyboardHeightProvider.setKeyboardHeightObserver(this)
@@ -32,6 +34,13 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),Keyb
         login_lottie.layoutParams.height = getScreenWidth()
         login_content.post {
             keyboardHeightProvider.start()
+        }
+
+        forget_password.setOnClickListener {
+            ARouter.getInstance().build("/app/forgetPassword").navigation()
+        }
+        register.setOnClickListener {
+            ARouter.getInstance().build("/app/register").navigation()
         }
     }
 
@@ -48,8 +57,28 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),Keyb
         return SkinAppCompatDelegateImpl.get(this, this)
     }
 
+
+
     override fun onKeyboardHeightChanged(height: Int, orientation: Int) {
-        LogUtils.e("LoginActivity","height is $height  orientation is $orientation")
+        login_card.post {
+            if(loginCardOriginBottom == 0){
+                loginCardOriginBottom = login_card.bottom
+            }
+            val rootHeight = root.height
+
+            val changeHeight = if (height == 0) {
+                0
+            } else {
+                if (rootHeight - loginCardOriginBottom < height) {
+                    height - (rootHeight - loginCardOriginBottom)
+                } else {
+                    height
+                }
+            }
+            beginAnimation(login_card,-changeHeight.toFloat())
+
+        }
+
     }
 
 
@@ -57,6 +86,15 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),Keyb
         super.onPause()
         keyboardHeightProvider.setKeyboardHeightObserver(null)
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        if(::keyboardHeightProvider.isInitialized){
+            keyboardHeightProvider.setKeyboardHeightObserver(this)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         keyboardHeightProvider.close()

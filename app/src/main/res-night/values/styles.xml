@@ -1,19 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-
-    <style name="GTWStyle">
-        <item name="fontPath">fonts/gtw.ttf</item>
-    </style>
-
-    <style name="RobotoStyle">
-        <item name="fontPath">fonts/RobotoCondensed-Regular.ttf</item>
-    </style>
-
-
-    <style name="login_edit"  parent="TextAppearance.AppCompat" >
+    <style name="login_edit"  parent="Widget.Design.TextInputLayout" >
         <!-- 默认状态提示颜色和字体-->      
         <item name="android:textColorHint">@color/login.edit.hint</item>       
-        <item name="android:textSize">18sp</item>
-        <!-- 下面可以根据需要设置，如果没有将默认使用默认theme的颜色 -->
         <!-- Label标签的颜色 -->     
         <item name="colorAccent">@color/login.edit.error</item>
          <!-- 默认状态状态设置底线颜色 -->     

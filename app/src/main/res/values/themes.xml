@@ -11,7 +11,10 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
-        <!-- Customize your theme here. -->
+         <!-- 默认状态状态设置底线颜色 -->     
+        <item name="colorControlNormal">@color/login.edit.line.color.normal</item>
+        <!-- 选择的底线颜色 -->     
+        <item name="colorControlActivated">@color/login.edit.line.color.focus</item> 
     </style>
     <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@color/white</item>

@@ -11,11 +11,10 @@ import com.kai.base.mvp.base.IView
  */
 class RegisterContract {
     interface View :IView{
-
-
+        fun onRegister(code: Int)
     }
 
     interface Presenter{
-
+        fun register(account: String,password: String,question: String,answer: String)
     }
 }

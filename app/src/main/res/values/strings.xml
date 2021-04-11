@@ -1,4 +1,18 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="user_name_default">请登录</string>
+    <string name="login">登陆</string>
+    <string name="register">注册</string>
+    <string name="commit">提交</string>
+    <string name="register_describer">没有账号，前往注册</string>
+    <string name="forget_password">忘记密码</string>
+    <string name="account_describer">账号</string>
+    <string name="password_describer">6位密码</string>
+    <string name="repeat_password_describer">重复密码</string>
+    <string name="security_question_describer">密保问题（用于找回密码）</string>
+    <string name="security_question_answer_describer">请输入密保问题答案</string>
+    <string name="security_question">密保问题</string>
+    <string name="answer">答案</string>
+    <string name="reset_password">重置密码</string>
+    <string name="reset_new_password">新的密码</string>
 </resources>
