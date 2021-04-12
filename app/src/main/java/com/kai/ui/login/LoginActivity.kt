@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.SkinAppCompatDelegateImpl
+import androidx.core.widget.addTextChangedListener
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
@@ -66,18 +67,46 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
         account.addTextChangedListener(object: CustomTextWatcher(){
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 account.formatPhone(start,count>0)
-                if(account_layout.error != null || account.text.toString().replace(" ","").length >= 11){
+                if(account_layout.error != null
+                        || account.text.toString().replace(" ","").length >= 11){
                     if(StringUtils.verifyPhone(account.text.toString())){
-                        account_layout.error = null
+                        val userByAccount = mPresenter?.getUserByAccount(StringUtils.trim(account.text.toString()))
+                        userByAccount?.let { observable ->
+                            observable.subscribe {
+                                if(it.isEmpty()){
+                                    account_layout.error = resources.getString(R.string.login_no_account)
+                                } else {
+                                    account_layout.error = null
+                                }
+                            }
+                        }?: kotlin.run {
+                            account_layout.error = null
+                        }
+
                     } else {
                         account_layout.error = resources.getString(R.string.phone_format_error)
                     }
                 }
             }
         })
+        password.addTextChangedListener(object: CustomTextWatcher(){
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if(password_layout.error != null
+                        || password.text.toString().replace(" ","").length >= 6){
+                    if(password.text.toString().length >= 6){
+                        password_layout.error = null
+                    } else {
+                        password_layout.error = resources.getString(R.string.password_length_no_enough)
+                    }
+                }
+            }
+
+        })
 
         login.setOnClickListener {
-            mPresenter?.login(account.text.toString(),password.text.toString())
+            if(verifyAll()){
+                mPresenter?.login(account.text.toString(),password.text.toString())
+            }
         }
     }
 
@@ -169,5 +198,12 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
 
     override fun createPresenter(): LoginPresenter {
         return LoginPresenter()
+    }
+
+    private fun verifyAll(): Boolean{
+        if(password.text.toString().length < 6){
+            password_layout.error = resources.getString(R.string.password_length_no_enough)
+        }
+        return account_layout.error == null && password_layout.error == null
     }
 }

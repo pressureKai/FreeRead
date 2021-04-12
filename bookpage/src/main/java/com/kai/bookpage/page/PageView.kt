@@ -26,7 +26,7 @@ class PageView :View{
     private var isMove = false
 
 
-    private var mBgColor = 0xFFCEC29C
+    private var mBgColor = -0x313d64
     private var mPageMode = PageMode.SIMULATION
 
     //是否允许点击
@@ -56,8 +56,8 @@ class PageView :View{
     private var mTouchListener : TouchListener ?= null
     //内容加载器
     private var mPageLoader : PageLoader ?= null
-    constructor(context: Context) : this(context,null)
-    constructor(context: Context, attributeSet: AttributeSet?) :this(context, attributeSet,0)
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attributeSet: AttributeSet?) :this(context, attributeSet, 0)
     constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) :
             super(context, attributeSet, defStyleAttr)
 
@@ -67,7 +67,7 @@ class PageView :View{
         mViewHeight = h
         //监听到onSizeChanged 即代表页面准备完毕
         isPrepare = true
-        mPageLoader?.prepareDisplay(w,h)
+        mPageLoader?.prepareDisplay(w, h)
     }
 
     override fun onDetachedFromWindow() {
@@ -125,7 +125,7 @@ class PageView :View{
                 MotionEvent.ACTION_MOVE -> {
                     //判断是否大于最小滑动值
                     val slop = ViewConfiguration.get(context).scaledTouchSlop
-                    if (!isMove){
+                    if (!isMove) {
                         isMove = abs(mStartX - event.x) > slop
                                 || abs(mStartY - event.y) > slop
                     }
@@ -134,22 +134,22 @@ class PageView :View{
                         //如果滑动了，则进行翻页
                         mPageAnimation?.onTouchEvent(event)
                     }
-                    LogUtils.e("PageView","MotionEvent.ACTION_MOVE")
+                    LogUtils.e("PageView", "MotionEvent.ACTION_MOVE")
                 }
                 MotionEvent.ACTION_UP -> {
-                    if(!isMove){
+                    if (!isMove) {
                         //设置中间区域范围
-                        if(mCenterRect == null){
+                        if (mCenterRect == null) {
                             mCenterRect = RectF(mViewWidth.toFloat() / 5,
-                                    mViewHeight.toFloat() /3,
+                                    mViewHeight.toFloat() / 3,
                                     mViewHeight.toFloat() * 4 / 5,
-                                    mViewHeight.toFloat() * 2 /3)
+                                    mViewHeight.toFloat() * 2 / 3)
                         }
 
                         //是否点击了中间
                         val contains = mCenterRect?.contains(x.toFloat(), y.toFloat())
-                        if(contains != null){
-                            if(contains){
+                        if (contains != null) {
+                            if (contains) {
                                 mTouchListener?.center()
                                 return true
                             }
@@ -190,7 +190,7 @@ class PageView :View{
 
 
 
-    fun drawCurrentPage(isUpdate :Boolean){
+    fun drawCurrentPage(isUpdate: Boolean){
         if(!isPrepare){
             return
         }
@@ -201,7 +201,7 @@ class PageView :View{
             }
         }
         getNextBitmap()?.let {
-            mPageLoader?.drawPage(it,isUpdate)
+            mPageLoader?.drawPage(it, isUpdate)
         }
 
     }
@@ -217,29 +217,29 @@ class PageView :View{
             return
         }
         when(mPageMode){
-            PageMode.SIMULATION-> {
-                mPageAnimation = SimulationPageAnimation(mViewWidth,mViewHeight,this,mPageAnimationListener)
+            PageMode.SIMULATION -> {
+                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
             PageMode.COVER -> {
-                mPageAnimation = CoverAnimation(mViewWidth,mViewHeight,this,mPageAnimationListener)
+                mPageAnimation = CoverAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
             PageMode.SLIDE -> {
-                mPageAnimation = SlideAnimation(mViewWidth,mViewHeight,this,mPageAnimationListener)
+                mPageAnimation = SlideAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
             PageMode.NONE -> {
-                mPageAnimation = NonePageAnimation(mViewWidth,mViewHeight,this,mPageAnimationListener)
+                mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
             PageMode.SCROLL -> {
-                mPageAnimation = ScrollPageAnimation(mViewWidth,mViewHeight,this,mPageAnimationListener)
+                mPageAnimation = ScrollPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
             else -> {
-                mPageAnimation = SimulationPageAnimation(mViewWidth,mViewHeight,this,mPageAnimationListener)
+                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
         }
     }
 
-    fun setBgColor( bgColor :Int){
-        mBgColor = bgColor.toLong()
+    fun setBgColor(bgColor: Int){
+        mBgColor = bgColor
     }
 
     private fun startPageAnimation(direction: PageAnimation.Direction){
@@ -251,9 +251,9 @@ class PageView :View{
             val x = mViewWidth
             val y = mViewHeight
             //初始化动画
-            mPageAnimation?.setStartPoint(x.toFloat(),y.toFloat())
+            mPageAnimation?.setStartPoint(x.toFloat(), y.toFloat())
             //设置点击点
-            mPageAnimation?.setTouchPoint(x.toFloat(),y.toFloat())
+            mPageAnimation?.setTouchPoint(x.toFloat(), y.toFloat())
             //设置方向
             mPageAnimation?.setDirection(direction)
             if(!hasNextPage()){
@@ -263,9 +263,9 @@ class PageView :View{
             val x = 0
             val y = mViewHeight
             //初始化动画
-            mPageAnimation?.setStartPoint(x.toFloat(),y.toFloat())
+            mPageAnimation?.setStartPoint(x.toFloat(), y.toFloat())
             //设置点击
-            mPageAnimation?.setTouchPoint(x.toFloat(),y.toFloat())
+            mPageAnimation?.setTouchPoint(x.toFloat(), y.toFloat())
             mPageAnimation?.setDirection(direction)
             if(!hasPrePage()){
                 return
@@ -321,7 +321,7 @@ class PageView :View{
             (mPageAnimation as BaseHorizontalPageAnimation).changePage()
         }
         getNextBitmap()?.let {
-            mPageLoader?.drawPage(it,false)
+            mPageLoader?.drawPage(it, false)
         }
     }
 
@@ -340,14 +340,14 @@ class PageView :View{
         }
         //根据数据类型，获取具体加载器
         mPageLoader = if(coolBookBean.isLocal){
-            LocalPageLoader(PageView@this,coolBookBean)
+            LocalPageLoader(PageView@ this, coolBookBean)
         } else {
-            NetPageLoader(PageView@this,coolBookBean)
+            NetPageLoader(PageView@ this, coolBookBean)
         }
         //判断PageView 是否初始化完成
         if(mViewWidth != 0 || mViewHeight != 0){
             //初始化PageLoader的屏幕大小
-            mPageLoader?.prepareDisplay(mViewWidth,mViewHeight)
+            mPageLoader?.prepareDisplay(mViewWidth, mViewHeight)
         }
         return mPageLoader
     }

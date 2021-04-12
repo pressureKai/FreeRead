@@ -5,6 +5,7 @@ import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.entity.User
 import com.kai.model.book.BookRepository
 import com.kai.model.user.UserRepository
+import io.reactivex.rxjava3.core.Observable
 
 /**
  *
@@ -39,6 +40,10 @@ class LoginPresenter : BasePresenter<LoginContract.View>(), LoginContract.Presen
                      getView()?.onLogin(baseEntity)
                  }
           }
+    }
+
+    override fun getUserByAccount(account: String): Observable<List<User>> {
+        return userRepository.getUserByAccount(account)
     }
 
 }

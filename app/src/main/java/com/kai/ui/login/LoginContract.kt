@@ -3,6 +3,7 @@ package com.kai.ui.login
 import com.kai.base.mvp.base.IView
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.entity.User
+import io.reactivex.rxjava3.core.Observable
 
 /**
  *
@@ -18,5 +19,6 @@ class LoginContract {
 
     interface Presenter{
         fun login(account: String,password: String)
+        fun getUserByAccount(account: String): Observable<List<User>>
     }
 }

@@ -21,6 +21,12 @@ import com.kai.common.utils.ScreenUtils
 import io.reactivex.rxjava3.disposables.Disposable
 import java.io.BufferedReader
 
+/**
+ * # 页面数据提供者
+ * 衍生两个类
+ *   LocalPageLoader
+ *   NetPageLoader
+ */
 abstract class PageLoader {
     private val TAG = "PageLoader"
 

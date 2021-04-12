@@ -14,5 +14,5 @@ class CoolBookBean {
     var lastChapter = ""
     var chapterCount = 0
     var isUpdate = false
-    var isLocal = false
+    var isLocal = true
 }

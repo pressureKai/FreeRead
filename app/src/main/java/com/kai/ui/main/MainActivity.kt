@@ -34,6 +34,7 @@ import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.crawler.Crawler
 import com.kai.crawler.entity.book.SearchBook
+import com.kai.ui.bookdetail.BookDetailActivity
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
@@ -65,14 +66,10 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         val testBaseQuickAdapter = TestBaseQuickAdapter()
         testBaseQuickAdapter.setOnItemClickListener { adapter, _, position ->
             val searchBook = adapter.data[position] as SearchBook
-            ARouter.getInstance().build("/learn/rx").navigation()
-            try {
-//                Crawler.catalog(SL).subscribe { chapters ->
-//                    Crawler.content(SL, chapters.first().link)
-//                }
-            } catch (e: Exception) {
-
-            }
+            ARouter.getInstance().build("/app/book").navigation()
+            postStickyEvent(searchBook,
+                    BookDetailActivity.BOOK_DETAIL,
+                    BookDetailActivity::class.java.name)
         }
         pageLoader = PageLoader(
                 recycler,
