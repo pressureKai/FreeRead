@@ -3,20 +3,17 @@ package com.kai.base.activity
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.marginTop
 import com.classic.common.MultipleStatusView
 import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
-import com.kai.common.eventBusEntity.EventBusEntity
+import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.listener.CustomAnimatorListener
 import com.kai.common.utils.LogUtils
-import com.kai.common.utils.ScreenUtils
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -104,29 +101,29 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC, sticky = true)
-    open fun <T> onMessageEvent(eventBusEntity: EventBusEntity<T>) {
-        if (eventBusEntity.target == mEventBusTarget) {
-            EventBus.getDefault().removeStickyEvent(eventBusEntity)
-            onMessageReceiver(eventBusEntity)
+    open fun <T> onMessageEvent(baseEntity: BaseEntity<T>) {
+        if (baseEntity.message == mEventBusTarget) {
+            EventBus.getDefault().removeStickyEvent(baseEntity)
+            onMessageReceiver(baseEntity)
         }
     }
 
     /**
      * des EventBus接收数据的方法通过基类EventBusEntity包装数据,
      *      在项目中进行数据交换
-     * @param eventBusEntity  被传输的数据
+     * @param baseEntity  被传输的数据
      */
-    open fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
+    open fun <T> onMessageReceiver(baseEntity: BaseEntity<T>) {
 
     }
 
 
     fun <T> postStickyEvent(data: T, code: Int? = 0, message: String = "") {
-        val eventBusEntity = EventBusEntity<T>()
+        val eventBusEntity = BaseEntity<T>()
         eventBusEntity.data = data
         eventBusEntity.code = code!!
         if (message.isNotEmpty()) {
-            eventBusEntity.target = message
+            eventBusEntity.message = message
         }
         EventBus.getDefault().postSticky(eventBusEntity)
     }

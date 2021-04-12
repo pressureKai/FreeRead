@@ -17,7 +17,7 @@ class StringUtils {
          * @param [str] 待去空格字符串
          * @return 去空格后字符串
          */
-        fun trim(str: String): String? {
+        fun trim(str: String): String {
             if (str.isEmpty()) {
                 return ""
             }

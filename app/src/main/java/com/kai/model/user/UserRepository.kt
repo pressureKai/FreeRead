@@ -36,4 +36,12 @@ class UserRepository private  constructor(private val localUserDataSource: Local
          localUserDataSource.insertUser(user)
     }
 
+    override fun getUserByAccount(account: String): Observable<List<User>> {
+        return localUserDataSource.getUserByAccount(account)
+    }
+
+    override fun login(user: User): Observable<User> {
+        return localUserDataSource.login(user)
+    }
+
 }

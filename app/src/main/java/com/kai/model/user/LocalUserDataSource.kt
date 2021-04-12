@@ -13,10 +13,12 @@ class LocalUserDataSource : UserDataSource {
         return Observable.create<User> {
             var user: User ?= null
             try {
-                val userList = CustomDatabase.get().userDao().getUserList()
-                user = userList.first()
+                val userList = CustomDatabase.get().userDao().getUserByOnLine(true)
+                if(userList.isNotEmpty()){
+                    user  = userList.first()
+                }
             }catch (e :Exception){
-                LogUtils.e("RegisterPresenter","register account on model error is $e")
+               LogUtils.e("LocalUserDataSource","$e")
             }
 
 
@@ -40,5 +42,40 @@ class LocalUserDataSource : UserDataSource {
 
     override fun insertUser(user: User) {
         CustomDatabase.get().userDao().insertUser(user)
+    }
+
+    override fun getUserByAccount(account: String): Observable<List<User>> {
+        return Observable.create<List<User>> {
+            try {
+                val userList = CustomDatabase.get().userDao().getUserByAccount(account)
+                it.onNext(userList)
+            }catch (e :Exception){
+                LogUtils.e("LocalUserDataSource","$e")
+            }
+            it.onComplete()
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun login(user: User): Observable<User>  {
+        return Observable.create<User> {
+            try {
+                val userList = CustomDatabase.get().userDao().getUserByOnLine(true)
+                for(value in userList){
+                    value.onLine = false
+                    updateUser(value)
+                }
+            }catch (e :Exception){
+                LogUtils.e("LocalUserDataSource","$e")
+            }
+
+
+            user.onLine = true
+            updateUser(user)
+            user.let { user ->
+                it.onNext(user)
+            }
+            it.onComplete()
+        }.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 }

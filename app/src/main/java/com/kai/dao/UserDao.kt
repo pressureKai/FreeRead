@@ -19,4 +19,11 @@ interface UserDao {
 
     @Query("SELECT * FROM USER WHERE id = :id")
     fun getUserById(id: Int): User
+
+
+    @Query("SELECT * FROM USER WHERE onLine = :onLine")
+    fun getUserByOnLine(onLine: Boolean): List<User>
+
+    @Query("SELECT * FROM USER WHERE account = :account")
+    fun getUserByAccount(account: String): List<User>
 }

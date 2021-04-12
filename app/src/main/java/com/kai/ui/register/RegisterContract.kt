@@ -1,6 +1,8 @@
 package com.kai.ui.register
 
 import com.kai.base.mvp.base.IView
+import com.kai.entity.User
+import io.reactivex.rxjava3.core.Observable
 
 /**
  *
@@ -11,7 +13,7 @@ import com.kai.base.mvp.base.IView
  */
 class RegisterContract {
     interface View :IView{
-        fun onRegister(code: Int)
+        fun onRegister(code: Int,user: User?)
     }
 
     interface Presenter{

@@ -15,23 +15,22 @@ import com.kai.model.user.UserRepository
 class RegisterPresenter : BasePresenter<RegisterContract.View>(), RegisterContract.Presenter {
     private var userRepository: UserRepository = UserRepository.get()
     override fun register(account: String, password: String, question: String, answer: String) {
-        userRepository.getCurrentUser()
-            .doOnComplete {
-                LogUtils.e("RegisterPresenter","start register complete")
-            }
-            .subscribe { user ->
-            if(user.account.isEmpty()){
-                val user = User()
-                user.account = account
-                user.password = password
-                user.question = question
-                user.answer = answer
-                userRepository?.insertUser(user)
-                LogUtils.e("RegisterPresenter","register account is ${user.account}")
-            } else {
-                LogUtils.e("RegisterPresenter","current account is ${user.account}")
-            }
-            getView()?.onRegister(0)
-        }
+        userRepository.getUserByAccount(account)
+                .doOnError {
+                    getView()?.onRegister(RegisterActivity.REGISTER_ERROR,null)
+                }
+                .subscribe { it ->
+                    if (it.isEmpty()) {
+                        val user = User()
+                        user.account = account
+                        user.password = password
+                        user.question = question
+                        user.answer = answer
+                        userRepository.insertUser(user)
+                        getView()?.onRegister(RegisterActivity.REGISTER_SUCCESS,user)
+                    } else {
+                        getView()?.onRegister(RegisterActivity.REGISTER_REPEAT,null)
+                    }
+                }
     }
 }

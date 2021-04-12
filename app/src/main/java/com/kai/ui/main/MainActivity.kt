@@ -27,7 +27,7 @@ import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.PageLoader
 import com.kai.base.widget.load.RefreshDataListener
-import com.kai.common.eventBusEntity.EventBusEntity
+import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.getScreenWidth
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
@@ -373,10 +373,10 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
 
-    override fun <T> onMessageReceiver(eventBusEntity: EventBusEntity<T>) {
-        super.onMessageReceiver(eventBusEntity)
-        if (eventBusEntity.code == CODE_FROM_FONTS) {
-            EventBus.getDefault().removeStickyEvent(eventBusEntity)
+    override fun <T> onMessageReceiver(baseEntity: BaseEntity<T>) {
+        super.onMessageReceiver(baseEntity)
+        if (baseEntity.code == CODE_FROM_FONTS) {
+            EventBus.getDefault().removeStickyEvent(baseEntity)
             val intent = intent
             overridePendingTransition(0, 0)
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)

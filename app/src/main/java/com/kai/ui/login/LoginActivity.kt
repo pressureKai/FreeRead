@@ -8,11 +8,23 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.common.eventBusEntity.BaseEntity
+import com.kai.common.extension.customToast
+import com.kai.common.extension.formatPhone
 import com.kai.common.extension.getScreenWidth
 import com.kai.common.keyboard.KeyboardHeightObserver
 import com.kai.common.keyboard.KeyboardHeightProvider
+import com.kai.common.listener.CustomTextWatcher
+import com.kai.common.utils.StringUtils
+import com.kai.entity.User
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_login.account
+import kotlinx.android.synthetic.main.activity_login.account_layout
+import kotlinx.android.synthetic.main.activity_login.register
+import kotlinx.android.synthetic.main.activity_login.root
+import org.greenrobot.eventbus.EventBus
+import java.lang.Exception
 
 /**
  *
@@ -23,7 +35,14 @@ import kotlinx.android.synthetic.main.activity_login.*
  */
 @Route(path = "/app/login")
 class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
-    KeyboardHeightObserver {
+    KeyboardHeightObserver,LoginContract.View {
+
+    companion object{
+        const val REGISTER_CALLBACK = 0
+        const val LOGIN_FAIL_NO_ACCOUNT = 1
+        const val LOGIN_FAIL_ERROR_PASSWORD = 2
+        const val LOGIN_SUCCESS= 3
+    }
 
     private lateinit var keyboardHeightProvider: KeyboardHeightProvider
     private var loginCardOriginBottom = 0
@@ -41,6 +60,24 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
         }
         register.setOnClickListener {
             ARouter.getInstance().build("/app/register").navigation()
+        }
+
+
+        account.addTextChangedListener(object: CustomTextWatcher(){
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                account.formatPhone(start,count>0)
+                if(account_layout.error != null || account.text.toString().replace(" ","").length >= 11){
+                    if(StringUtils.verifyPhone(account.text.toString())){
+                        account_layout.error = null
+                    } else {
+                        account_layout.error = resources.getString(R.string.phone_format_error)
+                    }
+                }
+            }
+        })
+
+        login.setOnClickListener {
+            mPresenter?.login(account.text.toString(),password.text.toString())
         }
     }
 
@@ -98,5 +135,39 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
     override fun onDestroy() {
         super.onDestroy()
         keyboardHeightProvider.close()
+    }
+
+    override fun <T> onMessageReceiver(baseEntity: BaseEntity<T>) {
+        super.onMessageReceiver(baseEntity)
+        if(baseEntity.code == REGISTER_CALLBACK){
+            runOnUiThread {
+                try {
+                    val user = baseEntity.data as User
+                    account.setText(user.account)
+                }catch (e: Exception){
+
+                }
+            }
+            EventBus.getDefault().removeStickyEvent(baseEntity)
+        }
+    }
+
+    override fun onLogin(entity:BaseEntity<User>) {
+        when(entity.code){
+            LOGIN_FAIL_ERROR_PASSWORD -> {
+
+            }
+            LOGIN_SUCCESS -> {
+                customToast(resources.getString(R.string.login_success))
+                finish()
+            }
+            LOGIN_FAIL_NO_ACCOUNT -> {
+
+            }
+        }
+    }
+
+    override fun createPresenter(): LoginPresenter {
+        return LoginPresenter()
     }
 }

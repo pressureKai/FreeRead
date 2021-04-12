@@ -1,7 +1,7 @@
 package com.kai.common.eventBusEntity
 
-class EventBusEntity<T> {
+class BaseEntity<T> {
     var code = -1
     var data :T ?= null
-    var target :String = ""
+    var message :String = ""
 }

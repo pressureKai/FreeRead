@@ -12,4 +12,8 @@ interface UserDataSource {
     fun deleteUser(user: User)
 
     fun insertUser(user: User)
+
+    fun getUserByAccount(account: String): Observable<List<User>>
+
+    fun login(user: User): Observable<User>
 }

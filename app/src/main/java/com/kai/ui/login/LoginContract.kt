@@ -1,6 +1,8 @@
 package com.kai.ui.login
 
 import com.kai.base.mvp.base.IView
+import com.kai.common.eventBusEntity.BaseEntity
+import com.kai.entity.User
 
 /**
  *
@@ -11,11 +13,10 @@ import com.kai.base.mvp.base.IView
  */
 class LoginContract {
     interface View :IView{
-
-
+        fun onLogin(user: BaseEntity<User>)
     }
 
     interface Presenter{
-
+        fun login(account: String,password: String)
     }
 }
