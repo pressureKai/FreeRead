@@ -31,10 +31,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             pageView.setLayerType(LAYER_TYPE_SOFTWARE, null)
         }
-        val coolBookBean = CoolBookBean()
 
-
-        mPageLoader = pageView.getPageLoader(coolBookBean)
 
         mPageLoader?.setOnPageChangeListener(object :PageLoader.OnPageChangeListener{
             override fun onChapterChange(pos: Int) {
@@ -97,11 +94,18 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         super.onMessageReceiver(baseEntity)
         if (baseEntity.code == BOOK_DETAIL) {
             val searchBook = baseEntity.data as SearchBook
+            val coolBookBean = CoolBookBean()
+            coolBookBean.id = "1"
+            coolBookBean.author = "me"
+            coolBookBean.chapterCount = 30
+            coolBookBean.cover = "https://www.baidu.com"
+            coolBookBean.isUpdate = true
+            coolBookBean.title = "百度"
+            mPageLoader = pageView.getPageLoader(coolBookBean)
 
-
-            Crawler.catalog(searchBook.sources.first()).subscribe { chapters ->
-                Crawler.content(searchBook.sources.first(), chapters.first().link)
-            }
+//            Crawler.catalog(searchBook.sources.first()).subscribe { chapters ->
+//                Crawler.content(searchBook.sources.first(), chapters.first().link)
+//            }
         }
     }
 

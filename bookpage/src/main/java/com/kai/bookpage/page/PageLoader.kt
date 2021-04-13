@@ -482,7 +482,6 @@ abstract class PageLoader {
             if (mCurPageList != null) {
                 if (mCurPageList.isEmpty()) {
                     mStatus = STATUS_EMPTY
-
                     //添加一个空数据
                     val page = TextPage()
                     page.lines = ArrayList(1)
@@ -496,8 +495,6 @@ abstract class PageLoader {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            LogUtils.e("PageLoader", "dealLoadPageList error is $e")
-
             mCurPageList.clear()
             mStatus = STATUS_ERROR
         }
@@ -1205,7 +1202,7 @@ abstract class PageLoader {
      * 保存阅读记录
      * unFinish
      */
-    fun saveRecord() {
+    open fun saveRecord() {
         if (mChapterList.isEmpty()) {
             return
         }
@@ -1542,11 +1539,10 @@ abstract class PageLoader {
 
 
     /**
-     * 将章节数据，解析成页面列表
+     * # 将章节数据，解析成页面列表
      *
      * @param chapter : 章节信息
      * @param chapterReader : 章节的文本流
-     *
      * @return pages : 页面列表
      */
     private fun loadPages(chapter: TextChapter, chapterReader: BufferedReader): ArrayList<TextPage> {

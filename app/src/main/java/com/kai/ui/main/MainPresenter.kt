@@ -1,7 +1,11 @@
 package com.kai.ui.main
 
 import com.kai.base.mvp.base.BasePresenter
+import com.kai.common.utils.LogUtils
+import com.kai.entity.User
 import com.kai.model.book.BookRepository
+import com.kai.model.user.UserRepository
+import io.reactivex.rxjava3.core.Observable
 
 /**
  *
@@ -12,6 +16,7 @@ import com.kai.model.book.BookRepository
  */
 class MainPresenter : BasePresenter<MainContract.View>(), MainContract.Presenter {
     var mBookRepository: BookRepository = BookRepository.get()
+    var mUserRepository: UserRepository = UserRepository.get()
 
     /**
      * des 加载书籍推荐列表
@@ -25,6 +30,14 @@ class MainPresenter : BasePresenter<MainContract.View>(), MainContract.Presenter
             }.subscribe { list ->
                 getView()?.onLoadBookRecommend(list)
             }
+        }
+    }
+
+    override fun getLoginCurrentUser() {
+        try {
+            getView()?.onGetLoginUser(mUserRepository.getCurrentUser())
+        }catch (e:Exception){
+            LogUtils.e("MainPresenter",e.toString())
         }
     }
 }

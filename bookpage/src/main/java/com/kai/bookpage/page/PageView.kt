@@ -11,8 +11,12 @@ import android.view.ViewConfiguration
 import com.kai.bookpage.animation.*
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.common.utils.LogUtils
+import java.lang.Exception
 import kotlin.math.abs
 
+/**
+ * # 页面展示控件，无需关心数据来源，因为数据来源可能有多种方法。降低程序耦合度。
+ */
 class PageView :View{
 
     private val TAG = "PageView"
@@ -27,7 +31,7 @@ class PageView :View{
 
 
     private var mBgColor = -0x313d64
-    private var mPageMode = PageMode.SIMULATION
+    private var mPageMode = PageMode.NONE
 
     //是否允许点击
     private var canTouch = true
@@ -325,11 +329,15 @@ class PageView :View{
         }
     }
 
+    /**
+     * #获取页面内容生成的Bitmap
+     * @return bitmap
+     */
     private fun getNextBitmap(): Bitmap?{
         if(mPageAnimation == null){
             return null
         }
-        return mPageAnimation?.getNextBitmap()
+        return  mPageAnimation?.getNextBitmap()
     }
 
 

@@ -24,10 +24,13 @@ class LoginPresenter : BasePresenter<LoginContract.View>(), LoginContract.Presen
                      for(value in it){
                          if(value.password == password){
                              userRepository.login(user = value)
-                             baseEntity.data = value
-                             baseEntity.code = LoginActivity.LOGIN_SUCCESS
-                             getView()?.onLogin(baseEntity)
-                             loginSuccess = true
+                                 .subscribe {
+                                     loginUser ->
+                                 baseEntity.data = loginUser
+                                 baseEntity.code = LoginActivity.LOGIN_SUCCESS
+                                 getView()?.onLogin(baseEntity)
+                                 loginSuccess = true
+                             }
                              break
                          }
                      }

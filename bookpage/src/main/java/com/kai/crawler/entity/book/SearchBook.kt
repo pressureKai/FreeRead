@@ -1,14 +1,12 @@
 package com.kai.crawler.entity.book
 
 import com.kai.crawler.entity.source.Source
-import com.kai.crawler.entity.source.SourceID
+
 
 /**
- *
- * @ProjectName:    bookpage
- * @Description:    搜索书籍数据格式
- * @Author:         pressureKai
- * @UpdateDate:     2021/3/22 11:10
+ *# 搜索书籍实体类 - Crawler
+ *@author pressureKai
+ *@date  2021/4/13
  */
 open class SearchBook{
     var cover: String = ""
@@ -17,6 +15,11 @@ open class SearchBook{
     var descriptor : String = ""
     var sources: ArrayList<SL> = ArrayList()
 
+    /**
+     *#  书源实体类 - Crawler (链接对应一个实体)
+     *@author pressureKai
+     *@date  2021/4/13
+     */
     class SL(link: String, source: Source) {
         var link: String = link
         var source: Source = source

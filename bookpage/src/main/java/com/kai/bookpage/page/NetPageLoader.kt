@@ -23,4 +23,10 @@ class NetPageLoader(pageView: PageView,coolBookBean: CoolBookBean): PageLoader(p
     override fun refreshChapterList() {
 
     }
+
+
+    override fun saveRecord() {
+        super.saveRecord()
+    }
+
 }

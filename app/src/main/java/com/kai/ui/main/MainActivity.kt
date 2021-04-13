@@ -34,16 +34,19 @@ import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.crawler.Crawler
 import com.kai.crawler.entity.book.SearchBook
+import com.kai.entity.User
 import com.kai.ui.bookdetail.BookDetailActivity
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
+import io.reactivex.rxjava3.core.Observable
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
 
-
 /**
- * des 书籍主页面
+ *# app - 首页
+ *@author pressureKai
+ *@date  2021/4/13
  */
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View,
         RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
@@ -62,6 +65,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     override fun initView() {
         RxNetworkObserver.register(this)
         mPresenter?.loadBookRecommend()
+        mPresenter?.getLoginCurrentUser()
         initImmersionBar(fitSystem = false, color = R.color.app_background)
         val testBaseQuickAdapter = TestBaseQuickAdapter()
         testBaseQuickAdapter.setOnItemClickListener { adapter, _, position ->
@@ -259,6 +263,16 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
     override fun onLoadBookRecommend(list: List<String>) {
 
+    }
+
+    override fun onGetLoginUser(user: Observable<User>) {
+        user
+                .doOnError {
+                    name.text = "请登录 $it"
+                }
+                .subscribe {
+                    name.text = it.account
+                }
     }
 
 

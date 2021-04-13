@@ -11,11 +11,9 @@ import com.kai.common.utils.SharedPreferenceUtils
 import java.util.*
 
 /**
- *
- * @ProjectName:    CommonApplication
- * @Description:     java类作用描述
- * @Author:         pressureKai
- * @UpdateDate:     2021/3/22 11:32
+ *# 书源管理页面
+ *@author pressureKai
+ *@date  2021/4/13
  */
 class SourceManager {
    companion object{
@@ -88,7 +86,6 @@ class SourceManager {
             json,
             object : TypeToken<List<SourceEnable?>?>() {}.type
          )
-         LogUtils.e("SourceManager", "json is  = $json \n enables size is ${enables.size}")
          val checkedMap = SparseBooleanArray()
          for (sourceEnable in enables) {
             checkedMap.put(sourceEnable.id, sourceEnable.enable)

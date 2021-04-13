@@ -184,12 +184,12 @@ abstract class PageAnimation {
     /**
      * 获取背景板
      */
-    abstract fun getBgBitmap() :Bitmap
+    abstract fun getBgBitmap() :Bitmap?
 
     /**
      * 获取内容显示版面
      */
-    abstract fun getNextBitmap():Bitmap
+    abstract fun getNextBitmap():Bitmap?
 
     /**
      * des 枚举类手指触摸的方向

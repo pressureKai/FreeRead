@@ -238,14 +238,14 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
     /**
      *des 获取背景面板 unConfirm
      */
-    override fun getBgBitmap(): Bitmap {
-        return mNextBitmap!!
+    override fun getBgBitmap(): Bitmap ?{
+        return mNextBitmap
     }
 
     /**
      * des 获取下一页面板 unConfirm
      */
-    override fun getNextBitmap(): Bitmap {
-        return mNextBitmap!!
+    override fun getNextBitmap(): Bitmap? {
+        return mNextBitmap
     }
 }

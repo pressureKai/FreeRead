@@ -1,11 +1,10 @@
 package com.kai.crawler.entity.source
 
+
 /**
- *
- * @ProjectName:    CommonApplication
- * @Description:     java类作用描述
- * @Author:         pressureKai
- * @UpdateDate:     2021/3/22 11:14
+ *# 书源实体 - Crawler
+ *@author pressureKai
+ *@date  2021/4/13
  */
 class Source(sourceID: Int, sourceName: String, searchUrl: String) {
     var id = sourceID

@@ -7,25 +7,23 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.lang.Exception
+import java.lang.NullPointerException
 
 class LocalUserDataSource : UserDataSource {
     override fun getCurrentUser(): Observable<User> {
         return Observable.create<User> {
-            var user: User ?= null
+            var user: User? = null
             try {
                 val userList = CustomDatabase.get().userDao().getUserByOnLine(true)
-                if(userList.isNotEmpty()){
-                    user  = userList.first()
+                LogUtils.e("LocalUserDataSource","userList size is ${userList.size}")
+                if (userList.isNotEmpty()) {
+                    user = userList.first()
+                    it.onNext(user)
+                } else {
+                    it.onError(NullPointerException())
                 }
-            }catch (e :Exception){
-               LogUtils.e("LocalUserDataSource","$e")
-            }
-
-
-            user?.let { user ->
-                it.onNext(user)
-            }?: kotlin.run {
-                it.onNext(User())
+            } catch (e: Exception) {
+                it.onError(e)
             }
             it.onComplete()
         }.subscribeOn(Schedulers.newThread())
@@ -49,33 +47,31 @@ class LocalUserDataSource : UserDataSource {
             try {
                 val userList = CustomDatabase.get().userDao().getUserByAccount(account)
                 it.onNext(userList)
-            }catch (e :Exception){
-                LogUtils.e("LocalUserDataSource","$e")
+            } catch (e: Exception) {
+                LogUtils.e("LocalUserDataSource", "$e")
             }
             it.onComplete()
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
     }
 
-    override fun login(user: User): Observable<User>  {
+    override fun login(user: User): Observable<User> {
         return Observable.create<User> {
             try {
-                val userList = CustomDatabase.get().userDao().getUserByOnLine(true)
-                for(value in userList){
+                val userList = CustomDatabase.get().userDao().getUserList()
+                LogUtils.e("LocalUserDataSource","userList size is ${userList.size}")
+                for (value in userList) {
                     value.onLine = false
                     updateUser(value)
                 }
-            }catch (e :Exception){
-                LogUtils.e("LocalUserDataSource","$e")
-            }
-
-
-            user.onLine = true
-            updateUser(user)
-            user.let { user ->
+                user.onLine = true
+                updateUser(user)
                 it.onNext(user)
+            } catch (e: Exception) {
+                it.onError(e)
+                LogUtils.e("LocalUserDataSource", "$e")
             }
             it.onComplete()
         }.subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
+            .observeOn(AndroidSchedulers.mainThread())
     }
 }
