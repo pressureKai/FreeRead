@@ -1,6 +1,7 @@
 package com.kai.ui.main
 
 import com.kai.base.mvp.base.IView
+import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.entity.User
 import io.reactivex.rxjava3.core.Observable
 
@@ -17,10 +18,10 @@ class MainContract {
 
         /**
          * #  获取当前登录用户回调
-         * @param [user] 可观测的Observable<User>
+         * @param [user] BaseEntity<User> 回调
          * @date 2021/4/13
          */
-        fun onGetLoginUser(user: Observable<User>)
+        fun onGetLoginUser(user: BaseEntity<User>)
     }
 
     interface Presenter {
@@ -31,5 +32,6 @@ class MainContract {
          * @date 2021/4/13
          */
         fun getLoginCurrentUser()
+
     }
 }

@@ -37,19 +37,34 @@ class ForgetPasswordActivity : BaseMvpActivity<ForgetPasswordContract.View,Forge
         const val FORGET_PASSWORD_CODE = 0x11
     }
     private var user: User ?= null
+    private var unRegister = false
     override fun initView() {
         initImmersionBar(view = toolbar,fitSystem = false)
-        toolbar_title.text = resources.getString(R.string.reset_password)
+
         back.setOnClickListener {
             finish()
         }
+        unRegister = intent
+                .getBooleanExtra("unRegister", false)
+        if(!unRegister){
+            toolbar_title.text = resources.getString(R.string.reset_password)
+        } else {
+            toolbar_title.text = resources.getString(R.string.un_register)
+            commit.text = "注销"
+        }
+
         commit.setOnClickListener {
             if(question_content_layout.visibility == View.VISIBLE){
                 if(verifyAnswer()){
                     user?.let {
                        if(it.answer == answer.text.toString()){
-                           question_content_layout.visibility = View.INVISIBLE
-                           new_password_layout.visibility = View.VISIBLE
+                           if(!unRegister){
+                               question_content_layout.visibility = View.INVISIBLE
+                               new_password_layout.visibility = View.VISIBLE
+                           } else {
+                               mPresenter?.deleteAccount(account.text.toString())
+                           }
+
                        } else {
                            customToast(resources.getString(R.string.security_answer_error))
                        }
@@ -148,6 +163,17 @@ class ForgetPasswordActivity : BaseMvpActivity<ForgetPasswordContract.View,Forge
                 finish()
             } else {
                 customToast(resources.getString(R.string.update_password_fail))
+            }
+        }
+    }
+
+    override fun onDeleteAccount(entity: BaseEntity<String>) {
+        runOnUiThread {
+            if(entity.code == BaseEntity.ENTITY_SUCCESS_CODE){
+                customToast(resources.getString(R.string.un_register_success))
+                finish()
+            } else {
+                customToast(resources.getString(R.string.un_register_fail))
             }
         }
     }

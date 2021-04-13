@@ -79,7 +79,6 @@
                 <TextView
                     android:layout_marginLeft="8dp"
                     android:id="@+id/name"
-                    android:maxLength="10"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/user_name_default"
@@ -93,6 +92,10 @@
                     android:src="@drawable/app_next"
                     android:layout_width="14dp"
                     android:layout_height="14dp"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="1dp"/>
             </LinearLayout>
 
 

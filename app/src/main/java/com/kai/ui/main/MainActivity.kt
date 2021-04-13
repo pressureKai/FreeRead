@@ -28,6 +28,7 @@ import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.PageLoader
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.eventBusEntity.BaseEntity
+import com.kai.common.extension.customToast
 import com.kai.common.extension.getScreenWidth
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
@@ -36,6 +37,7 @@ import com.kai.crawler.Crawler
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.User
 import com.kai.ui.bookdetail.BookDetailActivity
+import com.kai.ui.forgetpassword.ForgetPasswordActivity
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.android.synthetic.main.activity_main.*
@@ -58,6 +60,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     private lateinit var pageLoader: PageLoader<SearchBook>
     private var drawLayoutIsOpen = false
     private var isDay = true
+    private var currentUser: User ?= null
     override fun setLayoutId(): Int {
         return R.layout.activity_main
     }
@@ -211,7 +214,10 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         fontIcon.setImageResource(R.drawable.font)
         fontName.text = "全局字体"
         font.setOnClickListener {
-            ARouter.getInstance().build("/app/fonts").navigation()
+            ARouter
+                    .getInstance()
+                    .build("/app/fonts")
+                    .navigation()
         }
 
 
@@ -220,7 +226,17 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         unRegisterIcon.setImageResource(R.drawable.un_register)
         unRegisterName.text = "注销账号"
         un_register.setOnClickListener {
-
+            currentUser?.let {
+                postStickyEvent(it.account, ForgetPasswordActivity.FORGET_PASSWORD_CODE, ForgetPasswordActivity::class.java.name)
+                ARouter
+                        .getInstance()
+                        .build("/app/forgetPassword")
+                        .withBoolean("unRegister",true)
+                        .navigation()
+             }
+            if(currentUser == null){
+                customToast("请登录")
+            }
         }
 
 
@@ -265,14 +281,17 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
     }
 
-    override fun onGetLoginUser(user: Observable<User>) {
-        user
-                .doOnError {
-                    name.text = "请登录 $it"
-                }
-                .subscribe {
-                    name.text = it.account
-                }
+    override fun onGetLoginUser(user: BaseEntity<User>) {
+        when(user.code){
+            BaseEntity.ENTITY_FAIL_CODE->{
+                name.text = "请登录"
+            }
+            BaseEntity.ENTITY_SUCCESS_CODE->{
+                val user = user.data as User
+                name.text = user.account
+                currentUser = user
+            }
+        }
     }
 
 
@@ -395,5 +414,10 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             overridePendingTransition(0, 0)
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mPresenter?.getLoginCurrentUser()
     }
 }

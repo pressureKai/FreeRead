@@ -23,7 +23,7 @@ class ForgetPasswordPresenter : BasePresenter<ForgetPasswordContract.View>(), Fo
                     getView()?.onGetUserByAccount(baseEntity)
                 }
                 .subscribe {
-                    if(it.isEmpty()){
+                    if (it.isEmpty()) {
                         baseEntity.code = BaseEntity.ENTITY_FAIL_CODE
                         getView()?.onGetUserByAccount(baseEntity)
                     } else {
@@ -34,7 +34,7 @@ class ForgetPasswordPresenter : BasePresenter<ForgetPasswordContract.View>(), Fo
                 }
     }
 
-    override fun updatePassword(account: String,password: String) {
+    override fun updatePassword(account: String, password: String) {
         val baseEntity = BaseEntity<User>()
         userRepository.getUserByAccount(account)
                 .doOnError {
@@ -42,23 +42,43 @@ class ForgetPasswordPresenter : BasePresenter<ForgetPasswordContract.View>(), Fo
                     getView()?.onUpdatePassword(baseEntity)
                 }
                 .subscribe {
-                    if(it.isEmpty()){
+                    if (it.isEmpty()) {
                         baseEntity.code = BaseEntity.ENTITY_FAIL_CODE
                         getView()?.onUpdatePassword(baseEntity)
                     } else {
                         try {
-                            for(value in it){
+                            for (value in it) {
                                 value.password = password
                                 userRepository.updateUser(value)
                             }
                             baseEntity.data = it.first()
                             baseEntity.code = BaseEntity.ENTITY_SUCCESS_CODE
                             getView()?.onUpdatePassword(baseEntity)
-                        }catch (e:Exception){
+                        } catch (e: Exception) {
                             baseEntity.code = BaseEntity.ENTITY_FAIL_CODE
                             getView()?.onUpdatePassword(baseEntity)
                         }
 
+                    }
+                }
+    }
+
+    override fun deleteAccount(account: String) {
+        val baseEntity = BaseEntity<String>()
+        userRepository.getUserByAccount(account)
+                .doOnError {
+                    baseEntity.code = BaseEntity.ENTITY_FAIL_CODE
+                    getView()?.onDeleteAccount(baseEntity)
+                }.subscribe {
+                    try {
+                        for(value in it){
+                            userRepository.deleteUser(value)
+                        }
+                        baseEntity.code = BaseEntity.ENTITY_SUCCESS_CODE
+                        getView()?.onDeleteAccount(baseEntity)
+                    }catch (e:Exception){
+                        baseEntity.code = BaseEntity.ENTITY_FAIL_CODE
+                        getView()?.onDeleteAccount(baseEntity)
                     }
                 }
     }

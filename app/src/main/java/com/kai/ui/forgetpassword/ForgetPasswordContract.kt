@@ -26,6 +26,9 @@ class ForgetPasswordContract {
          * @date 2021/4/13
          */
         fun onUpdatePassword(entity: BaseEntity<User>)
+
+
+        fun onDeleteAccount(entity: BaseEntity<String>)
     }
 
     interface Presenter {
@@ -44,5 +47,9 @@ class ForgetPasswordContract {
          * @date 2021/4/13
          */
         fun updatePassword(account: String, password: String)
+
+
+
+        fun deleteAccount(account: String)
     }
 }
