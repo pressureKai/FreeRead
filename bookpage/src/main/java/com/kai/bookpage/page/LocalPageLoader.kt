@@ -7,11 +7,9 @@ import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 
 /**
- *
- * @ProjectName:    LocalPageLoader
- * @Description:    页面加载工具负责页面视图的绘制
- * @Author:         pressureKai
- * @UpdateDate:     2021/3/15 10:42
+ *# 本地数据加载器,依靠解析本地数据来提供书籍内容（每章内容与书籍章节列表等）
+ *@author pressureKai
+ *@date  2021/4/14
  */
 class LocalPageLoader(pageView: PageView, coolBookBean: CoolBookBean): PageLoader(pageView, coolBookBean) {
     init {

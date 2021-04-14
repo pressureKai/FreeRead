@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import com.kai.common.utils.LogUtils
 import kotlin.math.abs
 
 /**
@@ -64,6 +65,7 @@ class CoverAnimation : BaseHorizontalPageAnimation {
      * @param canvas 画板
      */
     override fun drawStatic(canvas: Canvas) {
+        LogUtils.e("PageView","cover horizontal draw static")
         if (isCancel) {
             mCurrentBitmap?.let {
                 //静态页面页面被取消时将当前页复制给下一页

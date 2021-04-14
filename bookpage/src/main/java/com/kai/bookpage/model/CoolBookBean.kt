@@ -11,6 +11,14 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "coolBook")
 class CoolBookBean {
+    companion object{
+        //未缓存
+        const val STATUS_UN_CACHE = 0
+        //缓存中
+        const val STATUS_CACHING = 1
+        //已缓存
+        const val STATUS_CACHED = 2
+    }
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "bookId",typeAffinity = ColumnInfo.INTEGER)
     var id = ""
@@ -53,5 +61,5 @@ class CoolBookBean {
 
     //是否为本地书籍
     @ColumnInfo(name = "isLocal")
-    var isLocal = true
+    var isLocal = false
 }

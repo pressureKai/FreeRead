@@ -4,6 +4,7 @@ import android.graphics.*
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.view.View
+import com.kai.common.utils.LogUtils
 import kotlin.math.*
 
 class SimulationPageAnimation : BaseHorizontalPageAnimation {
@@ -97,6 +98,7 @@ class SimulationPageAnimation : BaseHorizontalPageAnimation {
         marginWidth, marginHeight,
         view, onPageChangeListener
     ) {
+        LogUtils.e("PageView","init simulation")
         init()
     }
 

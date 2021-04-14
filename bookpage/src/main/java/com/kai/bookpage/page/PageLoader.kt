@@ -643,7 +643,7 @@ abstract class PageLoader {
         return mNextPageList
     }
     /**
-     * 设置页面切换监听
+     * # 设置书籍数据变化监听器
      *@param listener
      */
     fun setOnPageChangeListener(listener: OnPageChangeListener) {
@@ -767,6 +767,7 @@ abstract class PageLoader {
 
         if (!isChapterOpen) {
             //展示加载页面
+            LogUtils.e("PageView","show loading view")
             mPageView?.drawCurrentPage(false)
             //如果在 display 之前调用 openChapter 肯定是无法打开的
             //所以需要通过display再重新调用一次
@@ -1186,6 +1187,9 @@ abstract class PageLoader {
         // 对mBookRecord进行赋值(从数据库根据Id的形式)
         //unFinish
         // 原来使用了GreenDao现使用Room
+
+
+
         if (mBookRecord == null) {
             mBookRecord = BookRecordBean()
         }

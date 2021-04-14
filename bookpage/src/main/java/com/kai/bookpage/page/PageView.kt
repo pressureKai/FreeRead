@@ -71,6 +71,7 @@ class PageView :View{
         mViewHeight = h
         //监听到onSizeChanged 即代表页面准备完毕
         isPrepare = true
+        LogUtils.e("PageView","from on size changed")
         mPageLoader?.prepareDisplay(w, h)
     }
 
@@ -221,23 +222,26 @@ class PageView :View{
             return
         }
         when(mPageMode){
-            PageMode.SIMULATION -> {
-                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-            }
-            PageMode.COVER -> {
-                mPageAnimation = CoverAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-            }
-            PageMode.SLIDE -> {
-                mPageAnimation = SlideAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-            }
-            PageMode.NONE -> {
-                mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-            }
-            PageMode.SCROLL -> {
-                mPageAnimation = ScrollPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-            }
+//            PageMode.SIMULATION -> {
+//                LogUtils.e("PageView","init SimulationPageAnimation  $mPageMode")
+//                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+//            }
+//            PageMode.COVER -> {
+//                mPageAnimation = CoverAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+//            }
+//            PageMode.SLIDE -> {
+//                mPageAnimation = SlideAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+//            }
+//            PageMode.NONE -> {
+//                LogUtils.e("PageView","init NonePageAnimation $mPageMode")
+//                mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+//            }
+//            PageMode.SCROLL -> {
+//                mPageAnimation = ScrollPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+//            }
             else -> {
-                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+                LogUtils.e("PageView","init NonePageAnimation  $mPageMode")
+                mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
         }
     }
@@ -341,18 +345,24 @@ class PageView :View{
     }
 
 
+
+    /**
+      * #  外部调用此方法作为程序入口？
+      * @param [coolBookBean] 书籍实体类
+      * @return PageLoader 页面加载器
+      * @date 2021/4/14
+      */
     fun getPageLoader(coolBookBean: CoolBookBean): PageLoader?{
-        //判断是否存在
+        //判断是否存在,存在直接返回
         if(mPageLoader != null){
             return mPageLoader!!
         }
-        //根据数据类型，获取具体加载器
+        //根据数据类型 coolBookBean.isLocal，获取具体加载器
         mPageLoader = if(coolBookBean.isLocal){
             LocalPageLoader(PageView@ this, coolBookBean)
         } else {
             NetPageLoader(PageView@ this, coolBookBean)
         }
-        //判断PageView 是否初始化完成
         if(mViewWidth != 0 || mViewHeight != 0){
             //初始化PageLoader的屏幕大小
             mPageLoader?.prepareDisplay(mViewWidth, mViewHeight)

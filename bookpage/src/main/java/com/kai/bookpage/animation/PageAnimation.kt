@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Scroller
+import com.kai.common.utils.LogUtils
 
 /**
  *
@@ -59,18 +60,15 @@ abstract class PageAnimation {
         view: View,
         onPageChangeListener: OnPageChangeListener
     ){
+        LogUtils.e("PageView","init invoke pageAnimation")
         mScreenWidth = screenWidth
         mScreenHeight = screenHeight
         mMarginWidth = marginWidth
         mMarginHeight = marginHeight
-
-
         mViewWidth = mScreenWidth - (mMarginWidth * 2)
         mViewHeight = mScreenHeight  - (mMarginHeight * 2)
-
         mView = view
         this.onPageChangeListener = onPageChangeListener
-
         mScroller = Scroller(mView?.context,LinearInterpolator())
     }
 

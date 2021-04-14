@@ -2,6 +2,7 @@ package com.kai.bookpage.animation
 
 import android.graphics.Canvas
 import android.view.View
+import com.kai.common.utils.LogUtils
 
 /**
  *
@@ -11,9 +12,7 @@ import android.view.View
  * @UpdateDate:     2021/1/20 11:07
  */
 class NonePageAnimation :BaseHorizontalPageAnimation {
-    /**
-     * des 构造方法
-     */
+
     constructor(screenWidth: Int, screenHeight: Int,
                 marginWidth: Int, marginHeight: Int,
                 view: View,
@@ -22,9 +21,6 @@ class NonePageAnimation :BaseHorizontalPageAnimation {
             marginWidth, marginHeight,
             view, onPageChangeListener)
 
-    /**
-     * des 构造方法
-     */
     constructor(screenWidth: Int, screenHeight: Int,
                 view: View,
                 onPageChangeListener: OnPageChangeListener) : this(
@@ -60,13 +56,5 @@ class NonePageAnimation :BaseHorizontalPageAnimation {
                 canvas.drawBitmap(it,0f,0f,null)
             }
         }
-    }
-
-
-    /**
-     * des startAnimation 继承自父类的空实现
-     */
-    override fun startAnimation() {
-        super.startAnimation()
     }
 }

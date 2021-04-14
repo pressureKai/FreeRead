@@ -58,7 +58,6 @@ class LocalUserDataSource : UserDataSource {
         return Observable.create<User> {
             try {
                 val userList = CustomDatabase.get().userDao().getUserList()
-                LogUtils.e("LocalUserDataSource","userList size is ${userList.size}")
                 for (value in userList) {
                     value.onLine = false
                     updateUser(value)

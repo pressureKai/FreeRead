@@ -3,6 +3,7 @@ package com.kai.bookpage.animation
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.view.View
+import com.kai.common.utils.LogUtils
 import kotlin.math.abs
 
 /**
@@ -57,6 +58,7 @@ class SlideAnimation : BaseHorizontalPageAnimation {
      * des 绘制静态页面
      */
     override fun drawStatic(canvas: Canvas) {
+        LogUtils.e("PageView","slide horizontal draw static")
         if (isCancel) {
             mCurrentBitmap?.let {
                 canvas.drawBitmap(it, 0f, 0f, null)
