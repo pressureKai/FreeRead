@@ -61,7 +61,13 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
 
             LogUtils.e("BookDetailActivity",searchBook.sources.first().link)
 
-            BookDatabase.get().bookDao().insertCoolBook(coolBookBean)
+            try {
+                BookDatabase.get().bookDao().insertCoolBook(coolBookBean)
+            }catch (e: Exception){
+               // android.database.sqlite.SQLiteConstraintException: UNIQUE constraint failed
+               //数据库字段唯一约束报错
+            }
+
             val coolBookList = BookDatabase.get().bookDao().getCoolBookList()
             for(value in coolBookList){
                 LogUtils.e("BookDetailActivity",value.bookId.toString())

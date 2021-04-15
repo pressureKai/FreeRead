@@ -19,12 +19,6 @@ import kotlin.properties.ReadWriteProperty
 class RxjavaMainActivity  : BaseMvvmActivity(){
 
 
-    init{
-
-
-       // ReadWriteProperty
-       // List<String>()
-    }
     /**
      *  java 基础
      *   常用的数据结构(名词解释,同类或相似数据结构效率对比,一句话概括)
