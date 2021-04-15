@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import java.security.MessageDigest
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -87,4 +88,14 @@ fun EditText.formatPhone(start: Int, isAdd: Boolean) {
             this.setSelection(newPosition)
         }
     }
+}
+
+
+fun String.md5(): String {
+    val bytes = MessageDigest.getInstance("MD5").digest(this.toByteArray())
+    return bytes.hex()
+}
+
+fun ByteArray.hex(): String {
+    return joinToString("") { "%02X".format(it) }
 }

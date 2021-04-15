@@ -11,9 +11,12 @@ import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.bookpage.model.TextChapter
+import com.kai.bookpage.model.database.BookDatabase
 import com.kai.bookpage.page.PageLoader
 import com.kai.bookpage.page.PageView
 import com.kai.common.eventBusEntity.BaseEntity
+import com.kai.common.extension.md5
+import com.kai.common.utils.LogUtils
 import com.kai.crawler.entity.book.SearchBook
 import kotlinx.android.synthetic.main.activity_book_detail.*
 
@@ -47,7 +50,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         if (baseEntity.code == BOOK_DETAIL) {
             val searchBook = baseEntity.data as SearchBook
             val coolBookBean = CoolBookBean()
-            coolBookBean.id = "1"
+            coolBookBean.bookId = searchBook.sources.first().link.hashCode()
             coolBookBean.author = "me"
             coolBookBean.chapterCount = 30
             coolBookBean.cover = "https://www.baidu.com"
@@ -56,6 +59,13 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             coolBookBean.title = "百度"
             mPageLoader = pageView.getPageLoader(coolBookBean)
 
+            LogUtils.e("BookDetailActivity",searchBook.sources.first().link)
+
+            BookDatabase.get().bookDao().insertCoolBook(coolBookBean)
+            val coolBookList = BookDatabase.get().bookDao().getCoolBookList()
+            for(value in coolBookList){
+                LogUtils.e("BookDetailActivity",value.bookId.toString())
+            }
 //            Crawler.catalog(searchBook.sources.first()).subscribe { chapters ->
 //                Crawler.content(searchBook.sources.first(), chapters.first().link)
 //            }

@@ -8,7 +8,7 @@ package com.kai.bookpage.model
  */
 class TextChapter {
     //在CoolBookBean 中的书籍id
-    var bookId = ""
+    var bookId = 0
     //书籍所对应的网络链接
     var link  = ""
     //标题

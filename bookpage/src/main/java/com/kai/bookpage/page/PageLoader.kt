@@ -1212,7 +1212,7 @@ abstract class PageLoader {
         }
 
         mCoolBook?.let {
-            mBookRecord?.bookId = it.id
+            mBookRecord?.bookId = it.bookId
             mBookRecord?.chapter = mCurrentChapterPosition
         }
 

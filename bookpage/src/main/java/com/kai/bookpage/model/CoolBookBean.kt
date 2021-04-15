@@ -19,9 +19,9 @@ class CoolBookBean {
         //已缓存
         const val STATUS_CACHED = 2
     }
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "bookId",typeAffinity = ColumnInfo.INTEGER)
-    var id = ""
+    @PrimaryKey
+    @ColumnInfo(name = "bookId")
+    var bookId = 0
 
     //标题
     @ColumnInfo(name = "title",typeAffinity = ColumnInfo.TEXT)
