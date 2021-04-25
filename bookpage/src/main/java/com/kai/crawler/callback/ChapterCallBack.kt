@@ -1,6 +1,6 @@
 package com.kai.crawler.callback
 
-import com.kai.bookpage.model.TextChapter
+import com.kai.bookpage.model.BookChapterBean
 
 /**
  *
@@ -10,6 +10,6 @@ import com.kai.bookpage.model.TextChapter
  * @UpdateDate:     2021/3/22 11:00
  */
 interface ChapterCallBack {
-    fun onResponse(chapters: List<TextChapter>)
+    fun onResponse(chapters: List<BookChapterBean>)
     fun onError(msg: String)
 }

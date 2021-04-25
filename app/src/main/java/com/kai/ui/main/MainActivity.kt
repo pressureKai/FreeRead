@@ -25,7 +25,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.ChargeLoadMoreListener
-import com.kai.base.widget.load.PageLoader
+import com.kai.base.widget.load.ListPageLoader
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
@@ -39,7 +39,6 @@ import com.kai.entity.User
 import com.kai.ui.bookdetail.BookDetailActivity
 import com.kai.ui.forgetpassword.ForgetPasswordActivity
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
-import io.reactivex.rxjava3.core.Observable
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import skin.support.SkinCompatManager
@@ -57,7 +56,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         const val IS_DAY = "is_day"
     }
 
-    private lateinit var pageLoader: PageLoader<SearchBook>
+    private lateinit var listPageLoader: ListPageLoader<SearchBook>
     private var drawLayoutIsOpen = false
     private var isDay = true
     private var currentUser: User ?= null
@@ -78,7 +77,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                     BookDetailActivity.BOOK_DETAIL,
                     BookDetailActivity::class.java.name)
         }
-        pageLoader = PageLoader(
+        listPageLoader = ListPageLoader(
                 recycler,
                 refreshDataDelegate = this,
                 chargeLoadMoreListener = this,
@@ -86,8 +85,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 mMultipleStatusView = status,
                 mAdapter = testBaseQuickAdapter
         )
-
-
         val layoutParams = refresh.layoutParams as ViewGroup.MarginLayoutParams
         layoutParams.topMargin = ScreenUtils.getStatusBarHeight()
         draw_content.setPadding(0, ScreenUtils.getStatusBarHeight(), 0, 0)
@@ -339,11 +336,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
      * @desc pageLoader 刷新数据接口
      */
     override fun onRefresh() {
-        Crawler.search("罗")
+        Crawler.search("圣墟")
                 .doOnError {
-                    pageLoader.loadData(responseState = PageLoader.DATA_STATE_ERROR)
+                    listPageLoader.loadData(responseState = ListPageLoader.DATA_STATE_ERROR)
                 }.subscribe {
-                    pageLoader.loadData(it)
+                    listPageLoader.loadData(it)
                 }
     }
 

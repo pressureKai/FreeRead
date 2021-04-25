@@ -69,9 +69,7 @@ class PageView :View{
         super.onSizeChanged(w, h, oldw, oldh)
         mViewWidth = w
         mViewHeight = h
-        //监听到onSizeChanged 即代表页面准备完毕
         isPrepare = true
-        LogUtils.e("PageView","from on size changed")
         mPageLoader?.prepareDisplay(w, h)
     }
 
@@ -240,7 +238,6 @@ class PageView :View{
 //                mPageAnimation = ScrollPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
 //            }
             else -> {
-                LogUtils.e("PageView","init NonePageAnimation  $mPageMode")
                 mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }
         }
@@ -352,17 +349,13 @@ class PageView :View{
       * @return PageLoader 页面加载器
       * @date 2021/4/14
       */
-    fun getPageLoader(coolBookBean: CoolBookBean): PageLoader?{
+    fun getPageLoader(coolBookBean: CoolBookBean,pageLoader: PageLoader): PageLoader?{
         //判断是否存在,存在直接返回
         if(mPageLoader != null){
             return mPageLoader!!
         }
         //根据数据类型 coolBookBean.isLocal，获取具体加载器
-        mPageLoader = if(coolBookBean.isLocal){
-            LocalPageLoader(PageView@ this, coolBookBean)
-        } else {
-            NetPageLoader(PageView@ this, coolBookBean)
-        }
+        mPageLoader = pageLoader
         if(mViewWidth != 0 || mViewHeight != 0){
             //初始化PageLoader的屏幕大小
             mPageLoader?.prepareDisplay(mViewWidth, mViewHeight)

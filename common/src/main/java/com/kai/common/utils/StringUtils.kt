@@ -1,5 +1,6 @@
 package com.kai.common.utils
 
+import java.lang.StringBuilder
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -29,7 +30,48 @@ class StringUtils {
             while (st < len && (str[len - 1] <= ' ' || str[st] == '　')) {
                 len--
             }
-            return if (st > 0 || len < str.length) str.substring(st, len) else str
+            return if (st > 0 || len < str.length) replaceHeaderSpace(str.substring(st, len)) else replaceHeaderSpace(str)
+        }
+
+
+        private fun replaceHeaderSpace(str: String): String{
+            if(str.isEmpty()){
+                return str
+            }
+            val length = str.length
+            var isChineseSpace = false
+            val toCharArray = str.toCharArray()
+            val tempCharArray = CharArray(toCharArray.size)
+
+            for(index in 0.until(length)){
+                if(!isChineseSpace){
+                    isChineseSpace =  toCharArray[index].toString() == "\\s"
+                    if(isChineseSpace){
+                        tempCharArray[index] = "".toCharArray().first()
+                        isChineseSpace = false
+                    } else {
+                        tempCharArray[index] = toCharArray[index]
+                        isChineseSpace = true
+                    }
+                } else {
+                    tempCharArray[index] = toCharArray[index]
+                }
+            }
+
+            val replaceBefore = StringBuilder()
+
+
+            for(value in toCharArray){
+                replaceBefore.append(value)
+            }
+            val replaceAfter = StringBuilder()
+            for(value in tempCharArray){
+                replaceAfter.append(value)
+            }
+
+            //LogUtils.e("StringUtils","replace before is $replaceBefore  replace after is $replaceAfter")
+
+            return replaceAfter.toString()
         }
 
         /**

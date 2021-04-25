@@ -46,7 +46,7 @@ import java.lang.Exception
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/31 14:53
  */
-class PageLoader<T>(
+class ListPageLoader<T>(
         private val mRecyclerView: RecyclerView,
         private val refreshDataDelegate: RefreshDataListener? = null,
         private val chargeLoadMoreListener: ChargeLoadMoreListener? = null,

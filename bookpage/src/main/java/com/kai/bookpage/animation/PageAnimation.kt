@@ -60,7 +60,7 @@ abstract class PageAnimation {
         view: View,
         onPageChangeListener: OnPageChangeListener
     ){
-        LogUtils.e("PageView","init invoke pageAnimation")
+        LogUtils.e("PageView","invoke margin height is marginHeight is $marginHeight")
         mScreenWidth = screenWidth
         mScreenHeight = screenHeight
         mMarginWidth = marginWidth
@@ -70,18 +70,6 @@ abstract class PageAnimation {
         mView = view
         this.onPageChangeListener = onPageChangeListener
         mScroller = Scroller(mView?.context,LinearInterpolator())
-    }
-
-
-    /**
-     * des 构造方法
-     */
-    constructor(
-        screenWidth: Int, screenHeight: Int,
-        view: View,
-        onPageChangeListener: OnPageChangeListener
-    ){
-         this(screenWidth, screenHeight, 0, 0, view,onPageChangeListener)
     }
 
 

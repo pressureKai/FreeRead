@@ -3,6 +3,7 @@ package com.kai.bookpage.animation
 import android.graphics.Canvas
 import android.view.View
 import com.kai.common.utils.LogUtils
+import com.kai.common.utils.ScreenUtils
 
 /**
  *
@@ -25,7 +26,7 @@ class NonePageAnimation :BaseHorizontalPageAnimation {
                 view: View,
                 onPageChangeListener: OnPageChangeListener) : this(
             screenWidth, screenHeight,
-            0, 0,
+            0,0,
             view, onPageChangeListener)
 
     /**

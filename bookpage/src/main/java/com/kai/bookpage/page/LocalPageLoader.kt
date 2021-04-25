@@ -1,7 +1,7 @@
 package com.kai.bookpage.page
 
+import com.kai.bookpage.model.BookChapterBean
 import com.kai.bookpage.model.CoolBookBean
-import com.kai.bookpage.model.TextChapter
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
@@ -15,11 +15,11 @@ class LocalPageLoader(pageView: PageView, coolBookBean: CoolBookBean): PageLoade
     init {
         mStatus = STATUS_PARING
     }
-    override fun hasChapterData(chapter: TextChapter): Boolean {
+    override fun hasChapterData(chapter: BookChapterBean): Boolean {
         return true
     }
 
-    override fun getChapterReader(chapter: TextChapter): BufferedReader {
+    override fun getChapterReader(chapter: BookChapterBean): BufferedReader {
 
         //从文件中获取数据
         val content: ByteArray = "456465465".toByteArray()

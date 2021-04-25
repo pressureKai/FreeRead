@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
+import com.kai.crawler.entity.book.SearchBook
+import com.kai.crawler.entity.source.Source
 
 
 /**
@@ -18,7 +20,7 @@ import androidx.room.PrimaryKey
         childColumns = arrayOf("bookId"),
         onDelete =  CASCADE)])
 class BookChapterBean {
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = "id",typeAffinity = ColumnInfo.INTEGER)
     var id = 0
     var link = ""
@@ -32,4 +34,17 @@ class BookChapterBean {
     var start = 0L
     //此章节在本地书籍文件中的结束位置
     var end = 0L
+    //所属资源名称
+    var sourceName = ""
+    //所属资源id
+    var sourceID = 0
+    //所属资源Url
+    var searchUrl = ""
+    //书本搜索名称
+    var mineKeyWord = ""
+    //章节内容
+    var content = ""
+
+    //order tag
+    var position = 0
 }

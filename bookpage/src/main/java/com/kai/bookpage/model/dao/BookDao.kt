@@ -15,6 +15,14 @@ interface BookDao {
     @Delete
     fun deleteCoolBook(coolBookBean: CoolBookBean)
 
+
+
+
+
+
+    @Query("SELECT * FROM coolBook WHERE bookId = :id")
+    fun getCoolBookById(id: Int):CoolBookBean
+
     @Update
     fun updateCoolBook(coolBookBean: CoolBookBean)
 
@@ -38,13 +46,20 @@ interface BookDao {
     @Insert
     fun insertBookChapter(bookChapterBean: BookChapterBean)
 
+    @Query("SELECT * FROM bookChapter WHERE id = :id")
+    fun getBookChapterById(id: Int): BookChapterBean
+
+
     @Update
     fun updateBookChapter(bookChapterBean: BookChapterBean)
+
 
     @Delete
     fun deleteBookChapter(bookChapterBean: BookChapterBean)
 
 
     @Query("SELECT * FROM coolBook WHERE bookId = :bookId")
-    fun getChapterList(bookId: Int): List<BookChapterListBean>
+    fun getChapterList(bookId: Int): BookChapterListBean
+
+
 }

@@ -14,6 +14,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.jsoup.Jsoup
+import java.lang.NullPointerException
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
@@ -158,14 +159,12 @@ class Crawler {
 
 
         fun catalog(sl: SearchBook.SL): Observable<List<Chapter>> {
-            return Observable.create{ emitter ->
-                emitter
+            return Observable.create<List<Chapter>>{ emitter ->
                 if (sl == null || sl.source == null || sl.link.isEmpty()) {
                     emitter.onComplete()
                 }
                 val sourceId = sl.source.id
                 val config = SourceManager.CONFIGS[sourceId]
-                val source = SourceManager.SOURCES[sourceId]
                 if (config.catalog == null) {
                     emitter.onComplete()
                 }
@@ -233,45 +232,49 @@ class Crawler {
                     emitter.onComplete()
                 } catch (e: java.lang.Exception) {
                     emitter.onError(e)
-                    LogUtils.e(TAG, "parse catalog error is $e")
                 }
-            }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
 
         }
 
 
 
-        fun content(sl: SearchBook.SL, url: String){
-            LogUtils.e(TAG, "parse content url = $url")
-            if(sl == null || sl.link == null || sl.link.isEmpty() || url.isEmpty()){
-                return
-            }
-            val sourceId = sl.source.id
-            val config = SourceManager.CONFIGS[sourceId]
-            if (config.content == null) {
-                return
-            }
-            try {
-                val link = urlVerification(url, sl.link)
-                LogUtils.e(TAG, "parse content link =   $link")
-                val jxDocument =
-                    JXDocument(Jsoup.connect(link).get())
-                var content = getNodeStr(jxDocument, config.content!!.xpath!!)
-                val builder = java.lang.StringBuilder()
-                val lines = content!!.split(" ".toRegex()).toTypedArray()
-                for (line in lines) {
-                     StringUtils.trim(line)?.let {
-                         if (it.isNotEmpty()) {
-                             builder.append("        ").append(line).append("\n")
-                         }
-                     }
-
+        fun content(sl: SearchBook.SL, url: String): Observable<String>{
+            return Observable.create<String> {
+                if(sl == null || sl.link == null || sl.link.isEmpty() || url.isEmpty()){
+                    it.onError(NullPointerException())
                 }
-                content = builder.toString()
-                LogUtils.e(TAG, "parse content =$content")
-            } catch (e: java.lang.Exception) {
-                LogUtils.e(TAG, "parse content error is $e")
-            }
+                val sourceId = sl.source.id
+                val config = SourceManager.CONFIGS[sourceId]
+                if (config.content == null) {
+                    it.onError(NullPointerException())
+                }
+                try {
+                    val link = urlVerification(url, sl.link)
+                    val jxDocument =
+                        JXDocument(Jsoup.connect(link).get())
+                    var content = getNodeStr(jxDocument, config.content!!.xpath!!)
+                    val builder = java.lang.StringBuilder()
+                    val lines = content!!.split(" ".toRegex()).toTypedArray()
+                    for (line in lines) {
+                        StringUtils.trim(line).trim().let { s ->
+                            if (s.isNotEmpty()) {
+                                builder.append("     ").append(s).append("\n")
+                            }
+                        }
+                    }
+                    val toString = builder.toString()
+                    if(toString.replace(" ","").isNotEmpty()){
+                        content = toString
+                    }
+                    LogUtils.e("Crawler", "parse content is $content")
+                    it.onNext(content)
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler","crawler book content error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+
         }
 
         /**

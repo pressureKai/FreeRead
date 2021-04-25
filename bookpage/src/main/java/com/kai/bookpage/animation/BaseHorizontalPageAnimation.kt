@@ -186,7 +186,6 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
      */
     override fun draw(canvas: Canvas) {
         if (isRunning) {
-            LogUtils.e("PageView", "base horizontal draw run")
             drawMove(canvas)
         } else {
             if (isCancel) {
@@ -194,7 +193,6 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
                 mNextBitmap = mCurrentBitmap?.copy(Bitmap.Config.RGB_565, true)
             }
             //继续绘制
-            LogUtils.e("PageView", "base horizontal draw static")
             drawStatic(canvas)
         }
     }
