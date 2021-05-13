@@ -11,6 +11,7 @@ import com.gyf.immersionbar.components.ImmersionOwner
 import com.gyf.immersionbar.components.ImmersionProxy
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
+import com.kai.common.utils.LogUtils
 
 abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,ImmersionOwner {
     private var mPresenter :P ?= null
@@ -18,16 +19,19 @@ abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,Immer
     private var isCreate = false
     private var hasLoad = false
     private var isVisibleToUser = false
-    private val mImmersionProxy :ImmersionProxy = ImmersionProxy(this)
+    private var mImmersionProxy :ImmersionProxy ?= null
+    init {
+        mImmersionProxy = ImmersionProxy(this)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         bindView()
         super.onCreate(savedInstanceState)
-        mImmersionProxy.onCreate(savedInstanceState)
+        mImmersionProxy?.onCreate(savedInstanceState)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mImmersionProxy.onActivityCreated(savedInstanceState)
+        mImmersionProxy?.onActivityCreated(savedInstanceState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -55,30 +59,30 @@ abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,Immer
 
     override fun onResume() {
         super.onResume()
-        mImmersionProxy.onResume()
+        mImmersionProxy?.onResume()
     }
 
 
     override fun onPause() {
         super.onPause()
-        mImmersionProxy.onPause()
+        mImmersionProxy?.onPause()
     }
     override fun onDestroy() {
         super.onDestroy()
         unBindView()
-        mImmersionProxy.onDestroy()
+        mImmersionProxy?.onDestroy()
     }
 
 
     override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        mImmersionProxy.onHiddenChanged(hidden)
+        mImmersionProxy?.onHiddenChanged(hidden)
     }
 
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        mImmersionProxy.onConfigurationChanged(newConfig)
+        mImmersionProxy?.onConfigurationChanged(newConfig)
     }
 
 
@@ -98,7 +102,8 @@ abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,Immer
             this.isVisibleToUser = isVisibleToUser
             lazyLoad(mRootView, null)
         }
-        mImmersionProxy.isUserVisibleHint = isVisibleToUser
+        LogUtils.e("BaseMvpFragment","on ${this.javaClass.name} isVisible $isVisibleToUser")
+        mImmersionProxy?.isUserVisibleHint = isVisibleToUser
     }
 
     abstract fun createPresenter():P?

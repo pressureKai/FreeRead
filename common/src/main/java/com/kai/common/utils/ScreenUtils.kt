@@ -93,13 +93,6 @@ class ScreenUtils {
             return size
         }
 
-        fun getScreenSize(activity:AppCompatActivity) :IntArray{
-            val size = IntArray(2)
-            val decorView = activity.window.decorView
-            size[0] = decorView.width
-            size[1] = decorView.height
-            return size
-        }
 
 
         fun getStatusBarHeight() :Int{

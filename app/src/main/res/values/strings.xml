@@ -50,4 +50,6 @@
     <string name="search_descriptor">搜索书名或作者名称</string>
     <string name="recommend">推荐</string>
     <string name="history">搜索历史</string>
+    <string name="ranking">排行</string>
+    <string name="shelf">书架</string>
 </resources>

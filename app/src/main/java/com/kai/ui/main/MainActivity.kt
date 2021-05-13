@@ -2,6 +2,7 @@ package com.kai.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.util.SparseArray
 import android.view.Gravity
 import android.view.MotionEvent
@@ -13,17 +14,14 @@ import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.util.isEmpty
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.fragment.app.FragmentTransaction
+import androidx.viewpager.widget.ViewPager
 import com.alibaba.android.arouter.launcher.ARouter
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.MultiTransformation
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
-import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.widget.load.ChargeLoadMoreListener
@@ -31,22 +29,25 @@ import com.kai.base.widget.load.ListPageLoader
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
+import com.kai.common.extension.getScreenHeight
 import com.kai.common.extension.getScreenWidth
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.crawler.Crawler
-import com.kai.crawler.entity.TestEntity
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.User
-import com.kai.ui.bookdetail.BookDetailActivity
 import com.kai.ui.forgetpassword.ForgetPasswordActivity
+import com.kai.ui.fragments.BookRankingFragment
+import com.kai.ui.fragments.BookRecommendFragment
+import com.kai.ui.fragments.BookShelfFragment
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
+import java.util.ArrayList
 
 /**
  *# app - 首页
@@ -65,46 +66,107 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     private var isDay = true
     private var currentUser: User? = null
 
-    private var fragments: SparseArray<Fragment> ?= null
+    private var fragments: SparseArray<Fragment>? = null
+    private var icons: SparseArray<ImageView>? = null
+    private var textViews: SparseArray<TextView>? = null
+
+    private var mCurrentIndex = 0
     override fun setLayoutId(): Int {
         return R.layout.activity_main
     }
 
 
+    private fun onPageChange(position: Int) {
+        textViews?.let {
+            for (value in 0.until(it.size())) {
+                if (value == position) {
+                    it.get(value).typeface = Typeface.DEFAULT_BOLD
+                } else {
+                    it.get(value).typeface = Typeface.DEFAULT
+                }
+            }
+        }
+
+    }
+
+    private fun initFragment() {
+
+        view_pager.addOnPageChangeListener(object :ViewPager.OnPageChangeListener{
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+            }
+
+            override fun onPageSelected(position: Int) {
+               onPageChange(position)
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+
+            }
+
+        })
+        if (icons == null) {
+            icons = SparseArray()
+        }
+
+        icons?.let {
+            if (it.isEmpty()) {
+                it.put(0, shelf_image)
+                it.put(1, recommend_image)
+                it.put(2, ranking_image)
+            }
+        }
+
+
+
+        if (textViews == null) {
+            textViews = SparseArray()
+        }
+
+        textViews?.let {
+            if (it.isEmpty()) {
+                it.put(0, shelf_text)
+                it.put(1, recommend_text)
+                it.put(2, ranking_text)
+            }
+        }
+
+        if (fragments == null) {
+            fragments = SparseArray()
+        }
+
+        fragments?.let {
+            if (it.isEmpty()) {
+                it.put(0, BookShelfFragment.newInstance())
+                it.put(1, BookRecommendFragment.newInstance())
+                it.put(2, BookRankingFragment.newInstance())
+            }
+            view_pager.offscreenPageLimit = 3
+            view_pager.adapter = TabAdapter(supportFragmentManager)
+        }
+
+        shelf_layout.setOnClickListener {
+            view_pager.currentItem = 0
+        }
+
+        recommend_layout.setOnClickListener {
+            view_pager.currentItem = 1
+        }
+
+        ranking_layout.setOnClickListener {
+            view_pager.currentItem = 2
+        }
+
+
+    }
 
     override fun initView() {
-
-        search.setOnClickListener {
-            ARouter
-                    .getInstance()
-                    .build("/app/search")
-                    .navigation()
-        }
-
-
-
         RxNetworkObserver.register(this)
-        mPresenter?.loadBookRecommend()
+        initFragment()
         mPresenter?.getLoginCurrentUser()
-        initImmersionBar(fitSystem = false, color = R.color.app_background)
-        val testBaseQuickAdapter = TestBaseQuickAdapter()
-        testBaseQuickAdapter.setOnItemClickListener { adapter, _, position ->
-            val searchBook = adapter.data[position] as SearchBook
-            ARouter.getInstance().build("/app/book").navigation()
-            postStickyEvent(searchBook,
-                    BookDetailActivity.BOOK_DETAIL,
-                    BookDetailActivity::class.java.name)
-        }
-        listPageLoader = ListPageLoader(
-                recycler,
-                refreshDataDelegate = this,
-                chargeLoadMoreListener = this,
-                mSmartRefreshLayout = refresh,
-                mMultipleStatusView = status,
-                mAdapter = testBaseQuickAdapter
-        )
-        val layoutParams = refresh.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.topMargin = ScreenUtils.getStatusBarHeight()
+//        initImmersionBar(fitSystem = false, color = R.color.app_background)
+//        val layoutParams = content.layoutParams as ViewGroup.MarginLayoutParams
+//        layoutParams.topMargin = ScreenUtils.getStatusBarHeight()
         draw_content.setPadding(0, ScreenUtils.getStatusBarHeight(), 0, 0)
         draw_content.layoutParams.width = ((getScreenWidth() / 6f) * 5).toInt()
         draw_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -162,8 +224,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         val dayNightModelName = day_night_model.findViewById<TextView>(R.id.name)
         val dayNightModelNextIcon = day_night_model.findViewById<ImageView>(R.id.next_icon)
         val dayNightModelSwitchView = day_night_model.findViewById<SwitchCompat>(R.id.switch_view)
-
-
 
 
         SharedPreferenceUtils.getInstance()?.let {
@@ -242,7 +302,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         unRegisterName.text = "注销账号"
         un_register.setOnClickListener {
             currentUser?.let {
-                postStickyEvent(it.account, ForgetPasswordActivity.FORGET_PASSWORD_CODE, ForgetPasswordActivity::class.java.name)
+                postStickyEvent(
+                        it.account,
+                        ForgetPasswordActivity.FORGET_PASSWORD_CODE,
+                        ForgetPasswordActivity::class.java.name
+                )
                 ARouter
                         .getInstance()
                         .build("/app/forgetPassword")
@@ -310,29 +374,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
 
-    inner class TestBaseQuickAdapter :
-            BaseQuickAdapter<SearchBook, BaseViewHolder>(R.layout.item_main_test) {
-        override fun convert(holder: BaseViewHolder, item: SearchBook) {
-            holder.getView<TextView>(R.id.title).text = item.title.replace(" ", "").trim()
-            holder.getView<TextView>(R.id.des).text = item.descriptor.replace(" ", "").trim()
-            holder.getView<TextView>(R.id.author).text = item.author.replace(" ", "").trim()
-            val view = holder.getView<View>(R.id.divider)
-
-            val itemPosition = getItemPosition(item)
-            if (itemPosition == data.size - 1) {
-                view.visibility = View.GONE
-            } else {
-                view.visibility = View.VISIBLE
-            }
-
-            val options = RequestOptions()
-                    .transform(MultiTransformation(CenterCrop(), RoundedCorners(16)))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL);
-            val cover = holder.getView<ImageView>(R.id.cover)
-            Glide.with(cover).load(item.cover).apply(options).into(cover)
-        }
-    }
-
     /**
      * @desc pageLoader加载更多数据接口
      */
@@ -375,7 +416,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         return if (!drawLayoutIsOpen) {
-            refresh_content.dispatchTouchEvent(ev)
+            content.dispatchTouchEvent(ev)
             false
         } else {
             ev?.let {
@@ -392,7 +433,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             } ?: run {
                 return super.dispatchTouchEvent(ev)
             }
-
         }
     }
 
@@ -435,4 +475,21 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         super.onResume()
         mPresenter?.getLoginCurrentUser()
     }
+
+
+
+
+    inner class TabAdapter(fm: FragmentManager) :
+            FragmentStatePagerAdapter(fm) {
+        override fun getItem(position: Int): Fragment {
+
+            return fragments!!.get(position)
+        }
+
+        override fun getCount(): Int {
+            return fragments!!.size()
+        }
+    }
+
+
 }

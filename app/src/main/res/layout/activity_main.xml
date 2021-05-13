@@ -12,40 +12,134 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/refresh_content"
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.scwang.smart.refresh.layout.SmartRefreshLayout
-            android:id="@+id/refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-
-            <com.classic.common.MultipleStatusView
-                android:id="@+id/status"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </com.classic.common.MultipleStatusView>
-
-        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
-
-
-        <Button
-            android:id="@+id/search"
-            android:text="search"
+        <com.kai.common.view.CustomViewPager
+            android:id="@+id/view_pager"
+            android:background="@android:color/holo_red_dark"
+            app:layout_constraintBottom_toTopOf="@+id/tab_layout"
             app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintVertical_weight="1"/>
+
+
+        <LinearLayout
+            android:background="@color/app.draw.content.background"
+            android:id="@+id/tab_layout"
+            app:layout_constraintTop_toBottomOf="@+id/view_pager"
+            android:layout_width="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="56dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/shelf_layout"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+                <ImageView
+                    android:id="@+id/shelf_image"
+                    android:src="@drawable/book_shelf"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/shelf_text"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/app.font.color"
+                    android:text="@string/shelf"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/recommend_layout"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+                <ImageView
+                    android:id="@+id/recommend_image"
+                    android:src="@drawable/book_recommend"
+                    android:layout_marginLeft="4dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/recommend_text"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/app.font.color"
+                    android:text="@string/recommend"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ranking_layout"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+                <ImageView
+                    android:id="@+id/ranking_image"
+                    android:src="@drawable/book_ranking"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    android:id="@+id/ranking_text"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/app.font.color"
+                    android:text="@string/ranking"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
