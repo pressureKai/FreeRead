@@ -6,7 +6,6 @@ import com.kai.common.utils.LogUtils
 import com.kai.entity.User
 import com.kai.model.book.BookRepository
 import com.kai.model.user.UserRepository
-import io.reactivex.rxjava3.core.Observable
 
 /**
  *

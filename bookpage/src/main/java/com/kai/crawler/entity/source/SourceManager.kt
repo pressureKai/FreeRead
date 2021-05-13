@@ -26,7 +26,10 @@ class SourceManager {
          init {
             put(
                SourceID.DINGDIAN,
-               Source(SourceID.DINGDIAN, "顶点小说", "http://www.ibooktxt.com/search.php?q=%s")
+               Source(SourceID.DINGDIAN,
+                       "顶点小说",
+                       "http://www.ibooktxt.com/search.php?q=%s",
+                       "http://www.ibooktxt.com/")
             )
          }
       }

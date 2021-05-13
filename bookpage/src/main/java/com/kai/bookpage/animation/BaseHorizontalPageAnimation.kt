@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import com.kai.common.utils.LogUtils
 import kotlin.math.abs
 
 /**
@@ -38,14 +37,18 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
     /**
      * des  构造方法
      */
-    constructor(screenWidth: Int, screenHeight: Int,
-                marginWidth: Int, marginHeight: Int,
-                view: View,
-                onPageChangeListener: OnPageChangeListener) :
-            super(screenWidth, screenHeight,
-                    marginWidth, marginHeight,
-                    view,
-                    onPageChangeListener) {
+    constructor(
+        screenWidth: Int, screenHeight: Int,
+        marginWidth: Int, marginHeight: Int,
+        view: View,
+        onPageChangeListener: OnPageChangeListener
+    ) :
+            super(
+                screenWidth, screenHeight,
+                marginWidth, marginHeight,
+                view,
+                onPageChangeListener
+            ) {
         //创建图片
         mCurrentBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Bitmap.Config.RGB_565)
         mNextBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Bitmap.Config.RGB_565)
@@ -97,7 +100,7 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
             MotionEvent.ACTION_MOVE -> {
                 //获取滑动的阈值
                 val scaledTouchSlop =
-                        ViewConfiguration.get(mView?.context).scaledTouchSlop
+                    ViewConfiguration.get(mView?.context).scaledTouchSlop
                 if (!isMove) {
                     //判断是否处于滑动状态(竖直滑动与水平滑动)
                     isMove = abs(mStartX - x) > scaledTouchSlop ||
@@ -130,6 +133,8 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
                         }
                     } else {
                         //手指在屏幕上来回的滑动
+
+                        //判断是否取消翻页
                         isCancel = if (isNext) {
                             x - mMoveX > 0
                         } else {
@@ -140,6 +145,7 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
                     mMoveX = x.toInt()
                     mMoveY = y.toInt()
                     isRunning = true
+                    //触发pageView 重新绘制页面
                     mView?.invalidate()
                 }
             }
@@ -199,7 +205,6 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
 
     /**
      * des 滑动动画 此段代码的意义是否是达到缓慢滑动的效果
-     * unConfirm
      */
     override fun scrollAnimation() {
         if (mScroller.computeScrollOffset()) {
@@ -228,16 +233,10 @@ abstract class BaseHorizontalPageAnimation : PageAnimation {
         }
     }
 
-    /**
-     *des 获取背景面板 unConfirm
-     */
     override fun getBgBitmap(): Bitmap? {
         return mNextBitmap
     }
 
-    /**
-     * des 获取下一页面板 unConfirm
-     */
     override fun getNextBitmap(): Bitmap? {
         return mNextBitmap
     }

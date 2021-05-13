@@ -11,6 +11,7 @@ import com.kai.common.utils.IOUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import io.reactivex.rxjava3.disposables.Disposable
+import org.w3c.dom.Text
 import java.io.BufferedReader
 
 /**
@@ -51,7 +52,6 @@ abstract class PageLoader {
 
     private var mBatteryPaint: Paint? = null
     private var mTipPaint: Paint? = null
-//    private var mTitlePaint: Paint? = null
     private var mBgPaint: Paint? = null
     private var mTextPaint: Paint? = null
 
@@ -61,7 +61,6 @@ abstract class PageLoader {
     private var mCancelPage: TextPage? = null
     private var mBookRecord: BookRecordBean? = null
 
-    private var mPreLoadDisposable: Disposable? = null
 
     open var mStatus = STATUS_LOADING
     open var isChapterListPrepare = false
@@ -102,11 +101,12 @@ abstract class PageLoader {
     private var mBatteryLevel = 0
     private var mBgColor = 0
 
-    private var mCurrentChapterPosition = 0
+    var mCurrentChapterPosition = 0
     private var mLastChapterPosition = 0
 
 
     private var mTipTitleMargin = 0
+    private var preLoadChapterSize = 3
 
 
     constructor(pageView: PageView, coolBookBean: CoolBookBean) {
@@ -137,7 +137,7 @@ abstract class PageLoader {
         mMarginWidth = ScreenUtils.dpToPx(DEFAULT_MARGIN_WIDTH)
         mMarginHeight = ScreenUtils.dpToPx(DEFAULT_MARGIN_HEIGHT)
 
-        var textSize = ScreenUtils.spToPx(28)
+        var textSize = ScreenUtils.spToPx(ReadSettingManager.defaultTextSize)
         mSettingManager?.let {
             textSize = it.getTextSize()
         }
@@ -167,16 +167,6 @@ abstract class PageLoader {
         mTextPaint?.isAntiAlias = true
 
 
-//        mTitlePaint = TextPaint()
-//        mTitlePaint?.color = mTextColor
-//        mTitlePaint?.textSize = mTitleSize.toFloat()
-//        // Fill 填充内部  Stroke 描边
-//        mTitlePaint?.style = Paint.Style.FILL_AND_STROKE
-//        //加粗
-//        mTitlePaint?.typeface = Typeface.DEFAULT_BOLD
-//        mTitlePaint?.isAntiAlias = true
-
-
         // 绘制背景的画笔
         mBgPaint = Paint()
         mBgPaint?.color = mBgColor
@@ -184,6 +174,7 @@ abstract class PageLoader {
         //绘制电池的画笔
         mBatteryPaint = Paint()
         mBatteryPaint?.isAntiAlias = true
+
         //设置防抖动
         mBatteryPaint?.isDither = true
 
@@ -194,6 +185,26 @@ abstract class PageLoader {
             isNightMode = it.isNightMode()
         }
         setNightMode(isNightMode)
+    }
+
+
+    fun reInitTextPaint(textPaint: TextPaint){
+        mTextPaint = textPaint
+        LogUtils.e("Paint","reInit finish")
+        mTextPaint?.color = mTextColor
+        mTextPaint?.textSize = mTextSize.toFloat()
+        mTextPaint?.isAntiAlias = true
+    }
+
+    fun reInitTipPaint(tipPaint: TextPaint){
+        mTipPaint = tipPaint
+        mTipPaint?.color = mTextColor
+        mTipPaint?.textAlign = Paint.Align.LEFT
+        mTipPaint?.textSize = ScreenUtils.spToPx(DEFAULT_TIP_SIZE).toFloat()
+        //抗锯齿
+        mTipPaint?.isAntiAlias = true
+        //是否开启次像素级的抗锯齿（更好的抗锯齿效果）
+        mTipPaint?.isSubpixelText = true
     }
 
 
@@ -224,7 +235,7 @@ abstract class PageLoader {
      * 设置阅读页面的底色(正面- 反面)
      * @param pageStyle 阅读页面的背景色
      */
-    private fun setPageStyle(pageStyle: PageStyle) {
+    fun setPageStyle(pageStyle: PageStyle) {
         if (pageStyle != PageStyle.BG_NIGHT) {
             mPageStyle = pageStyle
             mSettingManager?.setPageStyle(pageStyle)
@@ -262,7 +273,7 @@ abstract class PageLoader {
     }
     /****************parse fun********************/
     /**
-     * 加载页面列表
+     * 从资源获取字符流，初始化页面列表
      *@param chapterPosition : 章节序号
      */
     @Throws(java.lang.Exception::class)
@@ -286,7 +297,7 @@ abstract class PageLoader {
         dealLoadPageList(mCurrentChapterPosition)
         //预加载下一页面
         preLoadNextChapter()
-        return mCurPageList != null
+        return mCurPageList.isNotEmpty()
     }
 
     /****************draw fun********************/
@@ -419,6 +430,7 @@ abstract class PageLoader {
         //绘制当前时间
         //底部的字显示的位置Y
         val time = StringUtils.dateConvert(System.currentTimeMillis(), Constant.FORMAT_TIME)
+        LogUtils.e("PageLoader","update time $time")
         mTipPaint?.let {
             val y = mDisplayHeight - it.fontMetrics.bottom - tipMarginHeight
             val x = outFrameLeft - it.measureText(time)
@@ -427,7 +439,7 @@ abstract class PageLoader {
     }
 
     /**
-     * 获取上一个章节的最后一页
+     * 获取当前章节的最后一页
      */
     private fun getPreLastPage(): TextPage {
         val position = mCurPageList.size - 1
@@ -451,9 +463,7 @@ abstract class PageLoader {
     }
 
 
-    /**
-     * 绘制页面，暴露给外部的方法
-     */
+
     fun drawPage(bitmap: Bitmap, isUpdate: Boolean) {
         mPageView?.let {
             it.getBgBitmap()?.let { bit ->
@@ -461,7 +471,6 @@ abstract class PageLoader {
             }
         }
         if(!isUpdate){
-            LogUtils.e("PageLoader", "draw content")
             drawContent(bitmap)
         }
         //更新绘制
@@ -470,13 +479,18 @@ abstract class PageLoader {
 
 
     /**
-     * 重新计算当前页面
+     * 重新计算指定章节页面
      */
     private fun dealLoadPageList(currentChapterPosition: Int) {
         try {
+            mCurPageList.clear()
             loadPageList(currentChapterPosition)?.let {
-                mCurPageList = it
+                //加载指定位置章节
+                if(it.size > 0){
+                    mCurPageList.addAll(it)
+                }
             }
+
             if (mCurPageList.isEmpty()) {
                 mStatus = STATUS_EMPTY
                 //添加一个空数据
@@ -484,12 +498,14 @@ abstract class PageLoader {
                 page.lines = ArrayList(1)
                 mCurPageList.add(page)
             } else {
+                //数据不为空时，状态为加载完成
                 mStatus = STATUS_FINISH
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
             mCurPageList.clear()
+            //发生错误加载数据状态为错误状态
             mStatus = STATUS_ERROR
         }
 
@@ -538,7 +554,7 @@ abstract class PageLoader {
     }
 
     /**
-     * 设置页面翻页回调
+     * 回调处理方法，通知章节变化以及总的页数变化
      */
     private fun chapterChangeCallback() {
         mPageChangeListener?.onChapterChange(mCurrentChapterPosition)
@@ -584,7 +600,7 @@ abstract class PageLoader {
      * 判断是否还有下一章节
      */
     private fun hasNextChapter(): Boolean {
-        if (mCurrentChapterPosition + 1 >= mCurPageList.size) {
+        if (mCurrentChapterPosition + 1 >= mChapterList.size) {
             return false
         }
         return true
@@ -820,10 +836,6 @@ abstract class PageLoader {
         //将上一章的缓存设置为null
         mPrePageList.clear()
 
-        //如果当前下一章缓存正在执行，则取消
-        if (mPreLoadDisposable != null) {
-            mPreLoadDisposable?.dispose()
-        }
 
         //将下一章缓存设置为null
         mNextPageList.clear()
@@ -964,9 +976,10 @@ abstract class PageLoader {
     private fun getPrePage(): TextPage? {
         var position = -1
         mCurPage?.let {
+            //it TextPage 中的position为页码
             position = it.position - 1
         }
-        if (position < 0) {
+        if (position < 0 || position > mCurPageList.size - 1) {
             return null
         }
         mPageChangeListener?.onPageChange(position)
@@ -983,6 +996,7 @@ abstract class PageLoader {
         if (!canTurnPage()) {
             return false
         }
+        //mStatus != FINISH 代表正在加载下一章节
         if (mStatus == STATUS_FINISH) {
             //先查看是否存在下一页
             val nextPage = getNextPage()
@@ -993,12 +1007,9 @@ abstract class PageLoader {
                 return true
             }
         }
-
         if (!hasNextChapter()) {
             return false
         }
-
-
         mCancelPage = mCurPage
         //解析下一章数据
         mCurPage = if (parseNextChapter()) {
@@ -1022,6 +1033,7 @@ abstract class PageLoader {
             return false
         }
 
+        //mStatus != STATUS_FINISH  数据为空或加载错误
         if (mStatus == STATUS_FINISH) {
             //先查看是否存在上一页
             val prePage = getPrePage()
@@ -1043,6 +1055,11 @@ abstract class PageLoader {
         } else {
             TextPage()
         }
+        if(mStatus == STATUS_EMPTY && mCurPage!!.lines.size > 0){
+            mStatus = STATUS_FINISH
+        } else if(mCurPage!!.lines.size == 0){
+            mStatus = STATUS_EMPTY
+        }
         mPageView?.drawNextPage()
         return true
     }
@@ -1050,19 +1067,18 @@ abstract class PageLoader {
 
 
     /**
-     * 打开指定章节
+     * 打开当前位置章节
      */
     fun openChapter() {
-        LogUtils.e("PageLoader", "open Chapter and mPageView is null ${mPageView == null}")
+        mPrePageList.clear()
+        mNextPageList.clear()
         isFirstOpen = false
         mPageView?.let {
-            LogUtils.e("PageLoader", "is  prepare ${it.isPrepare()}")
             if (!it.isPrepare()) {
                 return
             }
         }
 
-        LogUtils.e("PageLoader", "isChapterListPrepare $isChapterListPrepare")
         //如果章节目录没有准备好
         if (!isChapterListPrepare) {
             mStatus = STATUS_LOADING
@@ -1070,8 +1086,6 @@ abstract class PageLoader {
             return
         }
 
-
-        LogUtils.e("PageLoader", "mChapterList size is ${mChapterList.size}")
         // 如果获取到的章节目录为空
         if(mChapterList.isEmpty()){
             mStatus = STATUS_CATEGORY_EMPTY
@@ -1079,32 +1093,28 @@ abstract class PageLoader {
             return
         }
         if (parseCurrentChapter()) {
-            LogUtils.e(
-                "PageLoader",
-                "parse current chapter success isChapterOpen is $isChapterOpen"
-            )
-            if (!isChapterOpen) {
-                //如果章节从未打开
-                mBookRecord?.let {
-                    var position = it.pagePos
-
-                    //防止记录的页号,大于当前的最大页号
-                    if (position >= mCurPageList.size) {
-                        position = mCurPageList.size - 1
-                    }
-                    mCurPage = getCurrentPage(position)
-                    mCancelPage = mCurPage
-                    //切换状态
-                    isChapterOpen = true
-                }
-            } else {
-                LogUtils.e("PageLoader", "getCurrentPage at position 0")
-                mCurPage = getCurrentPage(0)
-            }
+            mCurPage = getCurrentPage(0)
+//            if (!isChapterOpen) {
+//
+                  //如果章节从未打开
+//                mBookRecord?.let {
+//                    var position = it.pagePos
+//
+//                    //防止记录的页号,大于当前的最大页号
+//                    if (position >= mCurPageList.size) {
+//                        position = mCurPageList.size - 1
+//                    }
+//                    mCurPage = getCurrentPage(position)
+//                    mCancelPage = mCurPage
+//                    //切换状态
+//                    isChapterOpen = true
+//                }
+//
+//            }
         } else {
             mCurPage = TextPage()
         }
-        LogUtils.e("PageLoader", "mPageView draw mCurrentChapterPosition is $mCurrentChapterPosition")
+        preLoadChapterData()
         mPageView?.drawCurrentPage(false)
     }
 
@@ -1123,7 +1133,6 @@ abstract class PageLoader {
     fun closeBook() {
         isChapterListPrepare = false
         isClose = true
-        mPreLoadDisposable?.dispose()
 
         mChapterList.clear()
         mCurPageList.clear()
@@ -1140,6 +1149,7 @@ abstract class PageLoader {
         fun onCategoryFinish(chapter: List<BookChapterBean>)
         fun onPageCountChange(count: Int)
         fun onPageChange(pos: Int)
+        fun onPreLoadChapter(mCurrentChapterPosition: Int,loadSize: Int)
     }
 
     /**
@@ -1213,25 +1223,29 @@ abstract class PageLoader {
 
     /**
      * 预加载下一章
-     * unFinish
      */
     private fun preLoadNextChapter() {
+        mNextPageList.clear()
         val nextChapter = mCurrentChapterPosition + 1
-
         //如果不存在下一章，且下一章没有数据，则不进行加载
         if (!hasNextChapter() ||
             !hasChapterData(mChapterList[nextChapter])) {
             return
+        } else {
+            loadPageList(nextChapter)?.let {
+                //加载指定位置章节
+                if(it.size > 0){
+                    mNextPageList.addAll(it)
+                }
+            }
         }
-
-        //如果之前正在加载则取消
-        if (mPreLoadDisposable != null) {
-            mPreLoadDisposable?.dispose()
-        }
+        preLoadChapterData()
+    }
 
 
-        //解析书籍信息
-        //unFinish
+
+    private fun preLoadChapterData(){
+        mPageChangeListener?.onPreLoadChapter(mCurrentChapterPosition,preLoadChapterSize)
     }
 
 
@@ -1245,6 +1259,9 @@ abstract class PageLoader {
             canvas.drawColor(mBgColor)
         }
 
+        LogUtils.e("PageLoader","mCurPage is null ${mCurPage == null} mStatus is $mStatus")
+
+        //mStatus 当加载到下一章节为空时，返回上一章节 status 状态未改变
         if (mStatus != STATUS_FINISH) {
             //绘制字体
             var tip = ""
@@ -1302,8 +1319,7 @@ abstract class PageLoader {
                 para = mTextPara + it.textSize.toInt()
             }
 
-
-
+            LogUtils.e("PageLoader","mCurPage is null ${mCurPage == null}")
             mCurPage?.let {
                 for (value in it.lines){
                     LogUtils.e("PageLoader","lines is $value")
@@ -1344,7 +1360,7 @@ abstract class PageLoader {
         mPrePageList.addAll(mCurPageList)
 
         //是否下一章数据已经预加载
-        if (mNextPageList.isNotEmpty()) {
+        if (mNextPageList.isNotEmpty() && mNextPageList.first().lines.size>0) {
             mCurPageList.clear()
             mCurPageList.addAll(mNextPageList)
             mNextPageList.clear()
@@ -1352,13 +1368,13 @@ abstract class PageLoader {
             chapterChangeCallback()
         } else {
             //处理页面解析
-            LogUtils.e("PageLoader",
-                    "parse next chapter mCurrentPosition is $mCurrentChapterPosition")
+            LogUtils.e("PageLoader","parse next chapter chapter position is $nextChapterPosition")
             dealLoadPageList(nextChapterPosition)
         }
         //预加载下一页面
         preLoadNextChapter()
-        if (mCurPageList.isNotEmpty()) {
+        if (mCurPageList.isNotEmpty() && mCurPageList.first().lines.size > 0) {
+            mStatus = STATUS_FINISH
             return true
         }
         return false
@@ -1374,8 +1390,6 @@ abstract class PageLoader {
         val temp = mLastChapterPosition
         mLastChapterPosition = mCurrentChapterPosition
         mCurrentChapterPosition = temp
-
-        //重置页面列表(交换引用 unConfirm)
 
         mPrePageList.clear()
         mPrePageList.addAll(mCurPageList)
@@ -1393,21 +1407,27 @@ abstract class PageLoader {
      * 解析上一章的数据
      */
     private fun parsePreChapter(): Boolean {
-        //加载上一章数据
+        //记录章节位置
         val preChapterPosition = mCurrentChapterPosition - 1
         mLastChapterPosition = mCurrentChapterPosition
         mCurrentChapterPosition = preChapterPosition
 
+
+        LogUtils.e("PageLoader","preChapterPosition $preChapterPosition mLastChapterPosition $mLastChapterPosition mCurrentChapterPosition $mCurrentChapterPosition" )
         //当前章节缓存为下一章
         mNextPageList.clear()
         mNextPageList.addAll(mCurPageList)
+
+        LogUtils.e("PageLoader","mPrePageList size is ${mPrePageList.size}")
         if (mPrePageList.isNotEmpty()) {
+            mCurPageList.clear()
             mCurPageList.addAll(mPrePageList)
             mPrePageList.clear()
             chapterChangeCallback()
         } else {
             dealLoadPageList(preChapterPosition)
         }
+        LogUtils.e("PageLoader","mCurPageList size is ${mCurPageList.size}")
         return mCurPageList.size > 0
     }
 
@@ -1425,8 +1445,6 @@ abstract class PageLoader {
         //是否为错误状态 或 准备状态
         if (mStatus == STATUS_PARSE_ERROR || mStatus == STATUS_PARING) {
             canTurn = false
-        } else if (mStatus == STATUS_ERROR) {
-            mStatus = STATUS_LOADING
         }
 
         return canTurn
@@ -1564,5 +1582,14 @@ abstract class PageLoader {
         }
         LogUtils.e("PageLoader", "pages is ${pages.size}")
         return pages
+    }
+
+     fun getTextSize(): Int{
+        return mTextSize
+    }
+
+
+    fun getSettingManager(): ReadSettingManager?{
+        return  mSettingManager
     }
 }

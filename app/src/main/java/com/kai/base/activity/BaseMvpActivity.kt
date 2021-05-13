@@ -186,6 +186,7 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
     fun initImmersionBar(
         view: View? = null,
         fitSystem: Boolean = false,
+        dark:Boolean = false,
         color: Int? = 0
     ) {
         var immersionColor = R.color.app_background
@@ -207,6 +208,9 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
             LogUtils.e("BaseMvpActivity","getCurrentSkinName error is $e")
         }
 
+        if(dark){
+            fontIsDark = true
+        }
         if (view != null) {
             ImmersionBar
                 .with(this)

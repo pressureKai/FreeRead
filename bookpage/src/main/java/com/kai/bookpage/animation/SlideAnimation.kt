@@ -58,7 +58,6 @@ class SlideAnimation : BaseHorizontalPageAnimation {
      * des 绘制静态页面
      */
     override fun drawStatic(canvas: Canvas) {
-        LogUtils.e("PageView","slide horizontal draw static")
         if (isCancel) {
             mCurrentBitmap?.let {
                 canvas.drawBitmap(it, 0f, 0f, null)
@@ -144,10 +143,8 @@ class SlideAnimation : BaseHorizontalPageAnimation {
                     if(distance > mScreenWidth){
                         distance = mScreenWidth
                     }
-
                     distanceX = mScreenWidth - distance
                 } else {
-
                     distanceX = -(mScreenWidth - mStartX + mTouchX).toInt()
                 }
             }
@@ -161,7 +158,7 @@ class SlideAnimation : BaseHorizontalPageAnimation {
         }
         // 指定滑动时间与滑动的距离呈现一个线性关系（滑动的时间与距离成正比）
         val duration = (400 * abs(distanceX)) / mScreenWidth
-        mScroller.startScroll(mStartX.toInt(),0,distanceX,0,duration)
+        mScroller.startScroll(mTouchX.toInt(),0,distanceX,0,duration)
     }
 
 

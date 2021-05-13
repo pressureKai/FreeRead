@@ -93,8 +93,8 @@ abstract class PageAnimation {
         mStartX = x
         mStartY = y
 
-        mLastTouchX = x
-        mLastTouchY = y
+        mLastTouchX = mStartX
+        mLastTouchY = mStartY
     }
 
 

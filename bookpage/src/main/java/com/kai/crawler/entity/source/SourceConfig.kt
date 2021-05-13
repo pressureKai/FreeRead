@@ -27,6 +27,8 @@ class SourceConfig(var id: Int) {
     var content: Content? = null
 
 
+    var home: Home?= null
+
     /**
      *# 搜索XPath配置 - Crawler
      *@author pressureKai
@@ -60,5 +62,10 @@ class SourceConfig(var id: Int) {
      */
     class Content {
         var xpath: String? = null
+    }
+
+    class Home {
+        var recommendPath: String? = null
+        var recommendNamePath: String ?= null
     }
 }

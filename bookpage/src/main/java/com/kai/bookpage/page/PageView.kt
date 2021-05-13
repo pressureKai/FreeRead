@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.widget.TextView
 import com.kai.bookpage.animation.*
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.common.utils.LogUtils
@@ -17,7 +18,7 @@ import kotlin.math.abs
 /**
  * # 页面展示控件，无需关心数据来源，因为数据来源可能有多种方法。降低程序耦合度。
  */
-class PageView :View{
+class PageView: View{
 
     private val TAG = "PageView"
     //当前View的宽呃呃
@@ -82,9 +83,11 @@ class PageView :View{
     }
 
     fun hasPrePage() :Boolean{
+        //不做实际上的翻页操作
         mTouchListener?.prePage()
         var hasPre = false
         mPageLoader?.let {
+            //实际上的翻页操作
             hasPre = it.pre()
         }
         return hasPre
@@ -136,8 +139,10 @@ class PageView :View{
                     if (isMove) {
                         //如果滑动了，则进行翻页
                         mPageAnimation?.onTouchEvent(event)
+                    } else {
+
                     }
-                    LogUtils.e("PageView", "MotionEvent.ACTION_MOVE")
+                  //  LogUtils.e("PageView", "MotionEvent.ACTION_MOVE")
                 }
                 MotionEvent.ACTION_UP -> {
                     if (!isMove) {
@@ -175,6 +180,7 @@ class PageView :View{
         mPageLoader?.let {
             hasNext = it.next()
         }
+        LogUtils.e("PageView","hasNext $hasNext")
         return hasNext
     }
 
@@ -220,23 +226,23 @@ class PageView :View{
             return
         }
         when(mPageMode){
-//            PageMode.SIMULATION -> {
-//                LogUtils.e("PageView","init SimulationPageAnimation  $mPageMode")
-//                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-//            }
-//            PageMode.COVER -> {
-//                mPageAnimation = CoverAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-//            }
-//            PageMode.SLIDE -> {
-//                mPageAnimation = SlideAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-//            }
-//            PageMode.NONE -> {
-//                LogUtils.e("PageView","init NonePageAnimation $mPageMode")
-//                mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-//            }
-//            PageMode.SCROLL -> {
-//                mPageAnimation = ScrollPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
-//            }
+            PageMode.SIMULATION -> {
+                LogUtils.e("PageView","init SimulationPageAnimation  $mPageMode")
+                mPageAnimation = SimulationPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+            }
+            PageMode.COVER -> {
+                mPageAnimation = CoverAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+            }
+            PageMode.SLIDE -> {
+                mPageAnimation = SlideAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+            }
+            PageMode.NONE -> {
+                LogUtils.e("PageView","init NonePageAnimation $mPageMode")
+                mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+            }
+            PageMode.SCROLL -> {
+                mPageAnimation = ScrollPageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
+            }
             else -> {
                 mPageAnimation = NonePageAnimation(mViewWidth, mViewHeight, this, mPageAnimationListener)
             }

@@ -2,6 +2,7 @@ package com.kai.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.util.SparseArray
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.appcompat.widget.SwitchCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import com.alibaba.android.arouter.launcher.ARouter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
@@ -30,10 +32,12 @@ import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
 import com.kai.common.extension.getScreenWidth
+import com.kai.common.utils.LogUtils
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.crawler.Crawler
+import com.kai.crawler.entity.TestEntity
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.User
 import com.kai.ui.bookdetail.BookDetailActivity
@@ -59,12 +63,26 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     private lateinit var listPageLoader: ListPageLoader<SearchBook>
     private var drawLayoutIsOpen = false
     private var isDay = true
-    private var currentUser: User ?= null
+    private var currentUser: User? = null
+
+    private var fragments: SparseArray<Fragment> ?= null
     override fun setLayoutId(): Int {
         return R.layout.activity_main
     }
 
+
+
     override fun initView() {
+
+        search.setOnClickListener {
+            ARouter
+                    .getInstance()
+                    .build("/app/search")
+                    .navigation()
+        }
+
+
+
         RxNetworkObserver.register(this)
         mPresenter?.loadBookRecommend()
         mPresenter?.getLoginCurrentUser()
@@ -202,7 +220,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         bluetoothIcon.setImageResource(R.drawable.bluetooth)
         bluetoothName.text = "蓝牙传书"
         bluetooth.setOnClickListener {
-
+            ARouter.getInstance().build("/app/bluetooth").navigation()
         }
 
 
@@ -228,10 +246,10 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 ARouter
                         .getInstance()
                         .build("/app/forgetPassword")
-                        .withBoolean("unRegister",true)
+                        .withBoolean("unRegister", true)
                         .navigation()
-             }
-            if(currentUser == null){
+            }
+            if (currentUser == null) {
                 customToast("请登录")
             }
         }
@@ -279,11 +297,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
     override fun onGetLoginUser(user: BaseEntity<User>) {
-        when(user.code){
-            BaseEntity.ENTITY_FAIL_CODE->{
+        when (user.code) {
+            BaseEntity.ENTITY_FAIL_CODE -> {
                 name.text = "请登录"
             }
-            BaseEntity.ENTITY_SUCCESS_CODE->{
+            BaseEntity.ENTITY_SUCCESS_CODE -> {
                 val user = user.data as User
                 name.text = user.account
                 currentUser = user
@@ -336,7 +354,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
      * @desc pageLoader 刷新数据接口
      */
     override fun onRefresh() {
-        Crawler.search("圣墟")
+        Crawler.search("深空彼岸")
                 .doOnError {
                     listPageLoader.loadData(responseState = ListPageLoader.DATA_STATE_ERROR)
                 }.subscribe {
@@ -357,7 +375,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         return if (!drawLayoutIsOpen) {
-            refresh.dispatchTouchEvent(ev)
+            refresh_content.dispatchTouchEvent(ev)
             false
         } else {
             ev?.let {

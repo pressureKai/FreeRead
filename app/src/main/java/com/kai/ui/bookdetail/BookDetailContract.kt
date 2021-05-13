@@ -15,7 +15,7 @@ class BookDetailContract {
     interface View :IView{
         fun onLoadBookDetail(list: List<String>)
         fun onLoadBookChapter(chapters: ArrayList<BookChapterBean>)
-        fun onLoadBookContentByChapter(bookChapterBean: BookChapterBean)
+        fun onLoadBookContentByChapter(bookChapterBean: BookChapterBean,isOpen: Boolean)
     }
 
     interface Presenter{
@@ -29,6 +29,6 @@ class BookDetailContract {
         fun loadBookChapter(source: SearchBook.SL,id: Int)
 
 
-        fun loadBookContentByChapter(bookChapterBean: BookChapterBean)
+        fun loadBookContentByChapter(bookChapterBean: BookChapterBean,isOpen: Boolean)
     }
 }

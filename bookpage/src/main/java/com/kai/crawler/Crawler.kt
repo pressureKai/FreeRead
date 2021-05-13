@@ -4,6 +4,7 @@ import android.util.Log
 import android.util.SparseBooleanArray
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.StringUtils
+import com.kai.crawler.entity.TestEntity
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.crawler.entity.chapter.Chapter
 import com.kai.crawler.entity.source.SourceManager
@@ -18,6 +19,7 @@ import java.lang.NullPointerException
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
+import java.time.Year
 
 //Xpath  匹配规则
 //https://blog.csdn.net/weixin_44462294/article/details/104410755
@@ -25,132 +27,132 @@ class Crawler {
     companion object {
         const val TAG = "Crawler"
         fun search(keyword: String): Observable<List<SearchBook>> {
-           return Observable.create<List<SearchBook>> { emitter ->
-               val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
-               val books: ArrayList<SearchBook> = ArrayList()
-               var connectError = false
-               for (i in 0.until(checkedMap.size())) {
-                   val id = SourceManager.CONFIGS.keyAt(i)
-                   val config = SourceManager.CONFIGS.valueAt(i)
-                   val source = SourceManager.SOURCES.get(id)
-                   if (!checkedMap.get(id)) {
-                       continue
-                   }
-                   val resource = ArrayList<JXNode?>()
-                   var url = ""
-                   try {
-                       url = if (config.search?.charset.isNullOrEmpty()) {
-                           String.format(
-                                   source.searchUrl, URLEncoder.encode(
-                                   keyword,
-                                   config.search?.charset
-                           )
-                           )
-                       } else {
-                           String.format(source.searchUrl, keyword)
-                       }
-                       LogUtils.e(TAG, "url = $url")
-                       val connect = Jsoup.connect(url).get()
-                       val jxDocument = JXDocument(connect)
-                       resource.clear()
-                       val selN = jxDocument.selN(config.search?.xpath)
-                       selN.let {
-                           resource.addAll(it)
-                       }
-                   } catch (e: Exception) {
-                       LogUtils.e(TAG, "search getConnect error $e")
-                       connectError = true
-                       continue
-                   }
+            return Observable.create<List<SearchBook>> { emitter ->
+                val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                val books: ArrayList<SearchBook> = ArrayList()
+                var connectError = false
+                for (i in 0.until(checkedMap.size())) {
+                    val id = SourceManager.CONFIGS.keyAt(i)
+                    val config = SourceManager.CONFIGS.valueAt(i)
+                    val source = SourceManager.SOURCES.get(id)
+                    if (!checkedMap.get(id)) {
+                        continue
+                    }
+                    val resource = ArrayList<JXNode?>()
+                    var url = ""
+                    try {
+                        url = if (config.search?.charset.isNullOrEmpty()) {
+                            String.format(
+                                    source.searchUrl, URLEncoder.encode(
+                                    keyword,
+                                    config.search?.charset
+                            )
+                            )
+                        } else {
+                            String.format(source.searchUrl, keyword)
+                        }
+                        LogUtils.e(TAG, "url = $url")
+                        val connect = Jsoup.connect(url).get()
+                        val jxDocument = JXDocument(connect)
+                        resource.clear()
+                        val selN = jxDocument.selN(config.search?.xpath)
+                        selN.let {
+                            resource.addAll(it)
+                        }
+                    } catch (e: Exception) {
+                        LogUtils.e(TAG, "search getConnect error $e")
+                        connectError = true
+                        continue
+                    }
 
-                   if (resource == null) {
-                       continue
-                   }
-
-
-                   try {
-                       for (jxNode in resource) {
-                           var bookLink = ""
-                           jxNode?.let { node ->
-                               config.search?.let { search ->
-                                   val book = SearchBook()
-                                   search.coverXpath?.let { coverPath ->
-                                       val cover = getNodeStr(node, coverPath)
-                                       cover?.let { coverUrl ->
-                                           val urlVerification = urlVerification(coverUrl, url)
-                                           urlVerification?.let {
-                                               book.cover = it
-                                               LogUtils.e(TAG, "search $keyword cover = ${book.cover}")
-                                           }
-                                       }
-                                   }
-
-                                   search.titleXpath?.let { titleXPath ->
-                                       val title = getNodeStr(jxNode, titleXPath)
-                                       title?.let {
-                                           book.title = it
-                                           LogUtils.e(TAG, "search $keyword title = ${book.title}")
-                                       }
-                                   }
+                    if (resource == null) {
+                        continue
+                    }
 
 
+                    try {
+                        for (jxNode in resource) {
+                            var bookLink = ""
+                            jxNode?.let { node ->
+                                config.search?.let { search ->
+                                    val book = SearchBook()
+                                    search.coverXpath?.let { coverPath ->
+                                        val cover = getNodeStr(node, coverPath)
+                                        cover?.let { coverUrl ->
+                                            val urlVerification = urlVerification(coverUrl, url)
+                                            urlVerification?.let {
+                                                book.cover = it
+                                                LogUtils.e(TAG, "search $keyword cover = ${book.cover}")
+                                            }
+                                        }
+                                    }
 
-                                   search.linkXpath?.let { linkXPath ->
-                                       val link = getNodeStr(jxNode, linkXPath)
-                                       link?.let { linkPath ->
-                                           val urlVerification = urlVerification(linkPath, url)
-                                           urlVerification?.let {
-                                               //储存书源到map中
-                                               bookLink = it
-                                               book.sources.add(SearchBook.SL(it, source))
-                                               LogUtils.e(TAG, "search $keyword link = $it")
-                                           }
-                                       }
-                                   }
-
-
-                                   search.authorXpath?.let { authorXPath ->
-                                       val author = getNodeStr(jxNode, authorXPath)
-                                       author?.let {
-                                           book.author = it
-                                           LogUtils.e(TAG, "search $keyword author = ${book.author}")
-                                       }
-                                   }
-
-
-                                   search.descXpath?.let { describerXPath ->
-                                       val describer = getNodeStr(jxNode, describerXPath)
-                                       describer?.let {
-                                           book.descriptor = describer
-                                           LogUtils.e(
-                                                   TAG,
-                                                   "search $keyword descriptor = ${book.descriptor}"
-                                           )
-                                       }
-                                   }
+                                    search.titleXpath?.let { titleXPath ->
+                                        val title = getNodeStr(jxNode, titleXPath)
+                                        title?.let {
+                                            book.title = it
+                                            LogUtils.e(TAG, "search $keyword title = ${book.title}")
+                                        }
+                                    }
 
 
-                                   if (bookLink.isNotEmpty()) {
-                                       books.add(book)
-                                   }
 
-                               }
-                           }
-                       }
-                       emitter.onNext(books)
-                       emitter.onComplete()
-                   } catch (e: Exception) {
-                       emitter.onError(e)
-                       LogUtils.e(TAG, e.toString())
-                   }
+                                    search.linkXpath?.let { linkXPath ->
+                                        val link = getNodeStr(jxNode, linkXPath)
+                                        link?.let { linkPath ->
+                                            val urlVerification = urlVerification(linkPath, url)
+                                            urlVerification?.let {
+                                                //储存书源到map中
+                                                bookLink = it
+                                                book.sources.add(SearchBook.SL(it, source))
+                                                LogUtils.e(TAG, "search $keyword link = $it")
+                                            }
+                                        }
+                                    }
 
-               }
-               //循环遍历完全部资源，搜索完毕
 
-               if(books.size == 0 && connectError){
-                   LogUtils.e(TAG, "search finish")
-                   emitter.onError(Exception())
-               }
+                                    search.authorXpath?.let { authorXPath ->
+                                        val author = getNodeStr(jxNode, authorXPath)
+                                        author?.let {
+                                            book.author = it
+                                            LogUtils.e(TAG, "search $keyword author = ${book.author}")
+                                        }
+                                    }
+
+
+                                    search.descXpath?.let { describerXPath ->
+                                        val describer = getNodeStr(jxNode, describerXPath)
+                                        describer?.let {
+                                            book.descriptor = describer
+                                            LogUtils.e(
+                                                    TAG,
+                                                    "search $keyword descriptor = ${book.descriptor}"
+                                            )
+                                        }
+                                    }
+
+
+                                    if (bookLink.isNotEmpty()) {
+                                        books.add(book)
+                                    }
+
+                                }
+                            }
+                        }
+                        emitter.onNext(books)
+                        emitter.onComplete()
+                    } catch (e: Exception) {
+                        emitter.onError(e)
+                        LogUtils.e(TAG, e.toString())
+                    }
+
+                }
+                //循环遍历完全部资源，搜索完毕
+
+                if (books.size == 0 && connectError) {
+                    LogUtils.e(TAG, "search finish")
+                    emitter.onError(Exception())
+                }
 
             }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
 
@@ -159,7 +161,7 @@ class Crawler {
 
 
         fun catalog(sl: SearchBook.SL): Observable<List<Chapter>> {
-            return Observable.create<List<Chapter>>{ emitter ->
+            return Observable.create<List<Chapter>> { emitter ->
                 if (sl == null || sl.source == null || sl.link.isEmpty()) {
                     emitter.onComplete()
                 }
@@ -238,10 +240,9 @@ class Crawler {
         }
 
 
-
-        fun content(sl: SearchBook.SL, url: String): Observable<String>{
+        fun content(sl: SearchBook.SL, url: String): Observable<String> {
             return Observable.create<String> {
-                if(sl == null || sl.link == null || sl.link.isEmpty() || url.isEmpty()){
+                if (sl == null || sl.link == null || sl.link.isEmpty() || url.isEmpty()) {
                     it.onError(NullPointerException())
                 }
                 val sourceId = sl.source.id
@@ -252,7 +253,7 @@ class Crawler {
                 try {
                     val link = urlVerification(url, sl.link)
                     val jxDocument =
-                        JXDocument(Jsoup.connect(link).get())
+                            JXDocument(Jsoup.connect(link).get())
                     var content = getNodeStr(jxDocument, config.content!!.xpath!!)
                     val builder = java.lang.StringBuilder()
                     val lines = content!!.split(" ".toRegex()).toTypedArray()
@@ -264,13 +265,51 @@ class Crawler {
                         }
                     }
                     val toString = builder.toString()
-                    if(toString.replace(" ","").isNotEmpty()){
+                    if (toString.replace(" ", "").isNotEmpty()) {
                         content = toString
                     }
                     LogUtils.e("Crawler", "parse content is $content")
                     it.onNext(content)
                 } catch (e: java.lang.Exception) {
-                    LogUtils.e("Crawler","crawler book content error is $e")
+                    LogUtils.e("Crawler", "crawler book content error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+
+        }
+
+
+
+        fun getRecommend(): Observable<ArrayList<String>>{
+            return Observable.create<ArrayList<String>> {
+                try {
+                    val rs: ArrayList<JXNode?> = ArrayList()
+                    val recommend = ArrayList<String>()
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    for(i in 0.until(checkedMap.size())){
+                        val id = SourceManager.CONFIGS.keyAt(i)
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val source = SourceManager.SOURCES.get(id)
+                        val jxDocument =
+                                JXDocument(Jsoup.connect(source.homeUrl).get())
+
+                        val xpath = config.home!!.recommendPath!!
+                        rs.clear()
+                        val selN = jxDocument.selN(xpath)
+                        rs.addAll(selN)
+                        for(value in rs){
+                            val name = getNodeStr(value!!, config.home!!.recommendNamePath!!)
+                            name?.let {
+                                LogUtils.e(TAG,"BE ADD NAME IS $it")
+                                recommend.add(name)
+                            }
+                        }
+                    }
+
+
+                    it.onNext(recommend)
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "crawler get recommend error is $e")
                     it.onError(e)
                 }
             }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())

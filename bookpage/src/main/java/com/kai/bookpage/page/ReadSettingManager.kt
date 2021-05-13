@@ -30,6 +30,7 @@ class ReadSettingManager {
 
 
     companion object{
+        const val defaultTextSize = 28
         @Volatile
         private var sInstance: ReadSettingManager? = null
         val SHARED_READ_CONVERT_TYPE = "shared_read_convert_type"
@@ -115,7 +116,7 @@ class ReadSettingManager {
     fun getTextSize() :Int{
         var textSize = 0
         sharedPreferenceUtils?.let {
-           textSize = it.getInt(SHARED_READ_TEXT_SIZE, ScreenUtils.spToPx(28))
+           textSize = it.getInt(SHARED_READ_TEXT_SIZE, ScreenUtils.spToPx(defaultTextSize))
         }
         return textSize
     }

@@ -17,6 +17,10 @@
     },
     "content": {
       "xpath": "//div[@id='content']/text()"
+    },
+    "home": {
+      "recommendPath": "//div[@id=hotcontent]//div[@class='r']//ul//li",
+      "recommendNamePath": "//li//span[@class='s2']//a/text()"
     }
   }
 ]

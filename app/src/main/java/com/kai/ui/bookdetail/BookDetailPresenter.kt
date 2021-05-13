@@ -48,12 +48,14 @@ class BookDetailPresenter : BasePresenter<BookDetailContract.View>(), BookDetail
         }
     }
 
-    override fun loadBookContentByChapter(bookChapterBean: BookChapterBean) {
-        val source =
-                Source(bookChapterBean.sourceID, bookChapterBean.sourceName, bookChapterBean.searchUrl)
-        val sl = SL(bookChapterBean.link, source)
+    override fun loadBookContentByChapter(bookChapterBean: BookChapterBean,isOpen: Boolean) {
+        val beforeChapter = BookDatabase.get().bookDao().getBookChapterById(bookChapterBean.id)
+        if(beforeChapter.content.isEmpty()){
+            val source =
+                Source(bookChapterBean.sourceID, bookChapterBean.sourceName, bookChapterBean.searchUrl,bookChapterBean.searchUrl)
+            val sl = SL(bookChapterBean.link, source)
 
-        Crawler.content(sl, bookChapterBean.link)
+            Crawler.content(sl, bookChapterBean.link)
                 .doOnError {
                     LogUtils.e("BookDetailPresenter", "parse content error is $it")
                 }.subscribe {
@@ -61,11 +63,14 @@ class BookDetailPresenter : BasePresenter<BookDetailContract.View>(), BookDetail
                         val bookChapterById = BookDatabase.get().bookDao().getBookChapterById(bookChapterBean.id)
                         bookChapterById.content = it
                         BookDatabase.get().bookDao().updateBookChapter(bookChapterById)
-                        getView()?.onLoadBookContentByChapter(bookChapterById)
-                        LogUtils.e("BookDetailPresenter", "parse content $it")
+                        getView()?.onLoadBookContentByChapter(bookChapterById,isOpen)
                     } catch (e: Exception) {
                         LogUtils.e("BookDetailPresenter","save content error is $e")
                     }
                 }
+        } else {
+            getView()?.onLoadBookContentByChapter(beforeChapter,isOpen)
+        }
+
     }
 }

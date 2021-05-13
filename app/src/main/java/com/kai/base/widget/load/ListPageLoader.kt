@@ -254,6 +254,7 @@ class ListPageLoader<T>(
     private fun refreshRecyclerView() {
         mAdapter?.let {
             mAdapter.setNewInstance(data)
+            mAdapter.notifyDataSetChanged()
         }
     }
 
@@ -306,7 +307,7 @@ class ListPageLoader<T>(
     /**
      * @desc 刷新SmartRefreshLayout的显示状态
      */
-    private fun refreshState() {
+    fun refreshState() {
         when (loadState) {
             SMART_LOAD_FINISH -> {
                 mSmartRefreshLayout?.finishLoadMore()
@@ -472,4 +473,13 @@ class ListPageLoader<T>(
         }
     }
 
+
+    fun setLoadState(loadState: Int){
+        this.loadState = loadState
+    }
+
+    fun finishAll(){
+        loadState = SMART_LOAD_FINISH
+        refreshState()
+    }
 }

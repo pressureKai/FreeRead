@@ -2,7 +2,6 @@ package com.kai.ui.fonts
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.ViewGroup
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.SkinAppCompatDelegateImpl
@@ -11,7 +10,6 @@ import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
-import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.ui.main.MainActivity
 import io.github.inflationx.calligraphy3.CalligraphyConfig
@@ -19,10 +17,7 @@ import io.github.inflationx.calligraphy3.CalligraphyInterceptor
 import io.github.inflationx.viewpump.ViewPump
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_fonts.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
-import skin.support.SkinCompatManager
-import skin.support.widget.SkinCompatSupportable
 
 /**
  *

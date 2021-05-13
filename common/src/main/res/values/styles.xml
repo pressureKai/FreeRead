@@ -1,0 +1,8 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="FlowLayout">
+        <!-- Horizontal spacing between two items being laid out. -->
+        <attr format="dimension" name="itemSpacing"/>
+        <!-- Vertical Spacing between two lines of items being laid out. -->
+        <attr format="dimension" name="lineSpacing"/>
+    </declare-styleable>
+</resources>

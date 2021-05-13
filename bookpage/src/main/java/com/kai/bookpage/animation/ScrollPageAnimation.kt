@@ -6,8 +6,6 @@ import android.graphics.Rect
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
-import com.kai.common.utils.LogUtils
-import java.lang.Exception
 
 /**
  *
@@ -32,7 +30,7 @@ class ScrollPageAnimation : PageAnimation {
     private var mNextBitmap: Bitmap? = null
 
     //被废弃的图片列表
-    private var mScrapViews: ArrayDeque<BitmapView>? = null
+    private var mScrapViews: java.util.ArrayDeque<BitmapView>? = null
 
 
     //正在使用的图片列表
@@ -46,31 +44,40 @@ class ScrollPageAnimation : PageAnimation {
     private var upIt :MutableIterator<BitmapView> ?= null
 
 
-    constructor(screenWidth: Int, screenHeight: Int,
-                marginWidth: Int, marginHeight: Int,
-                view: View,
-                onPageChangeListener: OnPageChangeListener) : super(
-            screenWidth, screenHeight,
-            marginWidth, marginHeight,
-            view, onPageChangeListener) {
+    constructor(
+        screenWidth: Int, screenHeight: Int,
+        marginWidth: Int, marginHeight: Int,
+        view: View,
+        onPageChangeListener: OnPageChangeListener
+    ) : super(
+        screenWidth, screenHeight,
+        marginWidth, marginHeight,
+        view, onPageChangeListener
+    ) {
         init()
     }
 
-    constructor(screenWidth: Int, screenHeight: Int,
-                view: View,
-                onPageChangeListener: OnPageChangeListener) : this(
-            screenWidth, screenHeight,
-            0, 0,
-            view, onPageChangeListener)
+    constructor(
+        screenWidth: Int, screenHeight: Int,
+        view: View,
+        onPageChangeListener: OnPageChangeListener
+    ) : this(
+        screenWidth, screenHeight,
+        0, 0,
+        view, onPageChangeListener
+    )
     private fun init() {
         mBgBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565)
 
-        mScrapViews = ArrayDeque(capacity)
+        mScrapViews = java.util.ArrayDeque(capacity)
 
         for (i in 0.until(2)) {
-            LogUtils.e(TAG, "I is $i")
             val bitmapView = BitmapView()
-            bitmapView.bitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565)
+            bitmapView.bitmap = Bitmap.createBitmap(
+                mScreenWidth,
+                mScreenHeight,
+                Bitmap.Config.RGB_565
+            )
             bitmapView.srcRect = Rect(0, 0, mViewWidth, mViewHeight)
             bitmapView.destRect = Rect(0, 0, mViewWidth, mViewHeight)
             bitmapView.top = 0
@@ -79,8 +86,8 @@ class ScrollPageAnimation : PageAnimation {
                 bitmapView.bottom = it.height
             }
 
-            mScrapViews?.let {
-                it.addFirst(bitmapView)
+            mScrapViews?.let { scrapViews ->
+                scrapViews.push(bitmapView)
             }
 
         }
@@ -96,7 +103,7 @@ class ScrollPageAnimation : PageAnimation {
             fillDown(0, 0)
             mDirection = Direction.NONE
         } else {
-            val offset = (mTouchX - mStartX).toInt()
+            val offset = (mTouchX - mLastTouchX).toInt()
             if (offset > 0) {
                 val topEdge = mActiveViews[0].top
                 fillUp(topEdge, offset)
@@ -130,7 +137,6 @@ class ScrollPageAnimation : PageAnimation {
 
 
                     //判断是否越界
-
                     if(view.top >= mViewHeight){
                         // 添加到废弃的View中
                         mScrapViews?.add(view)
@@ -270,10 +276,7 @@ class ScrollPageAnimation : PageAnimation {
         while(realEdge < mViewHeight && mActiveViews.size < capacity){
 
             mScrapViews?.let {
-                val scrapView = it.first()
-                if(scrapView == null){
-                    return
-                }
+                val scrapView = it.first() ?: return
 
                 val cancelBitmap = mNextBitmap
                 mNextBitmap = scrapView.bitmap
@@ -339,12 +342,12 @@ class ScrollPageAnimation : PageAnimation {
         mVelocityTracker?.addMovement(event)
 
         // 设置触碰点
-        setTouchPoint(x.toFloat(),y.toFloat())
+        setTouchPoint(x.toFloat(), y.toFloat())
 
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
                 isRunning = false
-                setStartPoint(x.toFloat(),y.toFloat())
+                setStartPoint(x.toFloat(), y.toFloat())
                 abortAnimation()
             }
 
@@ -360,11 +363,11 @@ class ScrollPageAnimation : PageAnimation {
                 mVelocityTracker = null
 
             }
-            MotionEvent.ACTION_CANCEL ->{
+            MotionEvent.ACTION_CANCEL -> {
                 try {
                     mVelocityTracker?.recycle()
                     mVelocityTracker = null
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
 
@@ -376,47 +379,25 @@ class ScrollPageAnimation : PageAnimation {
 
     private var tmpView :BitmapView ?= null
     override fun draw(canvas: Canvas) {
-
         //进行布局
         onLayout()
-
-
         //绘制背景
         mBgBitmap?.let {
-            canvas.drawBitmap(it,0f,0f,null)
+            canvas.drawBitmap(it, 0f, 0f, null)
         }
-
-
         //绘制内容
         canvas.save()
-
-
         //移动位置
-        canvas.translate(0f,mMarginHeight.toFloat())
-
+        canvas.translate(0f, mMarginHeight.toFloat())
         //裁剪显示区域
-        canvas.clipRect(0,0,mViewWidth,mViewHeight)
-
-
+        canvas.clipRect(0, 0, mViewWidth, mViewHeight)
 
         //绘制Bitmap
-        for(value in mActiveViews){
-            tmpView = value
-            tmpView?.let {
-                try {
-                    canvas.drawBitmap(it.bitmap!!,
-                            it.srcRect,
-                            it.destRect!!,
-                            null)
-                }catch (e:Exception){
-
-                }
-
-            }
-
+        for (i in mActiveViews.indices) {
+            tmpView = mActiveViews[i]
+            canvas.drawBitmap(tmpView!!.bitmap!!, tmpView!!.srcRect, tmpView!!.destRect!!, null)
         }
-
-
+        canvas.restore()
     }
 
     override fun scrollAnimation() {
@@ -464,23 +445,22 @@ class ScrollPageAnimation : PageAnimation {
 
     @Synchronized
     override fun startAnimation() {
-
         isRunning = true
-
-
         var yVelovcity = 0
         mVelocityTracker?.let {
             yVelovcity =  it.yVelocity.toInt()
         }
 
-        mScroller.fling(0,
-                mTouchY.toInt(),
-                0,
-                yVelovcity,
-                0,
-                0,
-                Integer.MAX_VALUE * -1,
-                Integer.MAX_VALUE)
+        mScroller.fling(
+            0,
+            mTouchY.toInt(),
+            0,
+            yVelovcity,
+            0,
+            0,
+            Integer.MAX_VALUE * -1,
+            Integer.MAX_VALUE
+        )
 
     }
     fun resetBitmap(){

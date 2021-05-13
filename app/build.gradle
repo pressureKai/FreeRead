@@ -83,6 +83,9 @@ dependencies {
     implementation rootProject.ext.dependencies.smart_refresh_header_classics
     implementation rootProject.ext.dependencies.smart_refresh_footer_classics
     implementation rootProject.ext.dependencies.base_quick_adapter
+    implementation rootProject.ext.dependencies.seekbar
+    implementation rootProject.ext.dependencies.okio
+    api rootProject.ext.dependencies.permission
     api rootProject.ext.dependencies.arouter
     kapt rootProject.ext.dependencies.arouter_processer
     kapt rootProject.ext.dependencies.room_kapt

@@ -34,4 +34,20 @@
     <string name="un_register_success">注销成功</string>
     <string name="un_register_fail">注销失败</string>
     <string name="order_chapter_list">排序</string>
+    <string name="book_set_chapter">章节</string>
+    <string name="book_brightness">亮度</string>
+    <string name="book_size">字号</string>
+    <string name="book_current_size">当前字号</string>
+    <string name="simulation">仿真</string>
+    <string name="cover">覆盖</string>
+    <string name="scroll">滚动</string>
+    <string name="slide">滑动</string>
+    <string name="none">无</string>
+    <string name="bluetooth">蓝牙传输</string>
+    <string name="send_file">发送文件</string>
+    <string name="receiver_file">接收文件</string>
+    <string name="book_brightness_follow_system">亮度跟随系统</string>
+    <string name="search_descriptor">搜索书名或作者名称</string>
+    <string name="recommend">推荐</string>
+    <string name="history">搜索历史</string>
 </resources>

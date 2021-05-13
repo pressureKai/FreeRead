@@ -5,10 +5,12 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kai.common.application.BaseApplication
+import com.kai.dao.SearchHistoryDao
 import com.kai.dao.UserDao
+import com.kai.entity.SearchHistory
 import com.kai.entity.User
 
-@Database(entities = [User::class],version = 3)
+@Database(entities = [User::class,SearchHistory::class],version = 5)
 abstract class CustomDatabase : RoomDatabase() {
     companion object{
         private const val DATABASE_NAME = "app"
@@ -41,4 +43,5 @@ abstract class CustomDatabase : RoomDatabase() {
     }
 
     abstract fun userDao(): UserDao
+    abstract fun searchHistoryDao(): SearchHistoryDao
 }

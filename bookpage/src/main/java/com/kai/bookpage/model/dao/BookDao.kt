@@ -15,11 +15,6 @@ interface BookDao {
     @Delete
     fun deleteCoolBook(coolBookBean: CoolBookBean)
 
-
-
-
-
-
     @Query("SELECT * FROM coolBook WHERE bookId = :id")
     fun getCoolBookById(id: Int):CoolBookBean
 

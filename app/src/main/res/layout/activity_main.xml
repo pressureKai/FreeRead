@@ -10,25 +10,45 @@
 
 
 
-    <com.scwang.smart.refresh.layout.SmartRefreshLayout
-        android:id="@+id/refresh"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/refresh_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <com.classic.common.MultipleStatusView
-            android:id="@+id/status"
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler"
+
+            <com.classic.common.MultipleStatusView
+                android:id="@+id/status"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
 
-        </com.classic.common.MultipleStatusView>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+            </com.classic.common.MultipleStatusView>
+
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+
+        <Button
+            android:id="@+id/search"
+            android:text="search"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
 
@@ -98,9 +118,10 @@
                     android:layout_height="1dp"/>
             </LinearLayout>
 
-
             <androidx.cardview.widget.CardView
-                android:layout_margin="16dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
                 app:cardBackgroundColor="@color/app.draw.content.background"
                 app:cardCornerRadius="10dp"
                 android:layout_width="match_parent"
@@ -125,6 +146,7 @@
 
                     <include
                         android:id="@+id/scan"
+                        android:visibility="gone"
                         layout="@layout/merge_draw_layout"/>
 
 
@@ -143,6 +165,7 @@
 
                     <include
                         android:id="@+id/skin"
+                        android:visibility="gone"
                         layout="@layout/merge_draw_layout"/>
 
                     <include
@@ -170,6 +193,9 @@
         </LinearLayout>
 
     </androidx.drawerlayout.widget.DrawerLayout>
+
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
