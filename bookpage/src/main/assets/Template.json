@@ -16,11 +16,40 @@
       "linkXpath": "//a/@href"
     },
     "content": {
-      "xpath": "//div[@id='content']/text()"
+      "xpath": "//div[@id='content']/text()",
+      "cover": "//div[@id='sidebar']//div[@id='fmimg']//img/@src",
+      "bookName": "//div[@id='maininfo']//div[@id='info']//h1/text()",
+      "infoList": "//div[@id='maininfo']//div[@id='info']//p",
+      "newChapterUrl": "//a/@href",
+      "descriptor": "//div[@id='maininfo']//div[@id='intro']/text()"
     },
     "home": {
       "recommendPath": "//div[@id=hotcontent]//div[@class='r']//ul//li",
-      "recommendNamePath": "//li//span[@class='s2']//a/text()"
+      "recommendNamePath": "//li//span[@class='s2']//a/text()",
+      "indexRecommendListPath": "//div[@id=hotcontent]//div[@class='l']//div[@class='item']",
+      "indexRecommendCoverPath": "//div[@class='image']//a//img/@src",
+      "indexRecommendNamePath": "//dl//dt/a/text()",
+      "indexRecommendUrlPath": "//dl//dt/a/@href",
+      "indexRecommendDescriptorPath": "//dl//dd/text()",
+      "contentNovelRecommendListPath": "//div[@class='novelslist']//div[@class='content']",
+      "contentBordNovelRecommendListPath": "//div[@class='novelslist']//div[@class='content border']",
+      "contentTypeNamePath": "//h2/text()",
+      "contentTopUrl": "//div[@class='image']//a/@href",
+      "contentListPath": "//ul//li",
+      "contentItemUrlPath": "//a/@href",
+      "concurrentTypeUrlsPath": "//div[@class='nav']//ul//li",
+      "concurrentTypeUrlPath": "//a/@href",
+      "concurrentTypeNamePath": "//a/text()"
+    },
+    "type": {
+      "recommendListPath": "//div[@id=hotcontent]//div[@class='ll']//div[@class='item']",
+      "recommendUrlPath": "//dl//dt/a/@href",
+      "recommendNamePath":  "//dl//dt/a/text()",
+      "recommendCoverPath": "//div[@class='image']//a//img/@src",
+      "typeRankingPath": "//div[@id=main]//div[@id=newscontent]//div[@class='r']//ul//li",
+      "typeRankingNamePath": "//li//span[@class='s2']//a/text()",
+      "typeRankingUrlPath": "//li//span[@class='s2']//a/@href",
+      "allTypeRankingPath": "//div[@id=main]//div[@class='novelslist2']//ul//li"
     }
   }
 ]

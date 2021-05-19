@@ -1,10 +1,7 @@
 package com.kai.bookpage.model.dao
 
 import androidx.room.*
-import com.kai.bookpage.model.BookChapterBean
-import com.kai.bookpage.model.BookChapterListBean
-import com.kai.bookpage.model.BookRecordBean
-import com.kai.bookpage.model.CoolBookBean
+import com.kai.bookpage.model.*
 
 
 @Dao
@@ -56,5 +53,20 @@ interface BookDao {
     @Query("SELECT * FROM coolBook WHERE bookId = :bookId")
     fun getChapterList(bookId: Int): BookChapterListBean
 
+    @Query("SELECT * FROM bookRecommend WHERE bookType = :bookType")
+    fun getBookRecommendByType(bookType:Int):List<BookRecommend>
+
+
+    @Insert
+    fun insertBookRecommend(bookRecommend: BookRecommend)
+
+    @Delete
+    fun deleteBookRecommend(bookRecommend: BookRecommend)
+
+    @Query("SELECT * FROM bookRecommend WHERE bookUrl = :bookUrl")
+    fun getBookRecommendByBookUrl(bookUrl:String):BookRecommend
+
+    @Query("SELECT * FROM bookRecommend WHERE bookType = :type AND isRanking = :isRanking")
+    fun getRankingBookRecommendByType(type:Int,isRanking:Boolean):BookRecommend
 
 }

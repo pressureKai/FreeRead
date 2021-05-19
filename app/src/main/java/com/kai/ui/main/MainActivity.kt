@@ -7,7 +7,6 @@ import android.util.SparseArray
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
@@ -19,7 +18,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.fragment.app.FragmentTransaction
 import androidx.viewpager.widget.ViewPager
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
@@ -29,9 +27,7 @@ import com.kai.base.widget.load.ListPageLoader
 import com.kai.base.widget.load.RefreshDataListener
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
-import com.kai.common.extension.getScreenHeight
 import com.kai.common.extension.getScreenWidth
-import com.kai.common.utils.LogUtils
 import com.kai.common.utils.RxNetworkObserver
 import com.kai.common.utils.ScreenUtils
 import com.kai.common.utils.SharedPreferenceUtils
@@ -39,15 +35,14 @@ import com.kai.crawler.Crawler
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.User
 import com.kai.ui.forgetpassword.ForgetPasswordActivity
-import com.kai.ui.fragments.BookRankingFragment
-import com.kai.ui.fragments.BookRecommendFragment
-import com.kai.ui.fragments.BookShelfFragment
+import com.kai.ui.fragments.ranking.BookRankingFragment
+import com.kai.ui.fragments.recommend.BookRecommendFragment
+import com.kai.ui.fragments.shelf.BookShelfFragment
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
-import java.util.ArrayList
 
 /**
  *# app - 首页

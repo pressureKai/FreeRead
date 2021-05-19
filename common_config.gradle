@@ -2,7 +2,7 @@ project.ext {
     androidID = [
             applicationId : "com.kai.base",
             buildToolVersion : "30.0.3",
-            minSdkVersion : 18,
+            minSdkVersion : 19,
             targetSdkVersion :30,
             versionCode :1,
             versionName : "1.0",
@@ -63,6 +63,8 @@ project.ext {
             "seekbar"           :"com.github.warkiz.widget:indicatorseekbar:2.1.2",
             "permission"        :"com.github.tbruyelle:rxpermissions:0.12",
             "okio"              :"com.squareup.okio:okio:2.10.0",
-            "transformation"    :"jp.wasabeef:glide-transformations:4.1.0"
+            "transformation"    :"jp.wasabeef:glide-transformations:4.1.0",
+            "banner"            :"com.github.zhpanvip:BannerViewPager:2.6.6",
+            "banner_indicator"  :"com.github.zhpanvip:viewpagerindicator:1.0.0"
     ]
 }

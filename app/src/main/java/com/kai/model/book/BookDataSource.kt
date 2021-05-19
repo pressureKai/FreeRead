@@ -1,5 +1,7 @@
 package com.kai.model.book
 
+import com.kai.bookpage.model.BookRecommend
+import com.kai.crawler.xpath.model.JXDocument
 import io.reactivex.rxjava3.core.Observable
 
 
@@ -22,5 +24,21 @@ interface BookDataSource {
      * des 获取书籍推荐列表
      * @return 书籍列表
      */
-    fun getBookRecommend():Observable<List<String>>?
+    fun getBookIndexRecommend(jxDocument: JXDocument?):Observable<List<BookRecommend>>?
+
+
+
+    fun getBookRecommendByType(type:Int,jxDocument: JXDocument?):Observable<List<BookRecommend>>
+
+
+
+    fun getBookDetail(bookUrl: String):Observable<BookRecommend>
+
+
+
+    fun getRanking():Observable<HashMap<Int,String>>
+
+
+
+    fun getRankingFirst(type:Int,url:String):Observable<BookRecommend>
 }

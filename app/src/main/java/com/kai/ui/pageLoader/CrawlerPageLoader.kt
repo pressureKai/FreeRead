@@ -75,10 +75,4 @@ class CrawlerPageLoader(pageView: PageView, coolBookBean: CoolBookBean):PageLoad
             LogUtils.e("CrawlerPageLoader", e.toString())
         }
     }
-
-
-
-    public interface OnTextPaintInitListener{
-        fun onTextPaintInitListener(): TextPaint
-    }
 }

@@ -1,6 +1,13 @@
 package com.kai.model.book
 
+import com.kai.bookpage.model.BookRecommend
+import com.kai.common.utils.LogUtils
+import com.kai.crawler.Crawler
+import com.kai.crawler.xpath.model.JXDocument
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import java.lang.NullPointerException
 
 /**
  *
@@ -13,7 +20,6 @@ class BookRepository private constructor(
     private val localBookDataSource: LocalBookDataSource,
     private val remoteBookDataSource: RemoteBookDataSource
 ) : BookDataSource {
-
     companion object {
         private var instance: BookRepository? = null
             get() {
@@ -29,39 +35,127 @@ class BookRepository private constructor(
         }
     }
 
-    override fun getBookRecommend(): Observable<List<String>>? {
-        return Observable.create { emitter ->
-            val arrayList = ArrayList<String>()
-            val localRecommend = localBookDataSource.getBookRecommend()
-            localRecommend?.let { local ->
-                local
-                    .doOnComplete {
-                        if(arrayList.size > 0){
-                            emitter.onNext(arrayList)
-                        }
-                        val remoteBookRecommend = remoteBookDataSource.getBookRecommend()
-                        remoteBookRecommend?.let { remote ->
-                            remote
-                                .doOnError {
-                                    emitter.onError(it)
-                                }
-                                .doOnComplete {
-                                    emitter.onComplete()
-                                }
-                                .subscribe {
-                                    arrayList.clear()
-                                    arrayList.addAll(it)
-                                    emitter.onNext(arrayList)
-                                }
-                        }
-                    }.subscribe { list ->
-                        arrayList.clear()
-                        arrayList.addAll(list)
-                    }
+    override fun getBookIndexRecommend(jxDocument: JXDocument?): Observable<List<BookRecommend>>? {
+        return Observable.create<List<BookRecommend>> { emitter ->
+            localBookDataSource.getBookIndexRecommend(jxDocument).subscribe {
+                emitter.onNext(it)
             }
-        }
+            if (jxDocument == null) {
+                Crawler.getHomeJxDocument()
+                    .doOnError {
+                        emitter.onError(it)
+                    }.subscribe {
+                        remoteBookDataSource.getBookIndexRecommend(it)?.doOnError { error ->
+                            emitter.onError(error)
+                        }?.subscribe { list ->
+                            emitter.onNext(list)
+                        } ?: kotlin.run {
+                            emitter.onError(NullPointerException())
+                        }
+                    }
+            } else {
+                remoteBookDataSource.getBookIndexRecommend(jxDocument)?.doOnError { error ->
+                    emitter.onError(error)
+                }?.subscribe { list ->
+                    emitter.onNext(list)
+                    emitter.onComplete()
+                } ?: kotlin.run {
+                    emitter.onError(NullPointerException())
+                }
+            }
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
 
     }
 
+    override fun getBookRecommendByType(
+        type: Int,
+        jxDocument: JXDocument?
+    ): Observable<List<BookRecommend>> {
+        return Observable.create<List<BookRecommend>> { emitter ->
+            localBookDataSource.getBookRecommendByType(type, jxDocument).subscribe {
+                emitter.onNext(it)
+            }
+            if (jxDocument == null) {
+                Crawler.getHomeJxDocument()
+                    .doOnError {
+                        emitter.onError(it)
+                    }.subscribe {
+                        remoteBookDataSource.getBookRecommendByType(type, it).doOnError { error ->
+                            emitter.onError(error)
+                        }?.subscribe { list ->
+                            emitter.onNext(list)
+                            emitter.onComplete()
+                        }
+                    }
+            } else {
+                remoteBookDataSource.getBookRecommendByType(type, jxDocument)?.doOnError { error ->
+                    emitter.onError(error)
+                }?.subscribe { list ->
+                    emitter.onNext(list)
+                    emitter.onComplete()
+                }
+            }
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun getBookDetail(bookUrl: String): Observable<BookRecommend> {
+        return Observable.create<BookRecommend> { emitter ->
+            localBookDataSource.getBookDetail(bookUrl).doOnError {
+                remoteBookDataSource
+                    .getBookDetail(bookUrl)
+                    .subscribe { recommend ->
+                        emitter.onNext(recommend)
+                    }
+            }.subscribe {
+                if (it.checkIsEmpty()) {
+                    remoteBookDataSource
+                        .getBookDetail(bookUrl)
+                        .subscribe { recommend ->
+                            emitter.onNext(recommend)
+                        }
+                } else {
+                    emitter.onNext(it)
+                }
+            }
+
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun getRanking(): Observable<HashMap<Int, String>> {
+        return Observable.create<HashMap<Int, String>> { emitter ->
+
+            localBookDataSource.getRanking().subscribe {
+                emitter.onNext(it)
+            }
+
+            remoteBookDataSource.getRanking().subscribe {
+                emitter.onNext(it)
+            }
+
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun getRankingFirst(type: Int, url: String): Observable<BookRecommend> {
+        return Observable.create<BookRecommend> { emitter ->
+            localBookDataSource.getRankingFirst(type, url).subscribe {
+                emitter.onNext(it)
+            }
+
+            remoteBookDataSource.getRankingFirst(type, url).subscribe {
+                emitter.onNext(it)
+            }
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread())
+
+    }
+
+
+    fun getHomePage(): Observable<JXDocument> {
+        return Crawler.getHomeJxDocument()
+    }
 
 }

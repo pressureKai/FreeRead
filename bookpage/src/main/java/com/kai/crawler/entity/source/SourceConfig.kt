@@ -27,7 +27,9 @@ class SourceConfig(var id: Int) {
     var content: Content? = null
 
 
-    var home: Home?= null
+    var home: Home? = null
+
+    var type: Type? = null
 
     /**
      *# 搜索XPath配置 - Crawler
@@ -62,10 +64,43 @@ class SourceConfig(var id: Int) {
      */
     class Content {
         var xpath: String? = null
+        var cover: String? = null
+        var bookName: String? = null
+        var infoList: String? = null
+        var newChapterUrl: String? = null
+        var descriptor: String? = null
+
     }
 
     class Home {
         var recommendPath: String? = null
-        var recommendNamePath: String ?= null
+        var recommendNamePath: String? = null
+        var indexRecommendListPath: String? = null
+        var indexRecommendCoverPath: String? = null
+        var indexRecommendNamePath: String? = null
+        var indexRecommendUrlPath: String? = null
+        var indexRecommendDescriptorPath: String? = null
+
+        var contentNovelRecommendListPath: String? = null
+        var contentBordNovelRecommendListPath: String? = null
+        var contentTypeNamePath: String? = null
+        var contentTopUrl: String? = null
+        var contentListPath: String? = null
+        var contentItemUrlPath: String? = null
+        var concurrentTypeUrlsPath: String? = null
+        var concurrentTypeUrlPath: String? = null
+        var concurrentTypeNamePath: String? = null
+    }
+
+
+    class Type {
+        var recommendListPath: String? = null
+        var recommendUrlPath: String? = null
+        var recommendNamePath: String? = null
+        var typeRankingPath: String? = null
+        var typeRankingNamePath: String? = null
+        var typeRankingUrlPath: String? = null
+        var recommendCoverPath: String? = null
+        var allTypeRankingPath: String? = null
     }
 }

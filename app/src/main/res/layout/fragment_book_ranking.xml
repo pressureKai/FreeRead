@@ -2,12 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ranking_layout"
     android:layout_width="match_parent"
+    android:background="@color/app_background"
+    android:orientation="vertical"
     android:layout_height="match_parent">
 
-
-    <TextView
-        android:gravity="center"
-        android:text="@string/ranking"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>

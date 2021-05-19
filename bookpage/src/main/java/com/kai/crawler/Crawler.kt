@@ -4,7 +4,7 @@ import android.util.Log
 import android.util.SparseBooleanArray
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.StringUtils
-import com.kai.crawler.entity.TestEntity
+import com.kai.bookpage.model.BookRecommend
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.crawler.entity.chapter.Chapter
 import com.kai.crawler.entity.source.SourceManager
@@ -19,7 +19,6 @@ import java.lang.NullPointerException
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
-import java.time.Year
 
 //Xpath  匹配规则
 //https://blog.csdn.net/weixin_44462294/article/details/104410755
@@ -43,10 +42,10 @@ class Crawler {
                     try {
                         url = if (config.search?.charset.isNullOrEmpty()) {
                             String.format(
-                                    source.searchUrl, URLEncoder.encode(
+                                source.searchUrl, URLEncoder.encode(
                                     keyword,
                                     config.search?.charset
-                            )
+                                )
                             )
                         } else {
                             String.format(source.searchUrl, keyword)
@@ -82,7 +81,10 @@ class Crawler {
                                             val urlVerification = urlVerification(coverUrl, url)
                                             urlVerification?.let {
                                                 book.cover = it
-                                                LogUtils.e(TAG, "search $keyword cover = ${book.cover}")
+                                                LogUtils.e(
+                                                    TAG,
+                                                    "search $keyword cover = ${book.cover}"
+                                                )
                                             }
                                         }
                                     }
@@ -115,7 +117,10 @@ class Crawler {
                                         val author = getNodeStr(jxNode, authorXPath)
                                         author?.let {
                                             book.author = it
-                                            LogUtils.e(TAG, "search $keyword author = ${book.author}")
+                                            LogUtils.e(
+                                                TAG,
+                                                "search $keyword author = ${book.author}"
+                                            )
                                         }
                                     }
 
@@ -125,8 +130,8 @@ class Crawler {
                                         describer?.let {
                                             book.descriptor = describer
                                             LogUtils.e(
-                                                    TAG,
-                                                    "search $keyword descriptor = ${book.descriptor}"
+                                                TAG,
+                                                "search $keyword descriptor = ${book.descriptor}"
                                             )
                                         }
                                     }
@@ -205,8 +210,8 @@ class Crawler {
                                                 chapterLink?.let {
                                                     chapter.link = chapterLink
                                                     LogUtils.e(
-                                                            TAG,
-                                                            "parse chapter link is $chapterLink"
+                                                        TAG,
+                                                        "parse chapter link is $chapterLink"
                                                     )
                                                 }
                                             }
@@ -221,7 +226,10 @@ class Crawler {
                                         val nodeStr = getNodeStr(node, it)
                                         nodeStr?.let {
                                             chapter.title = it
-                                            LogUtils.e(TAG, "parse chapter title is ${chapter.title}")
+                                            LogUtils.e(
+                                                TAG,
+                                                "parse chapter title is ${chapter.title}"
+                                            )
                                         }
                                     }
                                 }
@@ -242,7 +250,7 @@ class Crawler {
 
         fun content(sl: SearchBook.SL, url: String): Observable<String> {
             return Observable.create<String> {
-                if (sl == null || sl.link == null || sl.link.isEmpty() || url.isEmpty()) {
+                if (sl.link.isEmpty() || url.isEmpty()) {
                     it.onError(NullPointerException())
                 }
                 val sourceId = sl.source.id
@@ -253,7 +261,7 @@ class Crawler {
                 try {
                     val link = urlVerification(url, sl.link)
                     val jxDocument =
-                            JXDocument(Jsoup.connect(link).get())
+                        JXDocument(Jsoup.connect(link).get())
                     var content = getNodeStr(jxDocument, config.content!!.xpath!!)
                     val builder = java.lang.StringBuilder()
                     val lines = content!!.split(" ".toRegex()).toTypedArray()
@@ -279,30 +287,520 @@ class Crawler {
         }
 
 
+        private fun getHomeUrl(): String {
+            val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+            var homeUrl = ""
+            for (i in 0.until(checkedMap.size())) {
+                val id = SourceManager.CONFIGS.keyAt(i)
+                val source = SourceManager.SOURCES.get(id)
+                homeUrl = source.homeUrl
+            }
+            return homeUrl
+        }
 
-        fun getRecommend(): Observable<ArrayList<String>>{
+        fun getRecommend(): Observable<ArrayList<String>> {
             return Observable.create<ArrayList<String>> {
                 try {
                     val rs: ArrayList<JXNode?> = ArrayList()
                     val recommend = ArrayList<String>()
                     val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
-                    for(i in 0.until(checkedMap.size())){
+                    for (i in 0.until(checkedMap.size())) {
                         val id = SourceManager.CONFIGS.keyAt(i)
                         val config = SourceManager.CONFIGS.valueAt(i)
                         val source = SourceManager.SOURCES.get(id)
                         val jxDocument =
-                                JXDocument(Jsoup.connect(source.homeUrl).get())
+                            JXDocument(Jsoup.connect(source.homeUrl).get())
 
                         val xpath = config.home!!.recommendPath!!
                         rs.clear()
                         val selN = jxDocument.selN(xpath)
                         rs.addAll(selN)
-                        for(value in rs){
+                        for (value in rs) {
                             val name = getNodeStr(value!!, config.home!!.recommendNamePath!!)
                             name?.let {
-                                LogUtils.e(TAG,"BE ADD NAME IS $it")
+                                LogUtils.e(TAG, "BE ADD NAME IS $name")
                                 recommend.add(name)
                             }
+                        }
+                    }
+                    it.onNext(recommend)
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "crawler get recommend error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+
+        }
+
+
+        fun getHomeJxDocument(): Observable<JXDocument> {
+            return Observable.create<JXDocument> {
+                try {
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    for (i in 0.until(checkedMap.size())) {
+                        val id = SourceManager.CONFIGS.keyAt(i)
+                        val source = SourceManager.SOURCES.get(id)
+                        val jxDocument =
+                            JXDocument(Jsoup.connect(source.homeUrl).get())
+                        it.onNext(jxDocument)
+                    }
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "crawler get recommend error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+
+        }
+
+        fun getIndexRecommend(jxDocument: JXDocument): Observable<ArrayList<BookRecommend>> {
+            return Observable.create<ArrayList<BookRecommend>> {
+                try {
+                    val rs: ArrayList<JXNode?> = ArrayList()
+                    val recommend = ArrayList<BookRecommend>()
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    for (i in 0.until(checkedMap.size())) {
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val xpath = config.home!!.indexRecommendListPath
+                        rs.clear()
+                        val selN = jxDocument.selN(xpath)
+                        rs.addAll(selN)
+                        for (value in rs) {
+                            val bookRecommend = BookRecommend()
+                            val name = getNodeStr(value!!, config.home!!.indexRecommendNamePath!!)
+                            name?.let {
+                                LogUtils.e(TAG, "BE ADD NAME IS $it")
+                                bookRecommend.bookName = name
+                            }
+                            val cover = getNodeStr(value!!, config.home!!.indexRecommendCoverPath!!)
+                            cover?.let {
+                                LogUtils.e(TAG, "BE ADD COVER IS $it")
+                                bookRecommend.bookCoverUrl = it
+                            }
+                            val url = getNodeStr(value!!, config.home!!.indexRecommendUrlPath!!)
+                            url?.let {
+                                LogUtils.e(TAG, "BE ADD URL IS $it")
+                                bookRecommend.bookUrl = it
+                            }
+                            val descriptor =
+                                getNodeStr(value!!, config.home!!.indexRecommendDescriptorPath!!)
+                            descriptor?.let {
+                                LogUtils.e(TAG, "BE ADD DESCRIPTOR IS $it")
+                                bookRecommend.bookDescriptor = it
+                            }
+
+                            bookRecommend.bookType = BookRecommend.INDEX_RECOMMEND
+                            recommend.add(bookRecommend)
+                        }
+                    }
+
+
+                    it.onNext(recommend)
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "crawler get recommend error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+        }
+
+
+        private fun getXPathList(xpath: String, jxDocument: JXDocument): ArrayList<JXNode?> {
+            val rs = ArrayList<JXNode?>()
+            rs.clear()
+            val selN = jxDocument.selN(xpath)
+            rs.addAll(selN)
+            return rs
+        }
+
+
+        fun getRecommendByType(type: Int, jxDocument: JXDocument): Observable<ArrayList<String>> {
+            return Observable.create<ArrayList<String>> {
+                try {
+                    val rs: ArrayList<JXNode?> = ArrayList()
+                    val recommend = ArrayList<String>()
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+
+                    var targetTypeName = ""
+                    when (type) {
+                        BookRecommend.CITY_RECOMMEND -> {
+                            targetTypeName = "都市"
+                        }
+                        BookRecommend.FANTASY_RECOMMEND -> {
+                            targetTypeName = "玄幻"
+                        }
+                        BookRecommend.GAME_RECOMMEND -> {
+                            targetTypeName = "网游"
+                        }
+                        BookRecommend.COMPREHENSION_RECOMMEND -> {
+                            targetTypeName = "修真"
+                        }
+                        BookRecommend.HISTORY_RECOMMEND -> {
+                            targetTypeName = "历史"
+                        }
+                        BookRecommend.SCIENCE_RECOMMEND -> {
+                            targetTypeName = "科幻"
+                        }
+
+                    }
+
+                    for (i in 0.until(checkedMap.size())) {
+                        var finalXPath = ""
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val xpath = config.home!!.contentNovelRecommendListPath
+
+
+                        val xPathList = getXPathList(xpath!!, jxDocument)
+                        var pass = false
+                        for (value in xPathList) {
+                            val nodeStr = getNodeStr(value!!, config.home!!.contentTypeNamePath!!)
+                            nodeStr?.let { typeName ->
+                                if (typeName.contains(targetTypeName)) {
+                                    pass = true
+                                }
+                            }
+                            if (pass) {
+                                break
+                            }
+                        }
+
+                        if (!pass) {
+                            val xpath = config.home!!.contentBordNovelRecommendListPath
+                            val xPathList = getXPathList(xpath!!, jxDocument)
+                            for (value in xPathList) {
+                                val nodeStr =
+                                    getNodeStr(value!!, config.home!!.contentTypeNamePath!!)
+                                nodeStr?.let { typeName ->
+                                    if (typeName.contains(targetTypeName)) {
+                                        pass = true
+                                    }
+                                }
+                                if (pass) {
+                                    break
+                                }
+                            }
+                            if (pass) {
+                                finalXPath = config.home!!.contentBordNovelRecommendListPath!!
+                            }
+                        } else {
+                            finalXPath = config.home!!.contentNovelRecommendListPath!!
+                        }
+
+                        if (finalXPath.isNotEmpty()) {
+                            rs.clear()
+                            val selN = jxDocument.selN(finalXPath)
+                            rs.addAll(selN)
+                        } else {
+                            it.onError(NullPointerException())
+                        }
+                        for (value in rs) {
+                            value?.let {
+                                val typeName =
+                                    getNodeStr(value, config.home!!.contentTypeNamePath!!)
+                                typeName?.let {
+                                    if (typeName.contains(targetTypeName)) {
+                                        val nodeStr =
+                                            getNodeStr(value, config.home!!.contentTopUrl!!)
+                                        nodeStr?.let { topUrl ->
+                                            var url = topUrl
+                                            if (!topUrl.contains("http")) {
+                                                url = getHomeUrl() + topUrl
+                                            }
+                                            recommend.add(url)
+                                        }
+                                        val sel = value.sel(config.home!!.contentListPath!!)
+                                        sel?.let {
+                                            for (content in sel) {
+                                                content?.let {
+                                                    val nodeStr = getNodeStr(
+                                                        content,
+                                                        config.home!!.contentItemUrlPath!!
+                                                    )
+                                                    nodeStr?.let {
+                                                        var url = nodeStr
+                                                        if (!nodeStr.contains("http")) {
+                                                            url = getHomeUrl() + nodeStr
+                                                        }
+                                                        recommend.add(url!!)
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        it.onNext(recommend)
+                    }
+
+
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "crawler get recommend error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+
+        }
+
+
+        private fun nameToType(name: String): Int {
+            return when (name) {
+                "玄幻小说" -> {
+                    BookRecommend.FANTASY_RECOMMEND
+                }
+                "修真小说" -> {
+                    BookRecommend.COMPREHENSION_RECOMMEND
+                }
+                "历史小说" -> {
+                    BookRecommend.HISTORY_RECOMMEND
+                }
+                "网游小说" -> {
+                    BookRecommend.GAME_RECOMMEND
+                }
+                "科幻小说" -> {
+                    BookRecommend.SCIENCE_RECOMMEND
+                }
+                "言情小说" -> {
+                    BookRecommend.ROMANS_RECOMMEND
+                }
+                "全本小说" -> {
+                    BookRecommend.ALLBOOK_RECOMMEND
+                }
+                "其他小说" -> {
+                    BookRecommend.ORTHER_RECOMMEND
+                }
+                "都市小说" -> {
+                    BookRecommend.CITY_RECOMMEND
+                }
+                else -> {
+                    -1
+                }
+            }
+        }
+
+
+        fun getTypeUrls(jxDocument: JXDocument): Observable<HashMap<Int, String>> {
+            return Observable.create<HashMap<Int, String>> {
+                try {
+                    val rs: ArrayList<JXNode?> = ArrayList()
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    val hashMap = HashMap<Int, String>()
+                    for (i in 0.until(checkedMap.size())) {
+                        hashMap.clear()
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val xpath = config.home!!.concurrentTypeUrlsPath
+                        rs.clear()
+                        val selN = jxDocument.selN(xpath)
+                        rs.addAll(selN)
+                        for (value in rs) {
+
+                            val name = getNodeStr(value!!, config.home!!.concurrentTypeNamePath!!)
+                            name?.let {
+                                val nameToType = nameToType(name)
+                                val nodeStr = getNodeStr(
+                                    value!!,
+                                    config.home!!.concurrentTypeUrlPath!!
+                                )
+                                nodeStr?.let { url -> hashMap.put(nameToType, getHomeUrl() + url)
+                                }
+                            }
+                        }
+                    }
+                    it.onNext(hashMap)
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "crawler get recommend error is $e")
+                    it.onError(e)
+                }
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+        }
+
+
+        fun getConcurrentTypeRankingList(type:Int,url: String): Observable<List<BookRecommend>> {
+            return Observable.create<List<BookRecommend>> {
+                val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                val recommends = ArrayList<BookRecommend>()
+                val rs: ArrayList<JXNode?> = ArrayList()
+                for (i in 0.until(checkedMap.size())) {
+                    recommends.clear()
+                    val config = SourceManager.CONFIGS.valueAt(i)
+                    val jxDocument =
+                        JXDocument(Jsoup.connect(url).get())
+
+                    config?.let {
+
+                        var listPath = config.type!!.typeRankingPath
+                        if(type == BookRecommend.ALLBOOK_RECOMMEND){
+                            listPath = config.type!!.allTypeRankingPath
+                        }
+                        rs.clear()
+                        val sel = jxDocument.selN(listPath)
+                        rs.addAll(sel)
+                        for (node in rs) {
+                            node?.let {
+                                try {
+                                    val bookRecommend = BookRecommend()
+                                    val bookUrl =
+                                        getNodeStr(node, config.type!!.typeRankingUrlPath!!)!!
+                                    val name =
+                                        getNodeStr(node, config.type!!.typeRankingNamePath!!)!!
+                                    LogUtils.e("Crawler", "name is $name  url is $bookUrl")
+
+                                    if(bookUrl.isNotEmpty()){
+                                        bookRecommend.bookName = name
+                                        bookRecommend.bookUrl = getHomeUrl() + bookUrl
+                                        bookRecommend.bookType = type
+                                        recommends.add(bookRecommend)
+                                    }
+
+                                } catch (e: java.lang.Exception) {
+                                    LogUtils.e("Crawler", "load concurrent type error is $e")
+                                }
+                            }
+                        }
+                    }
+                }
+                it.onNext(recommends)
+
+            }
+        }
+
+
+        fun getBookDetail(url: String): Observable<BookRecommend> {
+            return Observable.create<BookRecommend> {
+
+                try {
+                    val bookRecommend = BookRecommend()
+                    bookRecommend.bookUrl = url
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    for (i in 0.until(checkedMap.size())) {
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        LogUtils.e("Crawler", "getBookDetail connect to url $url")
+                        val jxDocument =
+                            JXDocument(Jsoup.connect(url).get())
+
+
+                        config?.let { sourceConfig ->
+                            sourceConfig.content?.let { content ->
+                                val cover = getNodeStr(jxDocument, content.cover!!)
+                                val bookName = getNodeStr(jxDocument, content.bookName!!)
+                                val descriptor = getNodeStr(jxDocument, content.descriptor!!)
+                                val selN = jxDocument.selN(content.infoList)
+
+
+                                cover?.let {
+                                    bookRecommend.bookCoverUrl = cover
+                                }
+
+                                bookName?.let {
+                                    bookRecommend.bookName = bookName
+                                }
+
+
+                                descriptor?.let {
+                                    bookRecommend.bookDescriptor = descriptor
+                                }
+
+
+
+                                LogUtils.e("Crawler", "cover is $cover")
+                                LogUtils.e("Crawler", "bookName is $bookName")
+                                LogUtils.e("Crawler", "descriptor is $descriptor")
+
+
+                                try {
+                                    val author = selN.first()
+                                    author?.let {
+                                        val authorName = getNodeStr(author, "/text()")
+                                        authorName?.let {
+                                            bookRecommend.authorName = authorName
+                                        }
+                                        LogUtils.e("Crawler", "author name is $authorName")
+                                    }
+                                } catch (e: Exception) {
+                                    LogUtils.e("Crawler", "get author name error is $e")
+                                }
+
+
+
+
+                                try {
+                                    val updateTime = selN[2]
+                                    updateTime?.let {
+                                        val s = getNodeStr(updateTime, "/text()")
+                                        LogUtils.e("Crawler", "update time is $s")
+                                    }
+                                } catch (e: Exception) {
+                                    LogUtils.e("Crawler", "get update time error is $e")
+                                }
+
+
+
+
+                                try {
+                                    val newChapter = selN[3]
+                                    newChapter?.let {
+                                        val s = getNodeStr(newChapter, "/text()")
+                                        LogUtils.e("Crawler", "new chapter is $s")
+                                        val chapterUrl =
+                                            getNodeStr(newChapter, content!!.newChapterUrl!!)
+                                        LogUtils.e("Crawler", "new chapter url is $chapterUrl")
+                                    }
+                                } catch (e: Exception) {
+                                    LogUtils.e("Crawler", "get new chapter error is $e")
+                                }
+
+
+                            }
+                        }
+                        it.onNext(bookRecommend)
+                    }
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "get book detail error is $e")
+                }
+
+            }
+        }
+
+
+        fun getConcurrentTypeRecommend(
+            url: String,
+            type: Int
+        ): Observable<ArrayList<BookRecommend>> {
+            return Observable.create<ArrayList<BookRecommend>> {
+                try {
+                    val rs: ArrayList<JXNode?> = ArrayList()
+                    val recommend = ArrayList<BookRecommend>()
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    for (i in 0.until(checkedMap.size())) {
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val jxDocument =
+                            JXDocument(Jsoup.connect(url).get())
+
+                        val xpath = config.type!!.recommendListPath
+                        rs.clear()
+                        val selN = jxDocument.selN(xpath)
+                        rs.addAll(selN)
+                        for (value in rs) {
+                            val bookRecommend = BookRecommend()
+                            val name = getNodeStr(value!!, config.type!!.recommendNamePath!!)
+                            name?.let {
+                                LogUtils.e(TAG, "BE ADD NAME IS $name  URL IS $url")
+                                bookRecommend.bookName = name
+                            }
+
+                            val urlPath = getNodeStr(value!!, config.type!!.recommendUrlPath!!)
+                            urlPath?.let {
+                                LogUtils.e(TAG, "BE ADD URL IS $urlPath URL IS $url")
+                                bookRecommend.bookUrl = urlPath
+                            }
+
+                            val cover = getNodeStr(value!!, config.type!!.recommendCoverPath!!)
+                            cover?.let {
+                                LogUtils.e(TAG, "BE ADD COVER IS $cover URL IS $url")
+                                bookRecommend.bookCoverUrl = cover
+                            }
+
+                            bookRecommend.bookType = type
+                            recommend.add(bookRecommend)
                         }
                     }
 

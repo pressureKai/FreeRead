@@ -81,6 +81,8 @@ dependencies {
     api rootProject.ext.dependencies.viewpump
     api rootProject.ext.dependencies.arouter
     api rootProject.ext.dependencies.transformation
+    api rootProject.ext.dependencies.banner
+    api rootProject.ext.dependencies.banner_indicator
     kapt rootProject.ext.dependencies.arouter_processer
     testImplementation  rootProject.ext.dependencies.room_testing
     annotationProcessor rootProject.ext.dependencies.glide_compiler

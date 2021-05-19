@@ -47,6 +47,7 @@
         <activity android:name="com.kai.ui.forgetpassword.ForgetPasswordActivity" />
         <activity android:name="com.kai.ui.bluetooth.BluetoothActivity" />
         <activity android:name="com.kai.ui.search.SearchActivity" />
+        <activity android:name="com.kai.ui.rankingdetail.RankingDetailActivity" />
     </application>
 
 </manifest>

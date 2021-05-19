@@ -2,16 +2,25 @@ package com.kai.common.utils
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.Priority
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import com.kai.common.R
 import com.kai.common.utils.ScreenUtils.Companion.dpToPx
 import jp.wasabeef.glide.transformations.BlurTransformation
+import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutionException
 
 /**
@@ -97,7 +106,52 @@ object GlideUtils {
         }
     }
 
-    fun isDestroy(mActivity: Activity?): Boolean {
+    fun loadCornersTop(context: WeakReference<Context>, url: String?, image: ImageView?, radius :Int){
+        if (image == null) return
+        val requestOptions = RequestOptions().centerCrop()
+            .format(DecodeFormat.PREFER_RGB_565)
+            .priority(Priority.LOW)
+            .skipMemoryCache(false)
+            .dontAnimate()
+            .transform(RoundedCornersTransformation(
+                radius,
+                0,
+                RoundedCornersTransformation.CornerType.TOP
+            ))
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+
+        Glide.with(context.get()!!.applicationContext)
+            .asBitmap()
+            .load(url)
+            .listener(object : RequestListener<Bitmap> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Bitmap>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Bitmap?,
+                    model: Any?,
+                    target: Target<Bitmap>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+            })
+            .apply(requestOptions)
+            .into(object :com.bumptech.glide.request.target.SimpleTarget<Bitmap>(){
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    image.setImageBitmap(resource)
+                }
+            })
+    }
+
+    private fun isDestroy(mActivity: Activity?): Boolean {
         return mActivity == null || mActivity.isFinishing || Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && mActivity.isDestroyed
     }
 }

@@ -13,16 +13,19 @@ import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.utils.LogUtils
 
-abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,ImmersionOwner {
-    private var mPresenter :P ?= null
-    lateinit var mRootView :View
+abstract class BaseMvpFragment<V : IView, P : BasePresenter<V>> : Fragment(), IView,
+    ImmersionOwner {
+    var mPresenter: P? = null
+    lateinit var mRootView: View
     private var isCreate = false
     private var hasLoad = false
     private var isVisibleToUser = false
-    private var mImmersionProxy :ImmersionProxy ?= null
+    private var mImmersionProxy: ImmersionProxy? = null
+
     init {
         mImmersionProxy = ImmersionProxy(this)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         bindView()
         super.onCreate(savedInstanceState)
@@ -34,22 +37,29 @@ abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,Immer
         mImmersionProxy?.onActivityCreated(savedInstanceState)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return getView(inflater, container, savedInstanceState)
     }
 
 
-    private fun getView(inflater: LayoutInflater,
-                        container: ViewGroup?,
-                        savedInstanceState: Bundle?):View{
-       mRootView = inflater.inflate(setLayoutId(), container, false)
-       isCreate = true
-       lazyLoad(mRootView, savedInstanceState)
-       return mRootView
+    private fun getView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        mRootView = inflater.inflate(setLayoutId(), container, false)
+        isCreate = true
+        lazyLoad(mRootView, savedInstanceState)
+        return mRootView
     }
+
     override fun bindView() {
         mPresenter = createPresenter()
-        mPresenter?.register(this)
+        mPresenter?.register(this as V)
     }
 
     override fun unBindView() {
@@ -67,6 +77,7 @@ abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,Immer
         super.onPause()
         mImmersionProxy?.onPause()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         unBindView()
@@ -86,28 +97,26 @@ abstract class BaseMvpFragment<P : BasePresenter<IView>>:Fragment(), IView,Immer
     }
 
 
-
-    private fun lazyLoad(view: View, savedInstanceState: Bundle?){
-        if(!isCreate || hasLoad || !isVisibleToUser){
-           return
+    private fun lazyLoad(view: View, savedInstanceState: Bundle?) {
+        if (!isCreate || hasLoad || !isVisibleToUser) {
+            return
         }
         lazyInit(view, savedInstanceState)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if(!::mRootView.isInitialized){
+        if (!::mRootView.isInitialized) {
             return
-        }else{
+        } else {
             this.isVisibleToUser = isVisibleToUser
             lazyLoad(mRootView, null)
         }
-        LogUtils.e("BaseMvpFragment","on ${this.javaClass.name} isVisible $isVisibleToUser")
         mImmersionProxy?.isUserVisibleHint = isVisibleToUser
     }
 
-    abstract fun createPresenter():P?
-    abstract fun setLayoutId():Int
+    abstract fun createPresenter(): P?
+    abstract fun setLayoutId(): Int
     abstract fun lazyInit(view: View, savedInstanceState: Bundle?)
 
 

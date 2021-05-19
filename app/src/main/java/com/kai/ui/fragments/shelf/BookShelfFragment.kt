@@ -1,14 +1,11 @@
-package com.kai.ui.fragments
+package com.kai.ui.fragments.shelf
 
 import android.os.Bundle
 import android.view.View
 import com.kai.base.R
 import com.kai.base.fragment.BaseMvpFragment
-import com.kai.base.mvp.base.BasePresenter
-import com.kai.base.mvp.base.IView
-import kotlinx.android.synthetic.main.fragment_book_shelf.*
 
-class BookShelfFragment:BaseMvpFragment<BasePresenter<IView>>(){
+class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(){
     companion object{
         fun newInstance(): BookShelfFragment {
             val bookRackFragment =
@@ -18,8 +15,8 @@ class BookShelfFragment:BaseMvpFragment<BasePresenter<IView>>(){
             return bookRackFragment
         }
     }
-    override fun createPresenter(): BasePresenter<IView>? {
-       return null
+    override fun createPresenter(): ShelfPresenter? {
+       return ShelfPresenter()
     }
 
     override fun setLayoutId(): Int {
