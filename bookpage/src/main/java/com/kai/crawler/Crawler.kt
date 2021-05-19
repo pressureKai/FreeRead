@@ -727,6 +727,9 @@ class Crawler {
                                     updateTime?.let {
                                         val s = getNodeStr(updateTime, "/text()")
                                         LogUtils.e("Crawler", "update time is $s")
+                                        if(!s.isNullOrEmpty()){
+                                            bookRecommend.updateTime = s
+                                        }
                                     }
                                 } catch (e: Exception) {
                                     LogUtils.e("Crawler", "get update time error is $e")
@@ -738,11 +741,18 @@ class Crawler {
                                 try {
                                     val newChapter = selN[3]
                                     newChapter?.let {
-                                        val s = getNodeStr(newChapter, "/text()")
+                                        val s = getNodeStr(newChapter, "//p//a/text()")
                                         LogUtils.e("Crawler", "new chapter is $s")
+                                        if(!s.isNullOrEmpty()){
+                                            bookRecommend.newChapterName = s
+                                        }
                                         val chapterUrl =
                                             getNodeStr(newChapter, content!!.newChapterUrl!!)
                                         LogUtils.e("Crawler", "new chapter url is $chapterUrl")
+
+                                        if(!chapterUrl.isNullOrEmpty()){
+                                            bookRecommend.newChapterUrl = getHomeUrl() + chapterUrl
+                                        }
                                     }
                                 } catch (e: Exception) {
                                     LogUtils.e("Crawler", "get new chapter error is $e")

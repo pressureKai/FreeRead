@@ -8,12 +8,12 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 
 /**
- *
  * @ProjectName:    app
  * @Description:    加载本地缓存数据  subscribeOn 数据生成线程,observeOn 数据订阅线程
  * @Author:         pressureKai
  * @UpdateDate:     2021/3/26 11:51
  */
+
 class LocalBookDataSource : BookDataSource {
     override fun getBookIndexRecommend(jxDocument: JXDocument?): Observable<List<BookRecommend>> {
         return Observable.create<List<BookRecommend>> {
@@ -51,7 +51,10 @@ class LocalBookDataSource : BookDataSource {
                 try {
                     val bookRecommend = BookDatabase.get().bookDao()
                         .getRankingBookRecommendByType(value, true)
-                    hashMap[value] = bookRecommend.bookUrl
+                    if(bookRecommend.isNotEmpty()){
+                        hashMap[value] = bookRecommend.first().bookUrl
+                    }
+
                 }catch (e:Exception){
 
                 }
@@ -64,6 +67,17 @@ class LocalBookDataSource : BookDataSource {
 
     override fun getRankingFirst(type: Int, url: String): Observable<BookRecommend> {
         return Observable.create<BookRecommend> {
+            val bookRecommendByType = BookDatabase.get().bookDao()
+                .getRankingBookRecommendByType(type,true)
+            if(bookRecommendByType.isNotEmpty()){
+                it.onNext(bookRecommendByType.first())
+            }
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun getRankingList(type: Int, url: String): Observable<List<BookRecommend>> {
+        return Observable.create<List<BookRecommend>> {
             val bookRecommendByType = BookDatabase.get().bookDao()
                 .getRankingBookRecommendByType(type,true)
             it.onNext(bookRecommendByType)

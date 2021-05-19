@@ -20,7 +20,7 @@
       "cover": "//div[@id='sidebar']//div[@id='fmimg']//img/@src",
       "bookName": "//div[@id='maininfo']//div[@id='info']//h1/text()",
       "infoList": "//div[@id='maininfo']//div[@id='info']//p",
-      "newChapterUrl": "//a/@href",
+      "newChapterUrl": "//p//a/@href",
       "descriptor": "//div[@id='maininfo']//div[@id='intro']/text()"
     },
     "home": {

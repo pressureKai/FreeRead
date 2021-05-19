@@ -106,7 +106,7 @@ object GlideUtils {
         }
     }
 
-    fun loadCornersTop(context: WeakReference<Context>, url: String?, image: ImageView?, radius :Int){
+    fun loadCornersTop(context: WeakReference<Context>, url: String?, image: ImageView?, radius :Int,resourceWidthAndHeightListener: ResourceWidthAndHeightListener){
         if (image == null) return
         val requestOptions = RequestOptions().centerCrop()
             .format(DecodeFormat.PREFER_RGB_565)
@@ -146,6 +146,7 @@ object GlideUtils {
             .apply(requestOptions)
             .into(object :com.bumptech.glide.request.target.SimpleTarget<Bitmap>(){
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    resourceWidthAndHeightListener.resourceWidthAndHeight(resource.width,resource.height)
                     image.setImageBitmap(resource)
                 }
             })
@@ -153,5 +154,10 @@ object GlideUtils {
 
     private fun isDestroy(mActivity: Activity?): Boolean {
         return mActivity == null || mActivity.isFinishing || Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && mActivity.isDestroyed
+    }
+
+
+   public interface ResourceWidthAndHeightListener{
+        fun resourceWidthAndHeight(width:Int,height:Int)
     }
 }

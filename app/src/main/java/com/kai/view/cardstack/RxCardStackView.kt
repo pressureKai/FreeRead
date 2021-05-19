@@ -222,7 +222,7 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
     private fun refreshView() {
         removeAllViews()
         mViewHolders!!.clear()
-        for (i in 0 until mRxAdapterStack!!.getCount()) {
+        for (i in 0 until mRxAdapterStack!!.itemCount) {
             val holder = getViewHolder(i)
             holder!!.position = i
             holder.onItemExpand(i == mSelectPosition)
@@ -726,12 +726,12 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
             get() = itemView.context
 
         abstract fun onItemExpand(b: Boolean)
-        fun onAnimationStateChange(state: Int, willBeSelect: Boolean) {}
+        open fun onAnimationStateChange(state: Int, willBeSelect: Boolean) {}
     }
 
     class AdapterDataObservable : Observable<AdapterDataObserver?>() {
         fun hasObservers(): Boolean {
-            return !mObservers.isEmpty()
+            return mObservers.isNotEmpty()
         }
 
         fun notifyChanged() {
@@ -770,5 +770,10 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
                 child - my
             } else n
         }
+    }
+
+
+    fun getCurrentSelect():Int{
+        return mSelectPosition
     }
 }

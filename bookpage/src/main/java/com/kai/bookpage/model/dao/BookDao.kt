@@ -2,6 +2,7 @@ package com.kai.bookpage.model.dao
 
 import androidx.room.*
 import com.kai.bookpage.model.*
+import java.util.stream.LongStream
 
 
 @Dao
@@ -67,6 +68,6 @@ interface BookDao {
     fun getBookRecommendByBookUrl(bookUrl:String):BookRecommend
 
     @Query("SELECT * FROM bookRecommend WHERE bookType = :type AND isRanking = :isRanking")
-    fun getRankingBookRecommendByType(type:Int,isRanking:Boolean):BookRecommend
+    fun getRankingBookRecommendByType(type:Int,isRanking:Boolean):List<BookRecommend>
 
 }

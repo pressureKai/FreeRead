@@ -11,8 +11,9 @@ import java.util.*
  */
 abstract class RxAdapterStack<T>(val context: Context) :
     RxCardStackView.Adapter<RxCardStackView.ViewHolder?>() {
+
     val layoutInflater: LayoutInflater
-    private val mData: MutableList<T>
+    val mData: MutableList<T>
     fun updateData(data: List<T>?) {
         setData(data)
         notifyDataSetChanged()
@@ -33,9 +34,7 @@ abstract class RxAdapterStack<T>(val context: Context) :
 
 
     abstract fun bindView(data: T, position: Int, holder: RxCardStackView.ViewHolder?)
-    fun getCount(): Int {
-        return mData.size
-    }
+
 
 
 

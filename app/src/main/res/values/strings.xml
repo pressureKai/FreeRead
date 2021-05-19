@@ -52,4 +52,5 @@
     <string name="history">搜索历史</string>
     <string name="ranking">排行</string>
     <string name="shelf">书架</string>
+    <string name="check_detail">查看详情</string>
 </resources>

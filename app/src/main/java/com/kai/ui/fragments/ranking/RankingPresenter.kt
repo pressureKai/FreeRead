@@ -19,6 +19,8 @@ class RankingPresenter : BasePresenter<RankingContract.View>(), RankingContract.
             if (it.bookUrl.isNotEmpty()) {
                 Crawler.getBookDetail(it.bookUrl).subscribe { recommend ->
                     if (recommend.bookCoverUrl.isNotEmpty()) {
+                        recommend.isRanking = true
+                        recommend.save()
                         getCoverListener.onCover(recommend.bookCoverUrl)
                     }
                 }

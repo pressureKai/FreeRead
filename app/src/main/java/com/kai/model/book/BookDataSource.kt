@@ -24,21 +24,20 @@ interface BookDataSource {
      * des 获取书籍推荐列表
      * @return 书籍列表
      */
-    fun getBookIndexRecommend(jxDocument: JXDocument?):Observable<List<BookRecommend>>?
+    fun getBookIndexRecommend(jxDocument: JXDocument?): Observable<List<BookRecommend>>?
 
 
-
-    fun getBookRecommendByType(type:Int,jxDocument: JXDocument?):Observable<List<BookRecommend>>
-
+    fun getBookRecommendByType(type: Int, jxDocument: JXDocument?): Observable<List<BookRecommend>>
 
 
-    fun getBookDetail(bookUrl: String):Observable<BookRecommend>
+    fun getBookDetail(bookUrl: String): Observable<BookRecommend>
 
 
-
-    fun getRanking():Observable<HashMap<Int,String>>
-
+    fun getRanking(): Observable<HashMap<Int, String>>
 
 
-    fun getRankingFirst(type:Int,url:String):Observable<BookRecommend>
+    fun getRankingFirst(type: Int, url: String): Observable<BookRecommend>
+
+
+    fun getRankingList(type: Int, url: String): Observable<List<BookRecommend>>
 }

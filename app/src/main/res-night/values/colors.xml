@@ -41,6 +41,8 @@
 
 
     <color name="app_background_night">#0F0F0F</color>
+    <color name="app_background_alpha_night">#4D0F0F0F</color>
+
     <color name="app.font.color_night">#676C6E</color>
 
     <color name="app.font.second.color_night">#686A6A</color>

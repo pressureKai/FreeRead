@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
@@ -16,9 +17,12 @@ import com.kai.base.R
 import com.kai.base.fragment.BaseMvpFragment
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.extension.getScreenWidth
+import com.kai.common.extension.measureView
 import com.kai.common.utils.GlideUtils
+import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import kotlinx.android.synthetic.main.fragment_book_ranking.*
+import java.lang.Exception
 import java.lang.ref.WeakReference
 
 class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresenter>(),
@@ -80,33 +84,53 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
             val view = holder.getView<ConstraintLayout>(R.id.layout)
             val cover = holder.getView<ImageView>(R.id.cover)
             val typeName = holder.getView<TextView>(R.id.type_name)
-
-            activity?.let {
-                val width = (it.getScreenWidth() - ScreenUtils.dpToPx(32)) / 2
-                cover.layoutParams.height = (width / 0.75).toInt()
-            }
+            val typeLayout = holder.getView<ConstraintLayout>(R.id.type_layout)
+            val back = holder.getView<View>(R.id.back)
 
             var topMargin = 0
-            topMargin = if(item % 2 == 0){
+            topMargin = if (item % 2 == 0) {
                 ScreenUtils.getStatusBarHeight()
             } else {
                 0
             }
 
             val marginLayoutParams = cover.layoutParams as ViewGroup.MarginLayoutParams
-            marginLayoutParams.topMargin =topMargin
+            marginLayoutParams.topMargin = topMargin
             map[item]?.let {
                 mPresenter?.getCover(item, it, object : RankingPresenter.GetCoverListener {
                     override fun onCover(path: String) {
                         Handler(Looper.getMainLooper()).post {
-                            GlideUtils.loadCornersTop(WeakReference(activity), path, cover, 8)
+                            GlideUtils.loadCornersTop(
+                                WeakReference(activity),
+                                path,
+                                cover,
+                                8,
+                                object : GlideUtils.ResourceWidthAndHeightListener {
+                                    override fun resourceWidthAndHeight(width: Int, height: Int) {
+                                        try {
+                                            val fl = width.toFloat() / height.toFloat()
+                                            val height1 = cover.layoutParams.height
+                                            typeLayout.layoutParams.width =
+                                                (fl * height1).toInt() + ScreenUtils.dpToPx(1)
+                                            typeLayout.layoutParams.height =  typeName.measureView()[1]
+                                            back.layoutParams.height = typeName.measureView()[1]
+                                            back.alpha = 0.85f
+                                        }catch (e:Exception){
+                                            LogUtils.e("BookRankingFragment","error is $e")
+                                        }
+                                    }
+                                })
                         }
                     }
                 })
 
 
-                view.setOnClickListener { view ->
-                    ARouter.getInstance().build("/app/ranking").withString("url",it).navigation()
+                view.setOnClickListener { _ ->
+                    ARouter.getInstance()
+                        .build("/app/ranking")
+                        .withInt("type", item)
+                        .withString("url", it)
+                        .navigation()
                 }
             }
 

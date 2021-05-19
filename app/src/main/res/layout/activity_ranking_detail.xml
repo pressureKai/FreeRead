@@ -1,10 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/app_background"
     android:orientation="vertical">
 
-    <include
-        layout="@layout/merge_toolbar"/>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ranking_stack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include
+            layout="@layout/merge_toolbar"/>
+    </LinearLayout>
+
+
+
+    <com.kai.view.cardstack.RxCardStackView
+        app:layout_constraintTop_toBottomOf="@id/layout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/ranking_stack"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="14dp"
+        app:layout_constraintVertical_weight="1"/>
+
+
+
+    <ImageView
+        android:id="@+id/pre"
+        android:layout_margin="30dp"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/info"
+        app:layout_constraintBottom_toBottomOf="@id/info"
+        android:background="@drawable/pre_ranking"
+        android:layout_width="42dp"
+        android:layout_height="42dp"/>
+
+
+
+    <ImageView
+        android:id="@+id/next"
+        android:layout_margin="30dp"
+        android:visibility="invisible"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/info"
+        app:layout_constraintBottom_toBottomOf="@id/info"
+        android:background="@drawable/next_ranking"
+        android:layout_width="42dp"
+        android:layout_height="42dp"/>
+
+
+
+    <Button
+        android:id="@+id/info"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="80dp"
+        android:background="@drawable/login_button_bg"
+        android:layout_marginRight="80dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginBottom="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/check_detail"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

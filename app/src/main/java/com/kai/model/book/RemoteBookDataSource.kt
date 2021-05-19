@@ -92,4 +92,17 @@ class RemoteBookDataSource : BookDataSource {
                 }
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
     }
+
+    override fun getRankingList(type: Int, url: String): Observable<List<BookRecommend>> {
+        return Observable.create<List<BookRecommend>> { emitter ->
+            Crawler.getConcurrentTypeRankingList(type,url)
+                .doOnError {
+                    emitter.onError(NullPointerException())
+                }.subscribe { it ->
+                    if(it.isNotEmpty()){
+                        emitter.onNext(it)
+                    }
+                }
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+    }
 }

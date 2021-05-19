@@ -42,6 +42,8 @@
 
 
     <color name="app_background">#F7F7F7</color>
+    <color name="app_background_alpha">#4DF7F7F7</color>
+
     <color name="app.font.color">#484848</color>
     <color name="app.font.second.color">#585858</color>
     <color name="app.book.color">#9A9A9A</color>

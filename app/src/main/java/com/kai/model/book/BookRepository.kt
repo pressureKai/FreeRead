@@ -120,7 +120,6 @@ class BookRepository private constructor(
                 }
             }
 
-
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
     }
 
@@ -151,6 +150,19 @@ class BookRepository private constructor(
 
         }.subscribeOn(Schedulers.newThread()).observeOn(Schedulers.newThread())
 
+    }
+
+    override fun getRankingList(type: Int, url: String): Observable<List<BookRecommend>> {
+        return Observable.create<List<BookRecommend>> { emitter ->
+            localBookDataSource.getRankingList(type, url).subscribe {
+                emitter.onNext(it)
+            }
+
+            remoteBookDataSource.getRankingList(type, url).subscribe {
+                emitter.onNext(it)
+            }
+
+        }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
     }
 
 

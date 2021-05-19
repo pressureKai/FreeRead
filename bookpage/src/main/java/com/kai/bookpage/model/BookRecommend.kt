@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.kai.bookpage.model.database.BookDatabase
 import org.jsoup.select.Evaluator
 
 @Entity(tableName = "bookRecommend")
@@ -85,14 +86,31 @@ class BookRecommend {
     var bookDescriptor = ""
     var bookType = 0
     var authorName = ""
+    var newChapterUrl = ""
+    var newChapterName = ""
+    var updateTime = ""
     var isRanking = false
 
 
 
     fun checkIsEmpty(): Boolean{
-        return bookName.isEmpty() || bookCoverUrl.isEmpty() || bookDescriptor.isEmpty()
+        return bookName.isEmpty()
+                || bookCoverUrl.isEmpty()
+                || bookDescriptor.isEmpty()
+                || authorName.isEmpty()
+                || newChapterUrl.isEmpty()
+                || newChapterName.isEmpty()
     }
 
 
+    fun save(){
+        val bookRecommendByBookUrl =
+            BookDatabase.get().bookDao().getBookRecommendByBookUrl(bookUrl)
+        if(bookRecommendByBookUrl == null || (bookRecommendByBookUrl!=null
+                    && !bookRecommendByBookUrl.checkIsEmpty()
+                    && checkIsEmpty())){
+            BookDatabase.get().bookDao().insertBookRecommend(this)
+        }
+    }
 
 }
