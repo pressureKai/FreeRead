@@ -30,7 +30,7 @@ interface BookDataSource {
     fun getBookRecommendByType(type: Int, jxDocument: JXDocument?): Observable<List<BookRecommend>>
 
 
-    fun getBookDetail(bookUrl: String): Observable<BookRecommend>
+    fun getBookDetail(bookUrl: String,update:Boolean): Observable<BookRecommend>
 
 
     fun getRanking(): Observable<HashMap<Int, String>>

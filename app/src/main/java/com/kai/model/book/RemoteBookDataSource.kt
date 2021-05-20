@@ -52,7 +52,7 @@ class RemoteBookDataSource : BookDataSource {
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
     }
 
-    override fun getBookDetail(bookUrl: String): Observable<BookRecommend> {
+    override fun getBookDetail(bookUrl: String, update: Boolean): Observable<BookRecommend> {
         return Observable.create<BookRecommend> { emitter ->
             Crawler.getBookDetail(bookUrl)
                 .doOnError {

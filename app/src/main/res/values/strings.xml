@@ -49,8 +49,11 @@
     <string name="book_brightness_follow_system">亮度跟随系统</string>
     <string name="search_descriptor">搜索书名或作者名称</string>
     <string name="recommend">推荐</string>
+    <string name="read">阅读</string>
     <string name="history">搜索历史</string>
     <string name="ranking">排行</string>
     <string name="shelf">书架</string>
     <string name="check_detail">查看详情</string>
+    <string name="intro">简介</string>
+    <string name="add_book_shelf">加书架</string>
 </resources>

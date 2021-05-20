@@ -1,6 +1,7 @@
 package com.kai.model.book
 
 import com.kai.bookpage.model.BookRecommend
+import com.kai.bookpage.model.database.BookDatabase
 import com.kai.common.utils.LogUtils
 import com.kai.crawler.Crawler
 import com.kai.crawler.xpath.model.JXDocument
@@ -100,24 +101,46 @@ class BookRepository private constructor(
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
     }
 
-    override fun getBookDetail(bookUrl: String): Observable<BookRecommend> {
+    override fun getBookDetail(bookUrl: String, update: Boolean): Observable<BookRecommend> {
         return Observable.create<BookRecommend> { emitter ->
-            localBookDataSource.getBookDetail(bookUrl).doOnError {
+            localBookDataSource.getBookDetail(bookUrl,false)
+                .doOnError {
                 remoteBookDataSource
-                    .getBookDetail(bookUrl)
+                    .getBookDetail(bookUrl,update)
                     .subscribe { recommend ->
                         emitter.onNext(recommend)
                     }
             }.subscribe {
-                if (it.checkIsEmpty()) {
+                if(!update){
+                    if (it.checkIsEmpty()) {
+                        remoteBookDataSource
+                            .getBookDetail(bookUrl,update)
+                            .subscribe { recommend ->
+                                emitter.onNext(recommend)
+                            }
+                    } else {
+                        emitter.onNext(it)
+                    }
+                } else {
                     remoteBookDataSource
-                        .getBookDetail(bookUrl)
+                        .getBookDetail(bookUrl,update)
                         .subscribe { recommend ->
                             emitter.onNext(recommend)
+                            val bookRecommendByBookUrl = BookDatabase.get().bookDao()
+                                .getBookRecommendByBookUrl(recommend.bookUrl)
+                            bookRecommendByBookUrl?.let { bookRecommend ->
+                                bookRecommend.bookDescriptor = recommend.bookDescriptor
+                                bookRecommend.updateTime = recommend.updateTime
+                                bookRecommend.newChapterName = recommend.newChapterName
+                                bookRecommend.newChapterUrl = recommend.newChapterUrl
+                                BookDatabase.get().bookDao().updateBookRecommend(bookRecommend)
+                            }
+                            if(bookRecommendByBookUrl == null){
+                                recommend.save()
+                            }
                         }
-                } else {
-                    emitter.onNext(it)
                 }
+
             }
 
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())

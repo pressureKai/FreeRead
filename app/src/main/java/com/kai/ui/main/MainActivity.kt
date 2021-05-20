@@ -341,6 +341,25 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
 
 
+        val readHistoryIcon = read_history.findViewById<ImageView>(R.id.icon)
+        val readHistoryName = read_history.findViewById<TextView>(R.id.name)
+        readHistoryIcon.setImageResource(R.drawable.history)
+        readHistoryName.text = "浏览历史"
+        read_history.setOnClickListener {
+
+        }
+
+
+        val likeIcon = like.findViewById<ImageView>(R.id.icon)
+        val likeName = like.findViewById<TextView>(R.id.name)
+        likeIcon.setImageResource(R.drawable.add_like)
+        likeName.text = "收藏"
+        like.setOnClickListener {
+
+        }
+
+
+
         info_layout.setOnClickListener {
             ARouter.getInstance().build("/app/login").navigation()
         }

@@ -12,6 +12,7 @@ import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.alibaba.android.arouter.launcher.ARouter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -31,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.item_stack_ranking.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
 import kotlinx.android.synthetic.main.merge_toolbar.back
+import java.lang.Exception
 
 @Route(path = "/app/ranking")
 class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, RankingDetailPresenter>(),
@@ -63,6 +65,18 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
             ranking_stack.next()
         }
         info.setOnClickListener {
+
+            try {
+                val currentSelect = ranking_stack.getCurrentSelect()
+                val bookRecommend = mRankingAdapter.mData[currentSelect]
+                ARouter.getInstance()
+                    .build("/app/bookinfo")
+                    .withString("url", bookRecommend.bookUrl)
+                    .navigation()
+
+            }catch (e:Exception){
+
+            }
 
         }
 

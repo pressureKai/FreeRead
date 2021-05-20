@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.activity_search.recycler
 import kotlinx.android.synthetic.main.activity_search.refresh
 import kotlinx.android.synthetic.main.activity_search.status
+import java.lang.Exception
 
 
 @Route(path = "/app/search")
@@ -55,11 +56,22 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
 
         val searchAdapter = SearchAdapter()
         searchAdapter.setOnItemClickListener { adapter, _, position ->
-            val searchBook = adapter.data[position] as SearchBook
-            ARouter.getInstance().build("/app/book").navigation()
-            postStickyEvent(searchBook,
-                BookDetailActivity.BOOK_DETAIL,
-                BookDetailActivity::class.java.name)
+            try {
+                val searchBook = adapter.data[position] as SearchBook
+                val url = searchBook.sources.first().link
+                ARouter.getInstance()
+                    .build("/app/bookinfo")
+                    .withString("url", url)
+                    .navigation()
+            }catch (e:Exception){
+
+            }
+
+
+//            ARouter.getInstance().build("/app/book").navigation()
+//            postStickyEvent(searchBook,
+//                BookDetailActivity.BOOK_DETAIL,
+//                BookDetailActivity::class.java.name)
         }
         listPageLoader = ListPageLoader(
             recycler,

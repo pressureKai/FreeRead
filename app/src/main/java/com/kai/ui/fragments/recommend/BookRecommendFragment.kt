@@ -150,8 +150,12 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                 }.start()
             }
             Glide.with(imageView).load(data.bookCoverUrl).into(imageView)
-            itemView.setOnClickListener {
 
+            itemView.setOnClickListener {
+                ARouter.getInstance()
+                    .build("/app/bookinfo")
+                    .withString("url", data.bookUrl)
+                    .navigation()
             }
         }
     }
@@ -213,6 +217,20 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                 itemList.layoutManager = gridLayoutManager
                 val recommendItemListAdapter = RecommendItemListAdapter()
                 recommendItemListAdapter.setHasStableIds(true)
+                recommendItemListAdapter.setOnItemClickListener { _, view, i ->
+
+                    try {
+                        val bookRecommend = item[i]
+                        ARouter.getInstance()
+                            .build("/app/bookinfo")
+                            .withString("url", bookRecommend.bookUrl)
+                            .navigation()
+                    } catch (e: java.lang.Exception) {
+
+                    }
+
+
+                }
                 itemList.adapter = recommendItemListAdapter
                 recommendItemListAdapter.setNewInstance(item)
             }
@@ -250,7 +268,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
             }
             mPresenter?.let {
                 val localBookDetail = it.localBookDetail(item.bookUrl)
-                if(localBookDetail == null || localBookDetail.checkIsEmpty()){
+                if (localBookDetail == null || localBookDetail.checkIsEmpty()) {
                     it.bookDetail(item, object : RecommendPresenter.OnBookDetail {
                         override fun onBookDetail(bookRecommend: BookRecommend) {
                             try {

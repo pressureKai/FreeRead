@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import com.kai.common.utils.LogUtils
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.min
 
@@ -495,7 +496,6 @@ class SimulationPageAnimation : BaseHorizontalPageAnimation {
         mMatrix!!.preTranslate(-mBezierControl1.x, -mBezierControl1.y)
         mMatrix!!.postTranslate(mBezierControl1.x, mBezierControl1.y)
 
-        Log.e("Simulation", "mBezierControl1.x is ${mBezierControl1.x}\nmBezierControl1.y is ${mBezierControl1.y}")
         canvas.drawBitmap(bitmap!!, mMatrix!!, mPaint)
         //背景叠加
         canvas.drawColor(tempColor)
@@ -707,7 +707,7 @@ class SimulationPageAnimation : BaseHorizontalPageAnimation {
         mPath1!!.close()
 
         mDegrees = Math.toDegrees(
-            Math.atan2(
+            atan2(
                 (mBezierControl1.x - mCornerX).toDouble(),
                 (mBezierControl2.y - mCornerY).toDouble()
             )

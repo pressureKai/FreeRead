@@ -21,7 +21,10 @@
       "bookName": "//div[@id='maininfo']//div[@id='info']//h1/text()",
       "infoList": "//div[@id='maininfo']//div[@id='info']//p",
       "newChapterUrl": "//p//a/@href",
-      "descriptor": "//div[@id='maininfo']//div[@id='intro']/text()"
+      "descriptor": "//div[@id='maininfo']//div[@id='intro']/text()",
+      "recommendListPath": "//div[@class='box_con']//div[@id='listtj']//a",
+      "recommendNamePath": "//a/text()",
+      "recommendUrlPath": "//a/@href"
     },
     "home": {
       "recommendPath": "//div[@id=hotcontent]//div[@class='r']//ul//li",

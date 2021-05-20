@@ -15,7 +15,7 @@ class RankingDetailPresenter: BasePresenter<RankingDetailContract.View>(), Ranki
 
 
     fun getBookDetail(type:Int,url:String,getBookDetailListener: GetBookDetailListener){
-        bookRepository.getBookDetail(url).subscribe {
+        bookRepository.getBookDetail(url,true).subscribe {
             it.bookType = type
             it.isRanking = true
             it.save()

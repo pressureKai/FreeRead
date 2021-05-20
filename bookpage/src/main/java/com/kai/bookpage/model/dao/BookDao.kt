@@ -61,6 +61,9 @@ interface BookDao {
     @Insert
     fun insertBookRecommend(bookRecommend: BookRecommend)
 
+    @Update
+    fun updateBookRecommend(bookRecommend: BookRecommend)
+
     @Delete
     fun deleteBookRecommend(bookRecommend: BookRecommend)
 

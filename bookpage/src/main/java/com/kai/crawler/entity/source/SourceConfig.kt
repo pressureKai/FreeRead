@@ -69,6 +69,9 @@ class SourceConfig(var id: Int) {
         var infoList: String? = null
         var newChapterUrl: String? = null
         var descriptor: String? = null
+        var recommendListPath: String? = null
+        var recommendNamePath: String? = null
+        var recommendUrlPath: String? = null
 
     }
 

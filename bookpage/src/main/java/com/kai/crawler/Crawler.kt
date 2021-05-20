@@ -50,7 +50,6 @@ class Crawler {
                         } else {
                             String.format(source.searchUrl, keyword)
                         }
-                        LogUtils.e(TAG, "url = $url")
                         val connect = Jsoup.connect(url).get()
                         val jxDocument = JXDocument(connect)
                         resource.clear()
@@ -379,7 +378,11 @@ class Crawler {
                             val url = getNodeStr(value!!, config.home!!.indexRecommendUrlPath!!)
                             url?.let {
                                 LogUtils.e(TAG, "BE ADD URL IS $it")
-                                bookRecommend.bookUrl = it
+                                if(it.contains("http")){
+                                    bookRecommend.bookUrl = it
+                                } else {
+                                    bookRecommend.bookUrl = getHomeUrl() + it
+                                }
                             }
                             val descriptor =
                                 getNodeStr(value!!, config.home!!.indexRecommendDescriptorPath!!)
@@ -663,6 +666,57 @@ class Crawler {
             }
         }
 
+
+
+        fun getBookDetailRecommendList(url:String):Observable<List<BookRecommend>>{
+            return Observable.create<List<BookRecommend>> {
+                try {
+                    val arrayList = ArrayList<BookRecommend>()
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    for (i in 0.until(checkedMap.size())) {
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val jxDocument =
+                            JXDocument(Jsoup.connect(url).get())
+
+                        LogUtils.e("Crawler","connect jxDocument success $jxDocument")
+
+                        config?.let { sourceConfig ->
+                            sourceConfig.content?.let { content ->
+
+                                val selN = jxDocument.selN(content.recommendListPath)
+
+                                for(value in selN) {
+                                    LogUtils.e("Crawler","value is$value")
+
+
+                                    try {
+                                        value?.let {
+                                            val bookRecommend = BookRecommend()
+                                            bookRecommend.bookName = getNodeStr(value,content.recommendNamePath!!)!!
+                                            var bookUrl =
+                                                getNodeStr(value, content.recommendUrlPath!!)!!
+                                            if(!bookUrl.contains("http")){
+                                                bookUrl = getHomeUrl() + bookUrl
+                                            }
+                                            bookRecommend.bookUrl = bookUrl
+                                            arrayList.add(bookRecommend)
+                                        }
+
+                                    }catch (e:Exception){
+                                        LogUtils.e("Crawler", "get book detail recommendList error is $e")
+                                    }
+
+                                }
+                            }
+                        }
+                        it.onNext(arrayList)
+                    }
+                } catch (e: java.lang.Exception) {
+                    LogUtils.e("Crawler", "get book detail recommendList error is $e")
+                }
+
+            }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+        }
 
         fun getBookDetail(url: String): Observable<BookRecommend> {
             return Observable.create<BookRecommend> {

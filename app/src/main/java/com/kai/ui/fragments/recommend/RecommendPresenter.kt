@@ -36,17 +36,9 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
                 .subscribe {
                     bookRepository.getBookIndexRecommend(it)
                         ?.subscribe { list ->
-                            if (list.isNotEmpty()) {
-                                val bookRecommendByType = BookDatabase.get().bookDao()
-                                    .getBookRecommendByType(BookRecommend.INDEX_RECOMMEND)
-                                for (value in bookRecommendByType) {
-                                    BookDatabase.get().bookDao().deleteBookRecommend(value)
-                                }
-                            }
-
                             for (value in list) {
                                 try {
-                                    BookDatabase.get().bookDao().insertBookRecommend(value)
+                                    value.save()
                                 } catch (e: Exception) {
                                     LogUtils.e("RecommendPresenter", e.toString())
                                 }
@@ -57,17 +49,9 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
         } else {
             bookRepository.getBookIndexRecommend(jxDocument)
                 ?.subscribe { list ->
-                    if (list.isNotEmpty()) {
-                        val bookRecommendByType = BookDatabase.get().bookDao()
-                            .getBookRecommendByType(BookRecommend.INDEX_RECOMMEND)
-                        for (value in bookRecommendByType) {
-                            BookDatabase.get().bookDao().deleteBookRecommend(value)
-                        }
-                    }
-
                     for (value in list) {
                         try {
-                            BookDatabase.get().bookDao().insertBookRecommend(value)
+                            value.save()
                         } catch (e: Exception) {
                             LogUtils.e("RecommendPresenter", e.toString())
                         }
@@ -165,7 +149,7 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
         if(bookRecommend.bookUrl.isEmpty()){
             return
         }
-        bookRepository.getBookDetail(bookRecommend.bookUrl).subscribe {
+        bookRepository.getBookDetail(bookRecommend.bookUrl,false).subscribe {
             try {
                 val bookRecommendByBookUrl =
                     BookDatabase.get().bookDao().getBookRecommendByBookUrl(it.bookUrl)
