@@ -27,6 +27,7 @@ import com.kai.common.utils.LogUtils
 import com.kai.view.cardstack.RxCardStackView
 import com.kai.view.cardstack.tools.RxAdapterStack
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
+import io.reactivex.rxjava3.core.Observable
 import kotlinx.android.synthetic.main.activity_ranking_detail.*
 import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.item_stack_ranking.*
@@ -52,10 +53,11 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
             finish()
         }
         ranking_stack.itemExpendListener = this
-        mRankingAdapter = RankingAdapter(this)
+        val rankingAdapter = RankingAdapter(this)
+        mRankingAdapter = rankingAdapter
         ranking_stack.setAdapter(mRankingAdapter)
         url?.let {
-            mPresenter?.ranking(type,url)
+            mPresenter?.ranking(type, url)
         }
 
         pre.setOnClickListener {
@@ -65,7 +67,6 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
             ranking_stack.next()
         }
         info.setOnClickListener {
-
             try {
                 val currentSelect = ranking_stack.getCurrentSelect()
                 val bookRecommend = mRankingAdapter.mData[currentSelect]
@@ -74,13 +75,10 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
                     .withString("url", bookRecommend.bookUrl)
                     .navigation()
 
-            }catch (e:Exception){
-
+            } catch (e: Exception) {
+                LogUtils.e("RankingDetailActivity", "error is $e")
             }
-
         }
-
-
     }
 
     override fun createPresenter(): RankingDetailPresenter? {
@@ -92,23 +90,23 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
     }
 
     override fun onItemExpend(expend: Boolean) {
-        if(!expend){
+        if (!expend) {
             pre.visibility = View.GONE
             next.visibility = View.GONE
             info.visibility = View.GONE
         } else {
-            if(ranking_stack.getCurrentSelect() != mRankingAdapter.mData.size - 1){
-                next.visibility =View.VISIBLE
-            }else{
-                next.visibility =View.GONE
+            if (ranking_stack.getCurrentSelect() != mRankingAdapter.mData.size - 1) {
+                next.visibility = View.VISIBLE
+            } else {
+                next.visibility = View.GONE
             }
 
-            if(ranking_stack.getCurrentSelect() != 0){
+            if (ranking_stack.getCurrentSelect() != 0) {
                 pre.visibility = View.VISIBLE
             } else {
                 pre.visibility = View.GONE
             }
-            info.visibility =View.VISIBLE
+            info.visibility = View.VISIBLE
         }
     }
 
@@ -139,7 +137,7 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
         private var mBookAuthor: TextView = view.findViewById(R.id.book_author)
         private var mUpdateChapter: TextView = view.findViewById(R.id.update_chapter)
         private var mUpdateTime: TextView = view.findViewById(R.id.update_time)
-        private var mBackLayout:ConstraintLayout = view.findViewById(R.id.back_layout)
+        private var mBackLayout: ConstraintLayout = view.findViewById(R.id.back_layout)
         private var cover: ImageView = view.findViewById<ImageView>(R.id.cover)
         override fun onItemExpand(b: Boolean) {
             mDescriptorLayout.visibility = if (b) View.VISIBLE else View.GONE
@@ -157,7 +155,7 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
 
 
         fun onBind(bookRecommend: BookRecommend) {
-            if(!bookRecommend.checkIsEmpty()){
+            if (!bookRecommend.checkIsEmpty()) {
                 val options = RequestOptions()
                     .transform(
                         MultiTransformation(
@@ -185,48 +183,56 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
                 mUpdateChapter.text = bookRecommend.newChapterName
                 mUpdateTime.text = bookRecommend.updateTime
             } else {
-                mPresenter?.getBookDetail(type,bookRecommend.bookUrl,object :RankingDetailPresenter.GetBookDetailListener{
-                    override fun onBookDetailListener(bookRecommend: BookRecommend) {
-                        val options = RequestOptions()
-                            .transform(
-                                MultiTransformation(
-                                    CenterCrop(),
-                                    RoundedCorners(16)
+                mPresenter?.getBookDetail(
+                    type,
+                    bookRecommend.bookUrl,
+                    rankingPosition = bookRecommend.rankingPosition,
+                    object : RankingDetailPresenter.GetBookDetailListener {
+                        override fun onBookDetailListener(bookRecommend: BookRecommend) {
+                            val options = RequestOptions()
+                                .transform(
+                                    MultiTransformation(
+                                        CenterCrop(),
+                                        RoundedCorners(16)
+                                    )
                                 )
-                            )
-                            .skipMemoryCache(true)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        Glide.with(cover)
-                            .load(bookRecommend.bookCoverUrl)
-                            .apply(options)
-                            .dontAnimate()
-                            .into(cover)
-                        Thread {
-                            GlideUtils.loadBlur(
-                                this@RankingDetailActivity,
-                                bookRecommend.bookCoverUrl,
-                                mBackLayout
-                            )
-                        }.start()
-                        mDescriptor.text = bookRecommend.bookDescriptor
-                        mBookName.text = bookRecommend.bookName
-                        mBookAuthor.text = bookRecommend.authorName
-                        mUpdateChapter.text = bookRecommend.newChapterName
-                        mUpdateTime.text = bookRecommend.updateTime
-                    }
-                })
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            Glide.with(cover)
+                                .load(bookRecommend.bookCoverUrl)
+                                .apply(options)
+                                .dontAnimate()
+                                .into(cover)
+                            Thread {
+                                GlideUtils.loadBlur(
+                                    this@RankingDetailActivity,
+                                    bookRecommend.bookCoverUrl,
+                                    mBackLayout
+                                )
+                            }.start()
+                            mDescriptor.text = bookRecommend.bookDescriptor
+                            mBookName.text = bookRecommend.bookName
+                            mBookAuthor.text = bookRecommend.authorName
+                            mUpdateChapter.text = bookRecommend.newChapterName
+                            mUpdateTime.text = bookRecommend.updateTime
+                        }
+                    })
             }
-
         }
-
-
     }
 
     override fun onRanking(recommends: ArrayList<BookRecommend>) {
         runOnUiThread {
-            mRankingAdapter.updateData(recommends)
+            Observable.fromIterable(recommends)
+                .toSortedList { recommend1, recommend2 ->
+                    recommend1.rankingPosition - recommend2.rankingPosition
+                }.subscribe { orderList ->
+                    mRankingAdapter.updateData(orderList)
+                }
         }
     }
+
+
 
 
     override fun attachBaseContext(newBase: Context) {

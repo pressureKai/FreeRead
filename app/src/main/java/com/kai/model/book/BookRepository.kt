@@ -177,11 +177,18 @@ class BookRepository private constructor(
 
     override fun getRankingList(type: Int, url: String): Observable<List<BookRecommend>> {
         return Observable.create<List<BookRecommend>> { emitter ->
+            val arrayList = ArrayList<BookRecommend>()
             localBookDataSource.getRankingList(type, url).subscribe {
-                emitter.onNext(it)
+                arrayList.addAll(it)
             }
 
-            remoteBookDataSource.getRankingList(type, url).subscribe {
+            remoteBookDataSource.getRankingList(type, url).doOnError {
+                if(arrayList.size > 0){
+                    emitter.onNext(arrayList)
+                } else {
+                    emitter.onError(it)
+                }
+            }.subscribe {
                 emitter.onNext(it)
             }
 

@@ -38,6 +38,7 @@ import com.kai.ui.forgetpassword.ForgetPasswordActivity
 import com.kai.ui.fragments.ranking.BookRankingFragment
 import com.kai.ui.fragments.recommend.BookRecommendFragment
 import com.kai.ui.fragments.shelf.BookShelfFragment
+import com.kai.ui.history.HistoryActivity
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
@@ -64,8 +65,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     private var fragments: SparseArray<Fragment>? = null
     private var icons: SparseArray<ImageView>? = null
     private var textViews: SparseArray<TextView>? = null
-
-    private var mCurrentIndex = 0
     override fun setLayoutId(): Int {
         return R.layout.activity_main
     }
@@ -79,6 +78,31 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 } else {
                     it.get(value).typeface = Typeface.DEFAULT
                 }
+            }
+
+            when(position){
+                0->{
+                    icons?.let { array ->
+                        array[0].setImageResource(R.drawable.book_shelf_select)
+                        array[1].setImageResource(R.drawable.book_recommend)
+                        array[2].setImageResource(R.drawable.book_ranking)
+                    }
+                }
+                1->{
+                    icons?.let { array ->
+                        array[0].setImageResource(R.drawable.book_shelf)
+                        array[1].setImageResource(R.drawable.book_recommend_select)
+                        array[2].setImageResource(R.drawable.book_ranking)
+                    }
+                }
+                2->{
+                    icons?.let { array ->
+                        array[0].setImageResource(R.drawable.book_shelf)
+                        array[1].setImageResource(R.drawable.book_recommend)
+                        array[2].setImageResource(R.drawable.book_ranking_select)
+                    }
+                }
+                else -> return
             }
         }
 
@@ -159,9 +183,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         RxNetworkObserver.register(this)
         initFragment()
         mPresenter?.getLoginCurrentUser()
-//        initImmersionBar(fitSystem = false, color = R.color.app_background)
-//        val layoutParams = content.layoutParams as ViewGroup.MarginLayoutParams
-//        layoutParams.topMargin = ScreenUtils.getStatusBarHeight()
         draw_content.setPadding(0, ScreenUtils.getStatusBarHeight(), 0, 0)
         draw_content.layoutParams.width = ((getScreenWidth() / 6f) * 5).toInt()
         draw_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -346,7 +367,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         readHistoryIcon.setImageResource(R.drawable.history)
         readHistoryName.text = "浏览历史"
         read_history.setOnClickListener {
-
+            ARouter
+                .getInstance()
+                .build("/app/history")
+                .withInt("type",HistoryActivity.READ)
+                .navigation()
         }
 
 
@@ -355,7 +380,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         likeIcon.setImageResource(R.drawable.add_like)
         likeName.text = "收藏"
         like.setOnClickListener {
-
+            ARouter
+                .getInstance()
+                .build("/app/history")
+                .withInt("type",HistoryActivity.LIKE)
+                .navigation()
         }
 
 
@@ -403,6 +432,10 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             draw_layout.closeDrawer(Gravity.LEFT)
         }
 
+    }
+
+    fun openDrawer(){
+        draw_layout.openDrawer(Gravity.LEFT)
     }
 
     /**

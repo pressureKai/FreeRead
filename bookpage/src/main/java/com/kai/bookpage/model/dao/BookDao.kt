@@ -70,6 +70,17 @@ interface BookDao {
     @Query("SELECT * FROM bookRecommend WHERE bookUrl = :bookUrl")
     fun getBookRecommendByBookUrl(bookUrl:String):BookRecommend
 
+
+    @Query("SELECT * FROM bookRecommend WHERE isLike = :isLike")
+    fun getBookRecommendByBookLike(isLike:Boolean):List<BookRecommend>
+
+
+    @Query("SELECT * FROM bookRecommend WHERE isRead = :isRead")
+    fun getBookRecommendByBookRead(isRead:Boolean):List<BookRecommend>
+
+    @Query("SELECT * FROM bookRecommend WHERE isShelf = :isShelf")
+    fun getBookRecommendByBookShelf(isShelf:Boolean):List<BookRecommend>
+
     @Query("SELECT * FROM bookRecommend WHERE bookType = :type AND isRanking = :isRanking")
     fun getRankingBookRecommendByType(type:Int,isRanking:Boolean):List<BookRecommend>
 

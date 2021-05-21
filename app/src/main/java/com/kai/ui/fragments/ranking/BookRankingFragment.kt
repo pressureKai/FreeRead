@@ -21,7 +21,14 @@ import com.kai.common.extension.measureView
 import com.kai.common.utils.GlideUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
+import com.kai.ui.main.MainActivity
+import io.reactivex.rxjava3.core.Observable
 import kotlinx.android.synthetic.main.fragment_book_ranking.*
+import kotlinx.android.synthetic.main.fragment_book_ranking.draw
+import kotlinx.android.synthetic.main.fragment_book_ranking.list
+import kotlinx.android.synthetic.main.fragment_book_ranking.search_layout
+import kotlinx.android.synthetic.main.fragment_book_ranking.toolbar_layout
+import kotlinx.android.synthetic.main.fragment_book_shelf.*
 import java.lang.Exception
 import java.lang.ref.WeakReference
 
@@ -42,6 +49,7 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
         return RankingPresenter()
     }
 
+
     override fun setLayoutId(): Int {
         return R.layout.fragment_book_ranking
     }
@@ -49,14 +57,30 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val gridLayoutManager = GridLayoutManager(activity, 2)
-        val layoutParams = list.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.topMargin = ScreenUtils.getStatusBarHeight()
-        list.layoutParams = layoutParams
         list.layoutManager = gridLayoutManager
         val rankingAdapter = RankingAdapter()
         rankingAdapter.setHasStableIds(true)
         list.adapter = rankingAdapter
         mPresenter?.ranking()
+
+        try {
+            toolbar_layout.post {
+                val marginLayoutParams = toolbar_layout.layoutParams as ViewGroup.MarginLayoutParams
+                marginLayoutParams.topMargin =
+                    ScreenUtils.getStatusBarHeight() + (toolbar_layout.height - ScreenUtils.getStatusBarHeight()) / 5
+                toolbar_layout.layoutParams = marginLayoutParams
+            }
+        } catch (e: Exception) {
+            LogUtils.e("BookRecommendFragment", e.toString())
+        }
+
+
+        search_layout.setOnClickListener {
+            ARouter.getInstance().build("/app/search").navigation()
+        }
+        draw.setOnClickListener {
+            (activity as MainActivity).openDrawer()
+        }
     }
 
     override fun lazyInit(view: View, savedInstanceState: Bundle?) {
@@ -75,7 +99,12 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
             }
         }
         map = hashMap
-        (list.adapter as RankingAdapter).setNewInstance(arrayList)
+        Observable.fromIterable(arrayList).toSortedList{
+                i1,i2 -> i1-i2}
+            .subscribe { orderList ->
+                (list.adapter as RankingAdapter).setNewInstance(orderList)
+        }
+
     }
 
     inner class RankingAdapter :
@@ -99,27 +128,29 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
             map[item]?.let {
                 mPresenter?.getCover(item, it, object : RankingPresenter.GetCoverListener {
                     override fun onCover(path: String) {
-                        Handler(Looper.getMainLooper()).post {
-                            GlideUtils.loadCornersTop(
-                                WeakReference(activity),
-                                path,
-                                cover,
-                                8,
-                                object : GlideUtils.ResourceWidthAndHeightListener {
-                                    override fun resourceWidthAndHeight(width: Int, height: Int) {
-                                        try {
-                                            val fl = width.toFloat() / height.toFloat()
-                                            val height1 = cover.layoutParams.height
-                                            typeLayout.layoutParams.width =
-                                                (fl * height1).toInt() + ScreenUtils.dpToPx(1)
-                                            typeLayout.layoutParams.height =  typeName.measureView()[1]
-                                            back.layoutParams.height = typeName.measureView()[1]
-                                            back.alpha = 0.85f
-                                        }catch (e:Exception){
-                                            LogUtils.e("BookRankingFragment","error is $e")
+                        activity?.let { fragmentActivity ->
+                            fragmentActivity.runOnUiThread {
+                                GlideUtils.loadCornersTop(
+                                    WeakReference(activity),
+                                    path,
+                                    cover,
+                                    8,
+                                    object : GlideUtils.ResourceWidthAndHeightListener {
+                                        override fun resourceWidthAndHeight(width: Int, height: Int) {
+                                            try {
+                                                val fl = width.toFloat() / height.toFloat()
+                                                val height1 = cover.layoutParams.height
+                                                typeLayout.layoutParams.width =
+                                                    (fl * height1).toInt() + ScreenUtils.dpToPx(1)
+                                                typeLayout.layoutParams.height =  typeName.measureView()[1]
+                                                back.layoutParams.height = typeName.measureView()[1]
+                                                back.alpha = 0.85f
+                                            }catch (e:Exception){
+                                                LogUtils.e("BookRankingFragment","error is $e")
+                                            }
                                         }
-                                    }
-                                })
+                                    })
+                            }
                         }
                     }
                 })

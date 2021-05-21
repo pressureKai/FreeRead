@@ -1,9 +1,13 @@
 package com.kai.ui.search
 
+import android.content.Context
 import android.text.Editable
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
@@ -25,6 +29,7 @@ import com.kai.common.utils.LogUtils
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.SearchHistory
 import com.kai.ui.bookdetail.BookDetailActivity
+import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.activity_search.recycler
 import kotlinx.android.synthetic.main.activity_search.refresh
@@ -66,12 +71,6 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
             }catch (e:Exception){
 
             }
-
-
-//            ARouter.getInstance().build("/app/book").navigation()
-//            postStickyEvent(searchBook,
-//                BookDetailActivity.BOOK_DETAIL,
-//                BookDetailActivity::class.java.name)
         }
         listPageLoader = ListPageLoader(
             recycler,
@@ -209,6 +208,15 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
         } else {
             super.onBackPressed()
         }
+    }
+
+    @NonNull
+    override fun getDelegate(): AppCompatDelegate {
+        return SkinAppCompatDelegateImpl.get(this, this)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
     }
 
 }

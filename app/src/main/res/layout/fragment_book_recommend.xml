@@ -25,10 +25,9 @@
                 app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
 
-
-
                 <LinearLayout
                     android:id="@+id/banner_layout"
+                    android:visibility="gone"
                     android:background="@color/app.draw.content.background"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -86,15 +85,14 @@
         android:layout_height="70dp"
         android:orientation="horizontal">
 
-        <TextView
+
+        <ImageView
+            android:id="@+id/draw"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="2dp"
-            android:text="@string/recommend"
-            android:textColor="@color/app.font.color"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/more_draw"/>
 
 
         <LinearLayout
@@ -119,24 +117,30 @@
                 android:src="@drawable/search" />
 
 
-            <com.kai.view.ClearAbleEditText
-                android:enabled="false"
+            <TextView
                 android:layout_gravity="center_vertical"
-                android:id="@+id/search_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="false"
-                android:focusable="false"
+                android:gravity="center_vertical"
                 android:focusableInTouchMode="false"
                 android:paddingRight="3dp"
                 android:background="@null"
-                android:hint="@string/search_descriptor"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:textColor="@color/app.font.color"
+                android:text="@string/search_descriptor"
+                android:textColor="@color/app.font.second.color"
                 android:textSize="@dimen/sp_14" />
 
         </LinearLayout>
+
+
+        <TextView
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="2dp"
+            android:text="@string/recommend"
+            android:textColor="@color/app.font.color"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

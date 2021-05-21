@@ -49,6 +49,7 @@
         <activity android:name="com.kai.ui.search.SearchActivity" />
         <activity android:name="com.kai.ui.rankingdetail.RankingDetailActivity" />
         <activity android:name="com.kai.ui.bookinfo.BookInfoActivity" />
+        <activity android:name="com.kai.ui.history.HistoryActivity" />
     </application>
 
 </manifest>

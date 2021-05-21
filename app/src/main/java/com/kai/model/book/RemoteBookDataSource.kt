@@ -101,6 +101,8 @@ class RemoteBookDataSource : BookDataSource {
                 }.subscribe { it ->
                     if(it.isNotEmpty()){
                         emitter.onNext(it)
+                    } else {
+                        emitter.onError(NullPointerException())
                     }
                 }
         }.subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())

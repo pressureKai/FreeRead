@@ -322,7 +322,7 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
                 if (activePointerId == INVALID_POINTER) {
                     isBreak = true
                 }
-                if(!isBreak){
+                if (!isBreak) {
                     val pointerIndex = ev.findPointerIndex(activePointerId)
                     if (pointerIndex == -1) {
                         Log.e(
@@ -331,7 +331,7 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
                         )
                         isBreak = true
                     }
-                    if(!isBreak){
+                    if (!isBreak) {
                         val y = ev.getY(pointerIndex).toInt()
                         val yDiff = Math.abs(y - mLastMotionY)
                         if (yDiff > mTouchSlop) {
@@ -411,7 +411,7 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
                     isBreak = true
                 }
 
-                if(!isBreak){
+                if (!isBreak) {
                     val y = ev.getY(activePointerIndex).toInt()
                     var deltaY = mLastMotionY - y
                     if (!mIsBeingDragged && Math.abs(deltaY) > mTouchSlop) {
@@ -428,7 +428,10 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
                         mLastMotionY = y - mScrollOffset[1]
                         val range = scrollRange
                         if (rxScrollDelegate is RxStackScrollDelegateImpl) {
-                            (rxScrollDelegate as RxStackScrollDelegateImpl).scrollViewTo(0, deltaY + (rxScrollDelegate as RxStackScrollDelegateImpl).viewScrollY)
+                            (rxScrollDelegate as RxStackScrollDelegateImpl).scrollViewTo(
+                                0,
+                                deltaY + (rxScrollDelegate as RxStackScrollDelegateImpl).viewScrollY
+                            )
                         } else {
                             if (overScrollBy(
                                     0, deltaY, 0, viewScrollY,
@@ -714,6 +717,10 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
             mObservable.notifyChanged()
         }
 
+        fun notifyPositionChange(position: Int){
+            mObservable.notifyPositionChange(position)
+        }
+
         fun registerObserver(observer: AdapterDataObserver) {
             mObservable.registerObserver(observer)
         }
@@ -738,6 +745,10 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
             for (i in mObservers.indices.reversed()) {
                 mObservers[i]!!.onChanged()
             }
+        }
+
+        fun notifyPositionChange(position: Int){
+            mObservers[position]!!.onChanged()
         }
     }
 
@@ -773,7 +784,7 @@ class RxCardStackView : ViewGroup, RxScrollDelegate {
     }
 
 
-    fun getCurrentSelect():Int{
+    fun getCurrentSelect(): Int {
         return mSelectPosition
     }
 }

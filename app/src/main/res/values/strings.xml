@@ -56,4 +56,7 @@
     <string name="check_detail">查看详情</string>
     <string name="intro">简介</string>
     <string name="add_book_shelf">加书架</string>
+    <string name="like">收藏</string>
+    <string name="read_history">浏览历史</string>
+    <string name="add_you_like">添加你喜欢的小说</string>
 </resources>

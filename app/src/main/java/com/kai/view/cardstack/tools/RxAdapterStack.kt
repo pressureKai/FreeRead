@@ -12,11 +12,16 @@ import java.util.*
 abstract class RxAdapterStack<T>(val context: Context) :
     RxCardStackView.Adapter<RxCardStackView.ViewHolder?>() {
 
-    val layoutInflater: LayoutInflater
+    val layoutInflater: LayoutInflater = LayoutInflater.from(context)
     val mData: MutableList<T>
     fun updateData(data: List<T>?) {
         setData(data)
         notifyDataSetChanged()
+    }
+
+
+    fun updatePositionData(position: Int){
+        notifyPositionChange(position)
     }
 
     fun setData(data: List<T>?) {
@@ -43,7 +48,6 @@ abstract class RxAdapterStack<T>(val context: Context) :
     }
 
     init {
-        layoutInflater = LayoutInflater.from(context)
         mData = ArrayList<T>()
     }
 }

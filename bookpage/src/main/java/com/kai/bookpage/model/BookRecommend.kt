@@ -108,6 +108,8 @@ class BookRecommend {
     var isRead = false
     var isLike = false
     var isRanking = false
+    var userId = 0L
+    var rankingPosition = 0
 
 
     fun checkIsEmpty(): Boolean {

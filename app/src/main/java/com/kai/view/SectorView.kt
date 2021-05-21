@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorInt
 import com.kai.base.R
 
 
@@ -139,8 +140,10 @@ class SectorView : View {
         this.bitmap = bitmap
         postInvalidate()
     }
-    fun setBitmap(bitmap: Drawable) {
-      //  this.bitmap = bitmap
+
+
+     fun changeBackgroundColor(color:Int){
+        mBackgroundColor = color
         postInvalidate()
     }
 }

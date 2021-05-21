@@ -12,14 +12,14 @@ class RankingPresenter : BasePresenter<RankingContract.View>(), RankingContract.
             getView()?.onRanking(it)
         }
     }
-
-
     fun getCover(type: Int, url: String, getCoverListener: GetCoverListener) {
         bookRepository.getRankingFirst(type, url).subscribe {
             if (it.bookUrl.isNotEmpty()) {
                 Crawler.getBookDetail(it.bookUrl).subscribe { recommend ->
                     if (recommend.bookCoverUrl.isNotEmpty()) {
                         recommend.isRanking = true
+                        recommend.rankingPosition = 0
+                        recommend.bookType = type
                         recommend.save()
                         getCoverListener.onCover(recommend.bookCoverUrl)
                     }

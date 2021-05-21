@@ -1,8 +1,13 @@
 package com.kai.ui.bookinfo
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Route
@@ -26,16 +31,21 @@ import com.kai.common.extension.measureView
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import com.kai.ui.bookdetail.BookDetailActivity
+import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_book_info.*
 import kotlinx.android.synthetic.main.activity_book_info.appBar
+import kotlinx.android.synthetic.main.activity_book_info.info_layout
+import kotlinx.android.synthetic.main.activity_main.*
+import skin.support.SkinCompatManager
+import skin.support.widget.SkinCompatSupportable
 import java.lang.Exception
 import kotlin.math.abs
 
 
 @Route(path = "/app/bookinfo")
 class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresenter>(),
-    BookInfoContract.View {
+    BookInfoContract.View, SkinCompatSupportable {
 
     private var bitmapWidth = 0
     private var bitmapHeight = 0
@@ -46,6 +56,17 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         val layoutParams = sector.layoutParams
         layoutParams.height = height
         sector.layoutParams = layoutParams
+        if (SkinCompatManager.getInstance().curSkinName == "night") {
+            sector.post {
+                sector.changeBackgroundColor(R.color.app_background_night)
+            }
+
+        } else {
+            sector.post {
+                sector.changeBackgroundColor(R.color.app_background)
+            }
+
+        }
         bitmapWidth = getScreenWidth()
         bitmapHeight = height
         setMargin(height, 1f)
@@ -83,11 +104,9 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                 if (it.updateLikeState()) {
 
                     if (!it.getCurrentLikeState()) {
-                        add_like_layout.isEnabled = true
                         add_like.text = "收藏"
-
+                        customToast("取消收藏成功")
                     } else {
-                        add_like_layout.isEnabled = false
                         add_like.text = "已收藏"
                         customToast("收藏成功")
                     }
@@ -105,6 +124,18 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                         add_shelf_layout.isEnabled = false
                         add_shelf.text = "已加入"
                         customToast("加入书架成功")
+                    }
+                } else {
+                    it.save()
+                    if(it.updateShelfState()){
+                        if (!it.getCurrentShelfState()) {
+                            add_shelf_layout.isEnabled = true
+                            add_shelf.text = "加书架"
+                        } else {
+                            add_shelf_layout.isEnabled = false
+                            add_shelf.text = "已加入"
+                            customToast("加入书架成功")
+                        }
                     }
                 }
             }
@@ -338,5 +369,19 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         }
     }
 
+
+    @NonNull
+    override fun getDelegate(): AppCompatDelegate {
+        return SkinAppCompatDelegateImpl.get(this, this)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
+    }
+
+    @SuppressLint("ResourceAsColor")
+    override fun applySkin() {
+
+    }
 
 }

@@ -1,6 +1,8 @@
 package com.kai.ui.fragments.recommend
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
@@ -27,7 +29,7 @@ import com.kai.common.extension.getScreenWidth
 import com.kai.common.utils.GlideUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
-import com.kai.crawler.Crawler
+import com.kai.ui.main.MainActivity
 import com.zhpan.bannerview.BannerViewPager
 import com.zhpan.bannerview.adapter.OnPageChangeListenerAdapter
 import com.zhpan.bannerview.constants.PageStyle
@@ -61,7 +63,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mPresenter?.getHomePage()
+
         try {
             toolbar_layout.post {
                 val marginLayoutParams = toolbar_layout.layoutParams as MarginLayoutParams
@@ -76,6 +78,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
 
         activity?.let {
             indexBanner = view?.findViewById(R.id.index_banner)
+            banner_layout.layoutParams.height = it.getScreenHeight() / 4
             appBar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
                 val alpha = if (verticalOffset != 0) {
                     abs(verticalOffset).toFloat() / (appBar.height - toolbar.height).toFloat()
@@ -98,15 +101,15 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
             search_layout.setOnClickListener {
                 ARouter.getInstance().build("/app/search").navigation()
             }
+            draw.setOnClickListener {
+                (activity as MainActivity).openDrawer()
+            }
         }
-
+        mPresenter?.getHomePage()
     }
 
     override fun lazyInit(view: View, savedInstanceState: Bundle?) {
-        if (!loadBannerSuccess) {
-            mPresenter?.banner()
-            mPresenter?.recommend()
-        }
+
     }
 
     override fun initImmersionBar() {
@@ -117,21 +120,16 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
     private fun loadBanner(banners: ArrayList<BookRecommend>) {
         indexBanner?.let {
             if (banners.size > 0) {
-                loadBannerSuccess = true
-                activity?.let { activity ->
-                    banner_layout.layoutParams.height = activity.getScreenHeight() / 4
-                }
+                it.setCanLoop(true)
+                    .setHolderCreator { NetViewHolder() }
+                    .setPageStyle(PageStyle.MULTI_PAGE_OVERLAP)
+                    .create(banners)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    banner_layout.visibility = View.VISIBLE
+                },100)
+            } else {
+                banner_layout.visibility = View.GONE
             }
-            it.setCanLoop(true)
-                .setHolderCreator { NetViewHolder() }
-                .setPageStyle(PageStyle.MULTI_PAGE_OVERLAP)
-                .setOnPageChangeListener(
-                    object : OnPageChangeListenerAdapter() {
-                        override fun onPageSelected(position: Int) {
-                        }
-                    }
-                )
-                .create(banners)
         }
     }
 

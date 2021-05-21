@@ -24,6 +24,8 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
     fun getHomePage() {
         Crawler.getHomeJxDocument().subscribe {
             jxDocument = it
+            banner()
+            recommend()
         }
     }
 

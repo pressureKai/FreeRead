@@ -619,49 +619,52 @@ class Crawler {
 
         fun getConcurrentTypeRankingList(type:Int,url: String): Observable<List<BookRecommend>> {
             return Observable.create<List<BookRecommend>> {
-                val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
-                val recommends = ArrayList<BookRecommend>()
-                val rs: ArrayList<JXNode?> = ArrayList()
-                for (i in 0.until(checkedMap.size())) {
-                    recommends.clear()
-                    val config = SourceManager.CONFIGS.valueAt(i)
-                    val jxDocument =
-                        JXDocument(Jsoup.connect(url).get())
+                try {
+                    val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
+                    val recommends = ArrayList<BookRecommend>()
+                    val rs: ArrayList<JXNode?> = ArrayList()
+                    for (i in 0.until(checkedMap.size())) {
+                        recommends.clear()
+                        val config = SourceManager.CONFIGS.valueAt(i)
+                        val jxDocument =
+                            JXDocument(Jsoup.connect(url).get())
 
-                    config?.let {
+                        config?.let {
 
-                        var listPath = config.type!!.typeRankingPath
-                        if(type == BookRecommend.ALLBOOK_RECOMMEND){
-                            listPath = config.type!!.allTypeRankingPath
-                        }
-                        rs.clear()
-                        val sel = jxDocument.selN(listPath)
-                        rs.addAll(sel)
-                        for (node in rs) {
-                            node?.let {
-                                try {
-                                    val bookRecommend = BookRecommend()
-                                    val bookUrl =
-                                        getNodeStr(node, config.type!!.typeRankingUrlPath!!)!!
-                                    val name =
-                                        getNodeStr(node, config.type!!.typeRankingNamePath!!)!!
-                                    LogUtils.e("Crawler", "name is $name  url is $bookUrl")
+                            var listPath = config.type!!.typeRankingPath
+                            if(type == BookRecommend.ALLBOOK_RECOMMEND){
+                                listPath = config.type!!.allTypeRankingPath
+                            }
+                            rs.clear()
+                            val sel = jxDocument.selN(listPath)
+                            rs.addAll(sel)
+                            for ((index,node) in rs.withIndex()) {
+                                node?.let {
+                                    try {
+                                        val bookRecommend = BookRecommend()
+                                        val bookUrl =
+                                            getNodeStr(node, config.type!!.typeRankingUrlPath!!)!!
+                                        val name =
+                                            getNodeStr(node, config.type!!.typeRankingNamePath!!)!!
+                                        if(bookUrl.isNotEmpty()){
+                                            bookRecommend.bookName = name
+                                            bookRecommend.bookUrl = getHomeUrl() + bookUrl
+                                            bookRecommend.bookType = type
+                                            bookRecommend.rankingPosition = index
+                                            recommends.add(bookRecommend)
+                                        }
 
-                                    if(bookUrl.isNotEmpty()){
-                                        bookRecommend.bookName = name
-                                        bookRecommend.bookUrl = getHomeUrl() + bookUrl
-                                        bookRecommend.bookType = type
-                                        recommends.add(bookRecommend)
+                                    } catch (e: java.lang.Exception) {
+                                        LogUtils.e("Crawler", "load concurrent type error is $e")
                                     }
-
-                                } catch (e: java.lang.Exception) {
-                                    LogUtils.e("Crawler", "load concurrent type error is $e")
                                 }
                             }
                         }
                     }
+                    it.onNext(recommends)
+                }catch (e:Exception){
+                    it.onError(e)
                 }
-                it.onNext(recommends)
 
             }
         }
