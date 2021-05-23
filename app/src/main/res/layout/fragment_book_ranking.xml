@@ -31,9 +31,7 @@
             android:layout_height="30dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="@dimen/dp_10"
-            android:background="@drawable/shape_search"
-            android:focusable="true"
-            android:focusableInTouchMode="true">
+            android:background="@drawable/shape_search">
 
 
             <ImageView
@@ -71,10 +69,16 @@
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
-        android:layout_marginTop="8dp"
+    <com.classic.common.MultipleStatusView
+        android:id="@+id/multiply"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </com.classic.common.MultipleStatusView>
+
 </LinearLayout>

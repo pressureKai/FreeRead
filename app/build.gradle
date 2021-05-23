@@ -36,7 +36,7 @@ android {
 
     signingConfigs {
         config {
-            keyAlias 'kai'
+            keyAlias 'key0'
             keyPassword 'qwedsa135'
             storeFile file("keystore/base.jks")
             storePassword 'qwedsa135'

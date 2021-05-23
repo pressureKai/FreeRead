@@ -21,7 +21,7 @@ class CoolBookBean {
     }
     @PrimaryKey
     @ColumnInfo(name = "bookId")
-    var bookId = 0
+    var bookId = ""
 
     //标题
     @ColumnInfo(name = "title",typeAffinity = ColumnInfo.TEXT)

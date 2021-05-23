@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_splash.*
 
 class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
+    private var isClickSkip = false
     override fun setLayoutId(): Int {
         return R.layout.activity_splash
     }
@@ -22,10 +23,19 @@ class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
             override fun onAnimationEnd(animation: Animator?) {
                 super.onAnimationEnd(animation)
                 super.onAnimationEnd(animation)
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                if(!isClickSkip){
+                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+
             }
         })
+        skip.setOnClickListener {
+            val intent = Intent(this@SplashActivity, MainActivity::class.java)
+            startActivity(intent)
+            isClickSkip = true
+            finish()
+        }
     }
 }

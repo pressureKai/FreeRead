@@ -23,9 +23,11 @@ import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import com.kai.ui.main.MainActivity
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.android.synthetic.main.activity_history.*
 import kotlinx.android.synthetic.main.fragment_book_ranking.*
 import kotlinx.android.synthetic.main.fragment_book_ranking.draw
 import kotlinx.android.synthetic.main.fragment_book_ranking.list
+import kotlinx.android.synthetic.main.fragment_book_ranking.multiply
 import kotlinx.android.synthetic.main.fragment_book_ranking.search_layout
 import kotlinx.android.synthetic.main.fragment_book_ranking.toolbar_layout
 import kotlinx.android.synthetic.main.fragment_book_shelf.*
@@ -43,7 +45,7 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
             return bookRackFragment
         }
     }
-
+    private var loadFirst  = false
     var map: HashMap<Int, String> = HashMap()
     override fun createPresenter(): RankingPresenter? {
         return RankingPresenter()
@@ -61,7 +63,6 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
         val rankingAdapter = RankingAdapter()
         rankingAdapter.setHasStableIds(true)
         list.adapter = rankingAdapter
-        mPresenter?.ranking()
 
         try {
             toolbar_layout.post {
@@ -84,6 +85,11 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
     }
 
     override fun lazyInit(view: View, savedInstanceState: Bundle?) {
+        if(!loadFirst){
+            mPresenter?.ranking()
+            showMul(0)
+        }
+
     }
 
     override fun initImmersionBar() {
@@ -102,7 +108,14 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
         Observable.fromIterable(arrayList).toSortedList{
                 i1,i2 -> i1-i2}
             .subscribe { orderList ->
-                (list.adapter as RankingAdapter).setNewInstance(orderList)
+                if(orderList.size > 0){
+                    showMul(2)
+                    (list.adapter as RankingAdapter).setNewInstance(orderList)
+                } else {
+                    showMul(1)
+                }
+                loadFirst = true
+
         }
 
     }
@@ -172,4 +185,33 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
             return getItem(position).toLong()
         }
     }
+
+    /**
+     * @param state 0:loading 1:empty 2: content
+     */
+    private fun showMul(state:Int) {
+        var layout = R.layout.layout_empty
+        when(state){
+            0->{
+                layout = R.layout.layout_loading
+            }
+            1 ->{
+                layout = R.layout.layout_empty
+            }
+        }
+        if(state != 2){
+            val inflate = View.inflate(activity, layout, null)
+            multiply.showEmpty(inflate, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            ))
+        } else {
+            Handler(Looper.getMainLooper()).postDelayed({
+                multiply.showContent()
+            },300)
+
+        }
+
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.kai.ui.pageLoader
 
-import android.text.TextPaint
 import com.kai.bookpage.model.BookChapterBean
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.bookpage.model.database.BookDatabase
@@ -8,7 +7,6 @@ import com.kai.bookpage.page.PageLoader
 import com.kai.bookpage.page.PageView
 import com.kai.common.utils.LogUtils
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.functions.Consumer
 import java.io.*
 import kotlin.collections.ArrayList
 
@@ -63,11 +61,10 @@ class CrawlerPageLoader(pageView: PageView, coolBookBean: CoolBookBean):PageLoad
                     && chapterList.bookChapterList.isNotEmpty()
                 ){
                     Observable.fromIterable(chapterList.bookChapterList).toSortedList {
-                        o1, o2 -> o1!!.position - o2!!.position }.subscribe(Consumer<List<BookChapterBean>> { orderList ->
+                        o1, o2 -> o1!!.position - o2!!.position }.subscribe { orderList ->
                         setChapterCategory(orderList as ArrayList<BookChapterBean>)
                         isChapterListPrepare = true
-                    })
-
+                    }
                 }
 
             }

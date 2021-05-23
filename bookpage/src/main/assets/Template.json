@@ -34,6 +34,7 @@
       "indexRecommendNamePath": "//dl//dt/a/text()",
       "indexRecommendUrlPath": "//dl//dt/a/@href",
       "indexRecommendDescriptorPath": "//dl//dd/text()",
+      "indexRecommendAuthorPath": "//dl//dt/span/text()",
       "contentNovelRecommendListPath": "//div[@class='novelslist']//div[@class='content']",
       "contentBordNovelRecommendListPath": "//div[@class='novelslist']//div[@class='content border']",
       "contentTypeNamePath": "//h2/text()",

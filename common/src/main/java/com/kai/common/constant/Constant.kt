@@ -2,8 +2,9 @@ package com.kai.common.constant
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
+import android.os.FileUtils
 import com.kai.common.utils.LogUtils
-import java.lang.Exception
+import java.io.File
 
 class Constant {
     companion object{
@@ -26,6 +27,9 @@ class Constant {
             }
             return false
         }
+
+
+
 
     }
 }

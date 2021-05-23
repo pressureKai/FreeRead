@@ -15,16 +15,21 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.LAYER_TYPE_SOFTWARE
 import android.widget.TextView
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Query
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.bookpage.model.BookChapterBean
+import com.kai.bookpage.model.BookChapterListBean
 import com.kai.bookpage.model.CoolBookBean
 import com.kai.bookpage.model.database.BookDatabase
 import com.kai.bookpage.page.PageLoader
@@ -34,10 +39,7 @@ import com.kai.bookpage.page.PageView
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
 import com.kai.common.extension.getScreenWidth
-import com.kai.common.utils.BrightnessUtils
-import com.kai.common.utils.LogUtils
-import com.kai.common.utils.ScreenUtils
-import com.kai.common.utils.SharedPreferenceUtils
+import com.kai.common.utils.*
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.ui.pageLoader.CrawlerPageLoader
 import com.warkiz.widget.IndicatorSeekBar
@@ -45,6 +47,10 @@ import com.warkiz.widget.OnSeekChangeListener
 import com.warkiz.widget.SeekParams
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_book_detail.*
+import kotlinx.android.synthetic.main.activity_book_detail.draw_content
+import kotlinx.android.synthetic.main.activity_book_detail.draw_layout
+import kotlinx.android.synthetic.main.activity_book_detail.shadow_view
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
 import skin.support.SkinCompatManager
 
@@ -53,18 +59,19 @@ import skin.support.SkinCompatManager
 class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPresenter>(),
     BookDetailContract.View {
     private var mPageLoader: PageLoader? = null
-    private var isDrawOpen = false
-    private var isCollected = false
     private var drawLayoutIsOpen = false
     private var mCoolBookBean: CoolBookBean = CoolBookBean()
     private var isRegistered = false
     private val brightnessObserver: ContentObserver = object : ContentObserver(Handler()) {
         override fun onChange(selfChange: Boolean) {
-            this.onChange(selfChange, null)
+            try {
+                this.onChange(selfChange, null)
+            } catch (e: Exception) {
+                LogUtils.e("BookDetailActivity", "changeBrightness is $e")
+            }
         }
 
         override fun onChange(selfChange: Boolean, uri: Uri?) {
-            super.onChange(selfChange, uri)
             var isFollowSystem = false
             SharedPreferenceUtils.getInstance()?.let {
                 isFollowSystem = it.getBoolean(BRIGHTNESS_FOLLOW_SYSTEM, false)
@@ -155,9 +162,13 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             override fun onSeeking(seekParams: SeekParams?) {
                 seekParams?.let {
                     mPageLoader?.let { pageLoader ->
-                        val category = pageLoader.getChapterCategory()
-                        val bookChapterBean = category[it.progress]
-                        current_chapter.text = bookChapterBean.title
+                        try {
+                            val category = pageLoader.getChapterCategory()
+                            val bookChapterBean = category[it.progress]
+                            current_chapter.text = bookChapterBean.title
+                        } catch (e: java.lang.Exception) {
+                            LogUtils.e("BookDetailActivity", "seek change error is $e")
+                        }
                     }
                 }
             }
@@ -169,11 +180,18 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             override fun onStopTrackingTouch(seekBar: IndicatorSeekBar?) {
                 seekBar?.let {
                     mPageLoader?.let { pageLoader ->
-                        val category = pageLoader.getChapterCategory()
-                        val bookChapterBean = category[it.progress]
-                        current_chapter.text = bookChapterBean.title
-
-                        mPresenter?.loadBookContentByChapter(bookChapterBean, true)
+                        try {
+                            val category = pageLoader.getChapterCategory()
+                            val bookChapterBean = category[it.progress]
+                            current_chapter.text = bookChapterBean.title
+                            mPresenter?.loadBookContentByChapter(bookChapterBean, true)
+                        } catch (e: Exception) {
+                            val category = pageLoader.getChapterCategory()
+                            val bookChapterBean = category[it.progress - 1]
+                            current_chapter.text = bookChapterBean.title
+                            mPresenter?.loadBookContentByChapter(bookChapterBean, true)
+                            LogUtils.e("BookDetailActivity", "stop track error is $e")
+                        }
                     }
                 }
             }
@@ -295,8 +313,8 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             mPageLoader?.setPageStyle(pageStyle)
             adapter.notifyDataSetChanged()
         }
-        
-        
+
+
         simulation.setOnClickListener {
             simulation.setBackgroundResource(R.drawable.read_page_mode_selected)
             cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
@@ -328,7 +346,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
             scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
             none.setBackgroundResource(R.drawable.read_page_mode_un_selected)
-            mPageLoader?.setPageMode( PageMode.SLIDE)
+            mPageLoader?.setPageMode(PageMode.SLIDE)
 
         }
         none.setOnClickListener {
@@ -337,7 +355,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
             slide.setBackgroundResource(R.drawable.read_page_mode_un_selected)
             scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
-            mPageLoader?.setPageMode( PageMode.NONE)
+            mPageLoader?.setPageMode(PageMode.NONE)
         }
         initMenuList()
     }
@@ -396,16 +414,37 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                 LogUtils.e("BookDetailActivity", "save coolBook is $e")
             }
 
-            for (value in chapters) {
+
+            var needAddChapter = false
+            if (chapters.isNotEmpty()) {
                 try {
-                    BookDatabase.get().bookDao().insertBookChapter(value)
+                    val chapterList =
+                        BookDatabase.get().bookDao().getChapterList(chapters.first().bookId)
+                    needAddChapter = chapterList.bookChapterList.size != chapters.size
                 } catch (e: Exception) {
-                    LogUtils.e("BookDetailActivity", "save chapter error is $e")
+                    LogUtils.e("BookDetailActivity", "check is same big error is $e")
                 }
             }
+            if (needAddChapter) {
+                for (value in chapters) {
+                    try {
+                        BookDatabase.get().bookDao().insertBookChapter(value)
+                    } catch (e: Exception) {
+
+                    }
+                }
+            }
+
             mPageLoader?.refreshChapterList()
-            mPresenter?.loadBookContentByChapter(chapters.first(), true)
-            chapter_progress.min = 0f
+            var position = 0
+            mPageLoader?.let {
+                position = it.mCurrentChapterPosition
+            }
+            LogUtils.e("BookDetailActivity", "current position is $position")
+            mPresenter?.loadBookContentByChapter(
+                chapters[position], true
+            )
+            chapter_progress.min = position.toFloat()
             chapter_progress.max = chapters.size.toFloat()
         }
     }
@@ -427,13 +466,13 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         super.onMessageReceiver(baseEntity)
         if (baseEntity.code == BOOK_DETAIL) {
             val searchBook = baseEntity.data as SearchBook
-
             val source = searchBook.sources
             if (source.size > 0) {
                 mPresenter?.loadBookChapter(
                     source = source.first(),
-                    (source.first().link + searchBook.title).hashCode()
+                    source.first().link
                 )
+                mCoolBookBean.bookId = source.first().link
                 mCoolBookBean.author = searchBook.author
                 mCoolBookBean.isUpdate = true
                 mCoolBookBean.shortIntro = searchBook.descriptor
@@ -586,6 +625,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
     override fun onBackPressed() {
         if (!drawLayoutIsOpen) {
             draw_layout.openDrawer(Gravity.LEFT)
+            customToast(resources.getString(R.string.quit_read_page))
         } else {
             finish()
         }
@@ -597,9 +637,19 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             val chapterName = holder.getView<TextView>(R.id.chapter_name)
             val bookChapterById = BookDatabase.get().bookDao().getBookChapterById(item.id)
             if (bookChapterById.content.isEmpty()) {
-                chapterName.setTextColor(context.resources.getColor(R.color.app_book_color))
+                if (SkinCompatManager.getInstance().curSkinName == "night") {
+                    chapterName.setTextColor(context.resources.getColor(R.color.app_font_color_night))
+                } else {
+                    chapterName.setTextColor(context.resources.getColor(R.color.app_book_color))
+                }
+
             } else {
-                chapterName.setTextColor(context.resources.getColor(R.color.app_font_color))
+                if (SkinCompatManager.getInstance().curSkinName == "night") {
+                    chapterName.setTextColor(context.resources.getColor(R.color.app_book_color_night))
+                } else {
+                    chapterName.setTextColor(context.resources.getColor(R.color.app_font_color))
+                }
+
             }
             chapterName.text = item.title
         }
@@ -639,10 +689,6 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         }
     }
 
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
-    }
-
 
     private fun registerBrightnessObserver() {
         try {
@@ -668,23 +714,21 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                 }
             }
         } catch (e: java.lang.Exception) {
-
+            LogUtils.e("BookDetailActivity", "registerBrightnessObserver error is $e")
         }
     }
 
 
     private fun unRegisterBrightnessObserver() {
-
         try {
             if (brightnessObserver != null) {
                 if (isRegistered) {
                     contentResolver.unregisterContentObserver(brightnessObserver)
                     isRegistered = false
                 }
-
             }
         } catch (e: java.lang.Exception) {
-
+            LogUtils.e("BookDetailActivity", "book detail error is $e")
         }
     }
 
@@ -695,14 +739,28 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
     }
 
 
-    inner class BackgroundListAdapter: BaseQuickAdapter<PageStyle, BaseViewHolder>(R.layout.item_book_background){
+    override fun onResume() {
+        super.onResume()
+        mPageLoader?.let {
+            val pageStyle = it.getSettingManager()?.getPageStyle()
+            pageStyle?.let { style ->
+                Handler(Looper.getMainLooper()).postDelayed({
+                    it.setPageStyle(style)
+                }, 100)
+            }
+        }
+
+    }
+
+    inner class BackgroundListAdapter :
+        BaseQuickAdapter<PageStyle, BaseViewHolder>(R.layout.item_book_background) {
         override fun convert(holder: BaseViewHolder, item: PageStyle) {
             val view = holder.getView<CardView>(R.id.back)
             val root = holder.getView<ConstraintLayout>(R.id.root)
             mPageLoader?.let {
                 val pageStyle = it.getSettingManager()?.getPageStyle()
                 pageStyle?.let { style ->
-                    if(style.bgColor == item.bgColor){
+                    if (style.bgColor == item.bgColor) {
                         root.setBackgroundResource(R.drawable.read_setting_background_selected)
                     } else {
                         root.setBackgroundDrawable(null)
@@ -711,5 +769,19 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             }
             view.setCardBackgroundColor(context.resources.getColor(item.bgColor))
         }
+    }
+
+    @NonNull
+    override fun getDelegate(): AppCompatDelegate {
+        return SkinAppCompatDelegateImpl.get(this, this)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mPageLoader?.saveRecord()
     }
 }

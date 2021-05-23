@@ -102,7 +102,6 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         add_like_layout.setOnClickListener {
             mRecommend?.let {
                 if (it.updateLikeState()) {
-
                     if (!it.getCurrentLikeState()) {
                         add_like.text = "收藏"
                         customToast("取消收藏成功")
@@ -110,7 +109,17 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                         add_like.text = "已收藏"
                         customToast("收藏成功")
                     }
-
+                } else{
+                    it.save()
+                    if (it.updateLikeState()) {
+                        if (!it.getCurrentLikeState()) {
+                            add_like.text = "收藏"
+                            customToast("取消收藏成功")
+                        } else {
+                            add_like.text = "已收藏"
+                            customToast("收藏成功")
+                        }
+                    }
                 }
             }
         }

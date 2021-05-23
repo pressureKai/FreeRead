@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
@@ -34,15 +35,20 @@ import com.zhpan.bannerview.BannerViewPager
 import com.zhpan.bannerview.adapter.OnPageChangeListenerAdapter
 import com.zhpan.bannerview.constants.PageStyle
 import com.zhpan.bannerview.holder.ViewHolder
+import kotlinx.android.synthetic.main.fragment_book_ranking.*
 import kotlinx.android.synthetic.main.fragment_book_recommend.*
+import kotlinx.android.synthetic.main.fragment_book_recommend.draw
+import kotlinx.android.synthetic.main.fragment_book_recommend.list
+import kotlinx.android.synthetic.main.fragment_book_recommend.multiply
+import kotlinx.android.synthetic.main.fragment_book_recommend.search_layout
+import kotlinx.android.synthetic.main.fragment_book_recommend.toolbar_layout
 import kotlin.math.abs
 import kotlin.math.ceil
 
 class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendPresenter>(),
     RecommendContract.View {
     private var indexBanner: BannerViewPager<BookRecommend, NetViewHolder>? = null
-    private var loadBannerSuccess = false
-
+    private var loadFirst = false
     companion object {
         fun newInstance(): BookRecommendFragment {
             val bookRackFragment =
@@ -105,10 +111,14 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                 (activity as MainActivity).openDrawer()
             }
         }
-        mPresenter?.getHomePage()
+
     }
 
     override fun lazyInit(view: View, savedInstanceState: Bundle?) {
+        if(!loadFirst){
+            mPresenter?.getHomePage()
+            showMul(0)
+        }
 
     }
 
@@ -340,7 +350,38 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
     }
 
     override fun onRecommend(arrayList: ArrayList<ArrayList<BookRecommend>>) {
+        showMul(2)
+        loadFirst = true
         (list.adapter as RecommendListAdapter).setNewInstance(arrayList)
         (list.adapter as RecommendListAdapter).notifyDataSetChanged()
+    }
+
+
+    /**
+     * @param state 0:loading 1:empty 2: content
+     */
+    private fun showMul(state:Int) {
+        var layout = R.layout.layout_empty
+        when(state){
+            0->{
+                layout = R.layout.layout_loading
+            }
+            1 ->{
+                layout = R.layout.layout_empty
+            }
+        }
+        if(state != 2){
+            val inflate = View.inflate(activity, layout, null)
+            multiply.showEmpty(inflate, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            ))
+        } else {
+            Handler(Looper.getMainLooper()).postDelayed({
+                multiply.showContent()
+            },200)
+
+        }
+
     }
 }

@@ -135,7 +135,6 @@ class BookRecommend {
 
 
     fun toSearchBook(): SearchBook {
-        LogUtils.e("BookRecommend", "start change")
         val searchBook = SearchBook()
         try {
             searchBook.author = authorName

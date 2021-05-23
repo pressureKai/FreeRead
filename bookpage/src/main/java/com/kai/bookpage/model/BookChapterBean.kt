@@ -29,7 +29,7 @@ class BookChapterBean {
     //是否可读
     var unReadable = false
     //书籍所属id
-    var bookId = 0
+    var bookId = ""
     //此章节在本地书籍文件中的起始位置
     var start = 0L
     //此章节在本地书籍文件中的结束位置

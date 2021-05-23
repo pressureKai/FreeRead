@@ -54,10 +54,9 @@ class JXDocument {
 
     @Throws(XpathSyntaxErrorException::class)
     fun selN(xpath: String?): List<JXNode?> {
-        LogUtils.e("Crawler"," xpath is : " + xpath!!)
 
         return try {
-            xpathEva!!.xpathParser(xpath, elements)
+            xpathEva!!.xpathParser(xpath!!, elements)
         } catch (e: Exception) {
             LogUtils.e("Crawler","selN error is $e")
             var msg: String? = "please check the xpath syntax"

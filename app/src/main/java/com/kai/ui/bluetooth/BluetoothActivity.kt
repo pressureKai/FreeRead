@@ -25,6 +25,8 @@ import com.kai.util.FileHelper
 import com.kai.util.FileHelper.Companion.copy
 import com.kai.util.PermissionHelper
 import kotlinx.android.synthetic.main.activity_bluetooth.*
+import kotlinx.android.synthetic.main.activity_bluetooth.back
+import kotlinx.android.synthetic.main.activity_bluetooth.toolbar
 import java.util.logging.Handler
 import kotlin.math.abs
 
@@ -43,10 +45,8 @@ class BluetoothActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
             } else {
                 0f
             }
-
             back_layout.alpha = alpha
             toolbar.alpha = alpha
-
         })
         back.setOnClickListener {
             finish()
@@ -76,16 +76,6 @@ class BluetoothActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
         }
 
 
-//        PermissionHelper.instance.requestPermission(
-//            this@BluetoothActivity,
-//            PermissionHelper.locationPermissions,
-//            onCancelListener = {
-//                customToast("权限不足")
-//            }, onConfirmListener = {
-//
-//            })
-
-
         bluetoothUtils = BlueToothUtils(this)
         bluetoothUtils?.connectListener = object : BlueToothUtils.ConnectListener {
             override fun connectDeviceChange() {
@@ -96,6 +86,7 @@ class BluetoothActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
         }
         refreshData()
 
+        toolbar_title.text = resources.getString(R.string.bluetooth_transmission)
     }
 
     private fun refreshData() {
@@ -116,7 +107,7 @@ class BluetoothActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
                         bluetoothDevices.clear()
                         loading_state.text = "正在扫描"
                         loading_lottie.visibility = View.VISIBLE
-                        bluetoothUtils!!.discoveringDevices(3000 * 60,
+                        bluetoothUtils!!.discoveringDevices(3000 * 4,
                             object : BlueToothUtils.DiscoveringDevicesListener {
                                 override fun getDiscoveredDevice(device: BluetoothDevice?) {
                                     device?.let {

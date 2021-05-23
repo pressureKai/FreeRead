@@ -259,6 +259,7 @@
 
 
                         <include
+                            android:visibility="gone"
                             android:id="@+id/source"
                             layout="@layout/merge_draw_layout"/>
 

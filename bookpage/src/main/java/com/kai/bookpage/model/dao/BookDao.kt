@@ -33,7 +33,7 @@ interface BookDao {
     fun deleteBookRecord(bookRecordBean: BookRecordBean)
 
     @Query("SELECT * FROM bookRecord WHERE bookId = :bookId")
-    fun getBookRecord(bookId: Int): List<BookRecordBean>
+    fun getBookRecord(bookId: String): BookRecordBean
 
 
     @Insert
@@ -52,7 +52,7 @@ interface BookDao {
 
 
     @Query("SELECT * FROM coolBook WHERE bookId = :bookId")
-    fun getChapterList(bookId: Int): BookChapterListBean
+    fun getChapterList(bookId: String): BookChapterListBean
 
     @Query("SELECT * FROM bookRecommend WHERE bookType = :bookType")
     fun getBookRecommendByType(bookType:Int):List<BookRecommend>

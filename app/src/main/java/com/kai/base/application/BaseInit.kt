@@ -9,6 +9,7 @@ import com.kai.common.utils.LogUtils
 import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.ui.fonts.FontsActivity
 import com.tencent.bugly.Bugly
+import com.tencent.bugly.beta.Beta
 import com.tencent.bugly.crashreport.CrashReport.UserStrategy
 import io.github.inflationx.calligraphy3.CalligraphyConfig
 import io.github.inflationx.calligraphy3.CalligraphyInterceptor
@@ -51,6 +52,7 @@ class BaseInit : BaseAppInit {
             strategy.appPackageName = "com.kai.base"
             strategy.deviceID = Random().nextInt(100000).toString()
             Bugly.setUserId(application, Random().nextInt(100000).toString())
+            Beta.autoCheckUpgrade = false
             Bugly.init(application, Constant.buglyId, Constant.isDebug, strategy)
         } catch (e: java.lang.Exception) {
             LogUtils.e("BaseInit", "init bugly error $e")

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/root"
+    android:background="@color/app_background"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
@@ -34,6 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
+                android:textColor="@color/app.font.color"
                 android:hint="@string/account_describer" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -53,6 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/password_describer"
+                android:textColor="@color/app.font.color"
                 android:inputType="textPassword"
                 android:maxLength="6" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -75,6 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/repeat_password_describer"
+                android:textColor="@color/app.font.color"
                 android:inputType="textPassword"
                 android:maxLength="6" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -95,6 +99,7 @@
                 android:id="@+id/security_question"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/app.font.color"
                 android:hint="@string/security_question_describer" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -115,6 +120,7 @@
                 android:id="@+id/security_question_answer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/app.font.color"
                 android:hint="@string/security_question_answer_describer" />
         </com.google.android.material.textfield.TextInputLayout>
 

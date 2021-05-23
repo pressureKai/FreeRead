@@ -59,4 +59,9 @@
     <string name="like">收藏</string>
     <string name="read_history">浏览历史</string>
     <string name="add_you_like">添加你喜欢的小说</string>
+    <string name="skip">跳过</string>
+    <string name="quit">再按一次退出APP</string>
+    <string name="quit_read_page">再按一次退出阅读页面</string>
+    <string name="wifi_transmission">wifi传书</string>
+    <string name="bluetooth_transmission">蓝牙传书</string>
 </resources>

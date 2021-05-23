@@ -26,7 +26,7 @@ class BookDetailContract {
          * @param [source] 书源用于Crawler查找章节列表
          * @param [id] 用于生成书籍展示实体类 - BookChapterBean 指定唯一Id
          */
-        fun loadBookChapter(source: SearchBook.SL,id: Int)
+        fun loadBookChapter(source: SearchBook.SL,id: String)
 
 
         fun loadBookContentByChapter(bookChapterBean: BookChapterBean,isOpen: Boolean)

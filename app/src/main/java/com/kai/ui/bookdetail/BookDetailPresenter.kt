@@ -25,7 +25,7 @@ class BookDetailPresenter : BasePresenter<BookDetailContract.View>(), BookDetail
 
     }
 
-    override fun loadBookChapter(source: SL, id: Int) {
+    override fun loadBookChapter(source: SL, id: String) {
         Crawler.catalog(source).subscribe { chapters ->
             val arrayList = ArrayList<BookChapterBean>()
             arrayList.clear()
@@ -49,6 +49,7 @@ class BookDetailPresenter : BasePresenter<BookDetailContract.View>(), BookDetail
     }
 
     override fun loadBookContentByChapter(bookChapterBean: BookChapterBean,isOpen: Boolean) {
+        LogUtils.e("BookDetailActivity","loadBookChapter isOpen $isOpen")
         val beforeChapter = BookDatabase.get().bookDao().getBookChapterById(bookChapterBean.id)
         if(beforeChapter.content.isEmpty()){
             val source =

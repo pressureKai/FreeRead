@@ -39,6 +39,7 @@ import com.kai.ui.fragments.ranking.BookRankingFragment
 import com.kai.ui.fragments.recommend.BookRecommendFragment
 import com.kai.ui.fragments.shelf.BookShelfFragment
 import com.kai.ui.history.HistoryActivity
+import com.tencent.bugly.beta.Beta
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
@@ -51,7 +52,7 @@ import skin.support.widget.SkinCompatSupportable
  *@date  2021/4/13
  */
 class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainContract.View,
-        RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
+    RefreshDataListener, ChargeLoadMoreListener, SkinCompatSupportable {
     companion object {
         const val CODE_FROM_FONTS = 0x11
         const val IS_DAY = "is_day"
@@ -61,7 +62,8 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     private var drawLayoutIsOpen = false
     private var isDay = true
     private var currentUser: User? = null
-
+    private var currentBackTime = 0L
+    private var currentIndex = 0
     private var fragments: SparseArray<Fragment>? = null
     private var icons: SparseArray<ImageView>? = null
     private var textViews: SparseArray<TextView>? = null
@@ -71,6 +73,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
 
     private fun onPageChange(position: Int) {
+        currentIndex = position
         textViews?.let {
             for (value in 0.until(it.size())) {
                 if (value == position) {
@@ -80,22 +83,22 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 }
             }
 
-            when(position){
-                0->{
+            when (position) {
+                0 -> {
                     icons?.let { array ->
                         array[0].setImageResource(R.drawable.book_shelf_select)
                         array[1].setImageResource(R.drawable.book_recommend)
                         array[2].setImageResource(R.drawable.book_ranking)
                     }
                 }
-                1->{
+                1 -> {
                     icons?.let { array ->
                         array[0].setImageResource(R.drawable.book_shelf)
                         array[1].setImageResource(R.drawable.book_recommend_select)
                         array[2].setImageResource(R.drawable.book_ranking)
                     }
                 }
-                2->{
+                2 -> {
                     icons?.let { array ->
                         array[0].setImageResource(R.drawable.book_shelf)
                         array[1].setImageResource(R.drawable.book_recommend)
@@ -109,14 +112,17 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     }
 
     private fun initFragment() {
-
-        view_pager.addOnPageChangeListener(object :ViewPager.OnPageChangeListener{
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+        view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
 
             }
 
             override fun onPageSelected(position: Int) {
-               onPageChange(position)
+                onPageChange(position)
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -230,9 +236,9 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         val aboutIcon = about.findViewById<ImageView>(R.id.icon)
         val aboutName = about.findViewById<TextView>(R.id.name)
         aboutIcon.setImageResource(R.drawable.about)
-        aboutName.text = "关于"
+        aboutName.text = "检查更新"
         about.setOnClickListener {
-
+            Beta.checkUpgrade()
         }
 
 
@@ -254,18 +260,15 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         dayNightModelSwitchView.setOnClickListener {
             SharedPreferenceUtils.getInstance()?.let {
 
-
                 it.putBoolean(IS_DAY, !isDay)
                 isDay = it.getBoolean(IS_DAY, true)
                 dayNightModelSwitchView.isChecked = !isDay
-
-
                 if (isDay) {
                     SkinCompatManager.getInstance().restoreDefaultTheme()
                 } else {
                     SkinCompatManager.getInstance().loadSkin(
-                            "night",
-                            SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN
+                        "night",
+                        SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN
                     )
                 }
 
@@ -287,7 +290,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         wifiIcon.setImageResource(R.drawable.wifi)
         wifiName.text = "Wi-Fi传书"
         wifi.setOnClickListener {
-
+            ARouter.getInstance().build("/app/wifi").navigation()
         }
 
 
@@ -306,9 +309,9 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         fontName.text = "全局字体"
         font.setOnClickListener {
             ARouter
-                    .getInstance()
-                    .build("/app/fonts")
-                    .navigation()
+                .getInstance()
+                .build("/app/fonts")
+                .navigation()
         }
 
 
@@ -319,15 +322,15 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         un_register.setOnClickListener {
             currentUser?.let {
                 postStickyEvent(
-                        it.account,
-                        ForgetPasswordActivity.FORGET_PASSWORD_CODE,
-                        ForgetPasswordActivity::class.java.name
+                    it.account,
+                    ForgetPasswordActivity.FORGET_PASSWORD_CODE,
+                    ForgetPasswordActivity::class.java.name
                 )
                 ARouter
-                        .getInstance()
-                        .build("/app/forgetPassword")
-                        .withBoolean("unRegister", true)
-                        .navigation()
+                    .getInstance()
+                    .build("/app/forgetPassword")
+                    .withBoolean("unRegister", true)
+                    .navigation()
             }
             if (currentUser == null) {
                 customToast("请登录")
@@ -338,7 +341,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         val quitAppIcon = quit_app.findViewById<ImageView>(R.id.icon)
         val quitAppName = quit_app.findViewById<TextView>(R.id.name)
         quitAppIcon.setImageResource(R.drawable.quit)
-        quitAppName.text = "退出应用"
+        quitAppName.text = "退出登陆"
         quit_app.setOnClickListener {
             finish()
         }
@@ -361,7 +364,6 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         }
 
 
-
         val readHistoryIcon = read_history.findViewById<ImageView>(R.id.icon)
         val readHistoryName = read_history.findViewById<TextView>(R.id.name)
         readHistoryIcon.setImageResource(R.drawable.history)
@@ -370,7 +372,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             ARouter
                 .getInstance()
                 .build("/app/history")
-                .withInt("type",HistoryActivity.READ)
+                .withInt("type", HistoryActivity.READ)
                 .navigation()
         }
 
@@ -383,7 +385,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             ARouter
                 .getInstance()
                 .build("/app/history")
-                .withInt("type",HistoryActivity.LIKE)
+                .withInt("type", HistoryActivity.LIKE)
                 .navigation()
         }
 
@@ -426,15 +428,20 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
 
 
     override fun onBackPressed() {
-        if (!drawLayoutIsOpen) {
-            draw_layout.openDrawer(Gravity.LEFT)
-        } else {
-            draw_layout.closeDrawer(Gravity.LEFT)
+        if(currentBackTime == 0L){
+            currentBackTime = System.currentTimeMillis()
+            customToast(resources.getString(R.string.quit))
+        }else{
+            if(System.currentTimeMillis() - currentBackTime < 1000){
+                finish()
+            }else{
+                currentBackTime = 0L
+            }
         }
 
     }
 
-    fun openDrawer(){
+    fun openDrawer() {
         draw_layout.openDrawer(Gravity.LEFT)
     }
 
@@ -443,11 +450,11 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
      */
     override fun onRefresh() {
         Crawler.search("深空彼岸")
-                .doOnError {
-                    listPageLoader.loadData(responseState = ListPageLoader.DATA_STATE_ERROR)
-                }.subscribe {
-                    listPageLoader.loadData(it)
-                }
+            .doOnError {
+                listPageLoader.loadData(responseState = ListPageLoader.DATA_STATE_ERROR)
+            }.subscribe {
+                listPageLoader.loadData(it)
+            }
     }
 
 
@@ -521,15 +528,13 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
     override fun onResume() {
         super.onResume()
         mPresenter?.getLoginCurrentUser()
+        onPageChange(currentIndex)
     }
 
 
-
-
     inner class TabAdapter(fm: FragmentManager) :
-            FragmentStatePagerAdapter(fm) {
+        FragmentStatePagerAdapter(fm) {
         override fun getItem(position: Int): Fragment {
-
             return fragments!!.get(position)
         }
 
@@ -537,6 +542,4 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             return fragments!!.size()
         }
     }
-
-
 }

@@ -17,11 +17,13 @@ import com.kai.base.fragment.BaseMvpFragment
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
+import com.kai.ui.bookdetail.BookDetailActivity
 import com.kai.ui.main.MainActivity
 import kotlinx.android.synthetic.main.fragment_book_shelf.*
 
-class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),ShelfContract.View{
-    companion object{
+class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
+    ShelfContract.View {
+    companion object {
         fun newInstance(): BookShelfFragment {
             val bookRackFragment =
                 BookShelfFragment()
@@ -30,6 +32,7 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
             return bookRackFragment
         }
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,16 +56,17 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
         }
         val bookAdapter = BookAdapter()
         bookAdapter.setOnItemClickListener { baseQuickAdapter, view, i ->
-            if(baseQuickAdapter.data.size - 1 == i){
+            if (baseQuickAdapter.data.size - 1 == i) {
                 ARouter.getInstance().build("/app/search").navigation()
             } else {
                 val bookRecommend = baseQuickAdapter.data[i] as BookRecommend
                 val searchBook = bookRecommend.toSearchBook()
-                val url = searchBook.sources.first().link
-                ARouter.getInstance()
-                    .build("/app/bookinfo")
-                    .withString("url", url)
-                    .navigation()
+                ARouter.getInstance().build("/app/book").navigation()
+                (activity as MainActivity).postStickyEvent(
+                    searchBook,
+                    BookDetailActivity.BOOK_DETAIL,
+                    BookDetailActivity::class.java.name
+                )
             }
         }
         activity?.let {
@@ -76,8 +80,9 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
 
 
     }
+
     override fun createPresenter(): ShelfPresenter? {
-       return ShelfPresenter()
+        return ShelfPresenter()
     }
 
     override fun setLayoutId(): Int {
@@ -85,6 +90,12 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
     }
 
     override fun lazyInit(view: View, savedInstanceState: Bundle?) {
+        mPresenter?.shelf()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mPresenter?.shelf()
     }
 
     override fun initImmersionBar() {
@@ -92,7 +103,8 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
     }
 
 
-    inner class BookAdapter:BaseQuickAdapter<BookRecommend,BaseViewHolder>(R.layout.item_recyclerview_shelf){
+    inner class BookAdapter :
+        BaseQuickAdapter<BookRecommend, BaseViewHolder>(R.layout.item_recyclerview_shelf) {
         override fun convert(holder: BaseViewHolder, item: BookRecommend) {
             try {
                 val contentLayout = holder.getView<LinearLayout>(R.id.content_layout)
@@ -102,7 +114,7 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
                 val addLayout = holder.getView<ConstraintLayout>(R.id.add_layout)
 
 
-                if((getItemPosition(item) == data.size - 1)){
+                if ((getItemPosition(item) == data.size - 1)) {
                     addLayout.visibility = View.VISIBLE
                     contentLayout.visibility = View.INVISIBLE
                 } else {
@@ -112,10 +124,9 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
                     bookName.text = item.bookName
                     bookAuthor.text = item.authorName
                 }
-            }catch (e:java.lang.Exception){
-                LogUtils.e("BookShelfFragment","error is $e")
+            } catch (e: java.lang.Exception) {
+                LogUtils.e("BookShelfFragment", "error is $e")
             }
-
 
 
         }
@@ -124,8 +135,8 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
             var id = position.toLong()
             try {
                 val item = getItem(position)
-                id =  item.bookUrl.hashCode().toLong()
-            }catch (e:java.lang.Exception){
+                id = item.bookUrl.hashCode().toLong()
+            } catch (e: java.lang.Exception) {
 
             }
             return id
@@ -135,9 +146,9 @@ class BookShelfFragment:BaseMvpFragment<ShelfContract.View,ShelfPresenter>(),She
     }
 
     override fun onShelf(recommends: ArrayList<BookRecommend>) {
-            recommends.add(BookRecommend())
-            (list.adapter as BookAdapter).setNewInstance(recommends)
-            (list.adapter as BookAdapter).notifyDataSetChanged()
-        }
+        recommends.add(BookRecommend())
+        (list.adapter as BookAdapter).setNewInstance(recommends)
+        (list.adapter as BookAdapter).notifyDataSetChanged()
+    }
 
 }

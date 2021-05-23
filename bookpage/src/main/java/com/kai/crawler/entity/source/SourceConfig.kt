@@ -83,6 +83,7 @@ class SourceConfig(var id: Int) {
         var indexRecommendNamePath: String? = null
         var indexRecommendUrlPath: String? = null
         var indexRecommendDescriptorPath: String? = null
+        var indexRecommendAuthorPath: String? = null
 
         var contentNovelRecommendListPath: String? = null
         var contentBordNovelRecommendListPath: String? = null

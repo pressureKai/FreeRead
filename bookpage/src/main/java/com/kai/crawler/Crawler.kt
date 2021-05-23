@@ -367,17 +367,14 @@ class Crawler {
                             val bookRecommend = BookRecommend()
                             val name = getNodeStr(value!!, config.home!!.indexRecommendNamePath!!)
                             name?.let {
-                                LogUtils.e(TAG, "BE ADD NAME IS $it")
                                 bookRecommend.bookName = name
                             }
                             val cover = getNodeStr(value!!, config.home!!.indexRecommendCoverPath!!)
                             cover?.let {
-                                LogUtils.e(TAG, "BE ADD COVER IS $it")
                                 bookRecommend.bookCoverUrl = it
                             }
                             val url = getNodeStr(value!!, config.home!!.indexRecommendUrlPath!!)
                             url?.let {
-                                LogUtils.e(TAG, "BE ADD URL IS $it")
                                 if(it.contains("http")){
                                     bookRecommend.bookUrl = it
                                 } else {
@@ -387,10 +384,13 @@ class Crawler {
                             val descriptor =
                                 getNodeStr(value!!, config.home!!.indexRecommendDescriptorPath!!)
                             descriptor?.let {
-                                LogUtils.e(TAG, "BE ADD DESCRIPTOR IS $it")
                                 bookRecommend.bookDescriptor = it
                             }
 
+                            val authorName = getNodeStr(value,config.home!!.indexRecommendAuthorPath!!)
+                            authorName?.let {
+                                bookRecommend.authorName = it
+                            }
                             bookRecommend.bookType = BookRecommend.INDEX_RECOMMEND
                             recommend.add(bookRecommend)
                         }
@@ -680,9 +680,6 @@ class Crawler {
                         val config = SourceManager.CONFIGS.valueAt(i)
                         val jxDocument =
                             JXDocument(Jsoup.connect(url).get())
-
-                        LogUtils.e("Crawler","connect jxDocument success $jxDocument")
-
                         config?.let { sourceConfig ->
                             sourceConfig.content?.let { content ->
 
@@ -730,7 +727,6 @@ class Crawler {
                     val checkedMap: SparseBooleanArray = SourceManager.getSourceEnableSparseArray()
                     for (i in 0.until(checkedMap.size())) {
                         val config = SourceManager.CONFIGS.valueAt(i)
-                        LogUtils.e("Crawler", "getBookDetail connect to url $url")
                         val jxDocument =
                             JXDocument(Jsoup.connect(url).get())
 
@@ -758,11 +754,6 @@ class Crawler {
 
 
 
-                                LogUtils.e("Crawler", "cover is $cover")
-                                LogUtils.e("Crawler", "bookName is $bookName")
-                                LogUtils.e("Crawler", "descriptor is $descriptor")
-
-
                                 try {
                                     val author = selN.first()
                                     author?.let {
@@ -770,7 +761,6 @@ class Crawler {
                                         authorName?.let {
                                             bookRecommend.authorName = authorName
                                         }
-                                        LogUtils.e("Crawler", "author name is $authorName")
                                     }
                                 } catch (e: Exception) {
                                     LogUtils.e("Crawler", "get author name error is $e")
@@ -783,7 +773,6 @@ class Crawler {
                                     val updateTime = selN[2]
                                     updateTime?.let {
                                         val s = getNodeStr(updateTime, "/text()")
-                                        LogUtils.e("Crawler", "update time is $s")
                                         if(!s.isNullOrEmpty()){
                                             bookRecommend.updateTime = s
                                         }
@@ -799,13 +788,11 @@ class Crawler {
                                     val newChapter = selN[3]
                                     newChapter?.let {
                                         val s = getNodeStr(newChapter, "//p//a/text()")
-                                        LogUtils.e("Crawler", "new chapter is $s")
                                         if(!s.isNullOrEmpty()){
                                             bookRecommend.newChapterName = s
                                         }
                                         val chapterUrl =
                                             getNodeStr(newChapter, content!!.newChapterUrl!!)
-                                        LogUtils.e("Crawler", "new chapter url is $chapterUrl")
 
                                         if(!chapterUrl.isNullOrEmpty()){
                                             bookRecommend.newChapterUrl = getHomeUrl() + chapterUrl
