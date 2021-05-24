@@ -44,6 +44,10 @@ class BookRecommend {
         //其他
         const val ORTHER_RECOMMEND = 9
 
+
+        //本地
+        const val LOCAL_RECOMMEND = 10
+
         val types = arrayListOf(
             FANTASY_RECOMMEND,
             COMPREHENSION_RECOMMEND,

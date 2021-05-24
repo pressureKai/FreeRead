@@ -31,6 +31,7 @@ import com.kai.common.extension.measureView
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import com.kai.ui.bookdetail.BookDetailActivity
+import com.kai.util.DialogHelper
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_book_info.*
@@ -46,7 +47,6 @@ import kotlin.math.abs
 @Route(path = "/app/bookinfo")
 class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresenter>(),
     BookInfoContract.View, SkinCompatSupportable {
-
     private var bitmapWidth = 0
     private var bitmapHeight = 0
     private var mRecommend: BookRecommend? = null
@@ -65,7 +65,6 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
             sector.post {
                 sector.changeBackgroundColor(R.color.app_background)
             }
-
         }
         bitmapWidth = getScreenWidth()
         bitmapHeight = height
@@ -88,6 +87,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
             if (it.isNotEmpty()) {
                 mPresenter?.getBookDetail(it)
                 mPresenter?.recommendList(it)
+                DialogHelper.instance?.showLoadingDialog(activity = this)
             } else {
                 finish()
             }
@@ -109,7 +109,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                         add_like.text = "已收藏"
                         customToast("收藏成功")
                     }
-                } else{
+                } else {
                     it.save()
                     if (it.updateLikeState()) {
                         if (!it.getCurrentLikeState()) {
@@ -136,7 +136,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                     }
                 } else {
                     it.save()
-                    if(it.updateShelfState()){
+                    if (it.updateShelfState()) {
                         if (!it.getCurrentShelfState()) {
                             add_shelf_layout.isEnabled = true
                             add_shelf.text = "加书架"
@@ -195,6 +195,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
     }
 
     override fun onBookDetail(recommend: BookRecommend) {
+        DialogHelper.instance?.hintLoadingDialog()
         runOnUiThread {
             try {
                 mRecommend = recommend

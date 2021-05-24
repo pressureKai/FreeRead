@@ -7,12 +7,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.multidex.MultiDex
 import com.kai.common.constant.Constant
 import com.kai.common.utils.LogUtils
 import com.tencent.bugly.beta.Beta
 import com.tencent.tinker.entry.DefaultApplicationLike
 import java.lang.Exception
+import java.util.ArrayList
 
 
 open class BaseApplication(
@@ -27,12 +29,12 @@ open class BaseApplication(
         applicationStartMillisTime,
         tinkerResultIntent
 ) {
-
     companion object{
         private var sInstance :Context ?= null
         fun getContext() :Context?{
             return  sInstance
         }
+
     }
 
     override fun onCreate() {

@@ -39,6 +39,7 @@ import com.kai.bookpage.page.PageView
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
 import com.kai.common.extension.getScreenWidth
+import com.kai.common.extension.isContainChinese
 import com.kai.common.utils.*
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.ui.pageLoader.CrawlerPageLoader
@@ -121,6 +122,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         back.setOnClickListener {
             finish()
         }
+        initMenuList()
         toolbar.visibility = View.GONE
         draw_content.setPadding(0, ScreenUtils.getStatusBarHeight(), 0, 0)
         draw_content.layoutParams.width = ((getScreenWidth() / 6f) * 5).toInt()
@@ -186,11 +188,16 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                             current_chapter.text = bookChapterBean.title
                             mPresenter?.loadBookContentByChapter(bookChapterBean, true)
                         } catch (e: Exception) {
-                            val category = pageLoader.getChapterCategory()
-                            val bookChapterBean = category[it.progress - 1]
-                            current_chapter.text = bookChapterBean.title
-                            mPresenter?.loadBookContentByChapter(bookChapterBean, true)
-                            LogUtils.e("BookDetailActivity", "stop track error is $e")
+                            try {
+                                val category = pageLoader.getChapterCategory()
+                                val bookChapterBean = category[it.progress - 1]
+                                current_chapter.text = bookChapterBean.title
+                                mPresenter?.loadBookContentByChapter(bookChapterBean, true)
+                                LogUtils.e("BookDetailActivity", "stop track error is $e")
+                            } catch (e: java.lang.Exception) {
+                                customToast(resources.getString(R.string.current_chapter_no_exist))
+                            }
+
                         }
                     }
                 }
@@ -357,7 +364,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
             mPageLoader?.setPageMode(PageMode.NONE)
         }
-        initMenuList()
+
     }
 
 
@@ -451,7 +458,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
 
     override fun onLoadBookContentByChapter(bookChapterBean: BookChapterBean, isOpen: Boolean) {
         if (isOpen) {
-            if (bookChapterBean.content.isNotEmpty()) {
+            if (bookChapterBean.content.isNotEmpty() || !bookChapterBean.link.contains("http")) {
                 mPageLoader?.mCurrentChapterPosition = bookChapterBean.position
                 mPageLoader?.openChapter()
                 draw_layout.closeDrawer(Gravity.LEFT)
@@ -468,16 +475,18 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             val searchBook = baseEntity.data as SearchBook
             val source = searchBook.sources
             if (source.size > 0) {
+                val link = source.first().link
                 mPresenter?.loadBookChapter(
                     source = source.first(),
-                    source.first().link
+                    link
                 )
-                mCoolBookBean.bookId = source.first().link
+
+                mCoolBookBean.bookId = link
                 mCoolBookBean.author = searchBook.author
                 mCoolBookBean.isUpdate = true
                 mCoolBookBean.shortIntro = searchBook.descriptor
                 mCoolBookBean.title = searchBook.title
-                mCoolBookBean.isLocal = true
+                mCoolBookBean.isLocal = link.contains("http")
                 mCoolBookBean.updated = System.currentTimeMillis().toString()
                 mCoolBookBean.lastRead = System.currentTimeMillis().toString()
             }
@@ -634,24 +643,30 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
 
     class BookMenuAdapter : BaseQuickAdapter<BookChapterBean, BaseViewHolder>(R.layout.item_menu) {
         override fun convert(holder: BaseViewHolder, item: BookChapterBean) {
-            val chapterName = holder.getView<TextView>(R.id.chapter_name)
-            val bookChapterById = BookDatabase.get().bookDao().getBookChapterById(item.id)
-            if (bookChapterById.content.isEmpty()) {
-                if (SkinCompatManager.getInstance().curSkinName == "night") {
-                    chapterName.setTextColor(context.resources.getColor(R.color.app_font_color_night))
-                } else {
-                    chapterName.setTextColor(context.resources.getColor(R.color.app_book_color))
-                }
+            try {
+                val chapterName = holder.getView<TextView>(R.id.chapter_name)
+                val bookChapterById = BookDatabase.get().bookDao().getBookChapterById(item.id)
+                if (bookChapterById.content.isEmpty()) {
+                    if (SkinCompatManager.getInstance().curSkinName == "night") {
+                        chapterName.setTextColor(context.resources.getColor(R.color.app_font_color_night))
+                    } else {
+                        chapterName.setTextColor(context.resources.getColor(R.color.app_book_color))
+                    }
 
-            } else {
-                if (SkinCompatManager.getInstance().curSkinName == "night") {
-                    chapterName.setTextColor(context.resources.getColor(R.color.app_book_color_night))
                 } else {
-                    chapterName.setTextColor(context.resources.getColor(R.color.app_font_color))
-                }
+                    if (SkinCompatManager.getInstance().curSkinName == "night") {
+                        chapterName.setTextColor(context.resources.getColor(R.color.app_book_color_night))
+                    } else {
+                        chapterName.setTextColor(context.resources.getColor(R.color.app_font_color))
+                    }
 
+                }
+                chapterName.text = item.title
+            } catch (e: Exception) {
+
+                LogUtils.e("BookMenuAdapter","error is $e")
             }
-            chapterName.text = item.title
+
         }
 
     }

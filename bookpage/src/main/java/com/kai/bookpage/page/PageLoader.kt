@@ -278,6 +278,7 @@ abstract class PageLoader {
      */
     @Throws(java.lang.Exception::class)
     private fun loadPageList(chapterPosition: Int): ArrayList<TextPage>? {
+        LogUtils.e("PageLoader","loadPageList")
         //获取章节
         val chapter = mChapterList[chapterPosition]
         //判断章节是否存在
@@ -1107,6 +1108,7 @@ abstract class PageLoader {
         } else {
             mCurPage = TextPage()
         }
+        LogUtils.e("PageLoader","preLoadChapter")
         preLoadChapterData()
         mPageView?.drawCurrentPage(false)
     }
@@ -1171,13 +1173,10 @@ abstract class PageLoader {
      */
     private fun prepareBook() {
         mCoolBook?.let {
-            LogUtils.e("BookRecord", "get BookRecord now id is${it.bookId}")
-
             mBookRecord = BookDatabase.get().bookDao().getBookRecord(it.bookId)
         }
 
-        LogUtils.e("BookRecord", "get BookRecord mBookRecord is $mBookRecord")
-        if (mBookRecord == null) {
+       if (mBookRecord == null) {
             mBookRecord = BookRecordBean()
         }
         var currentChapterPosition = 0
@@ -1185,8 +1184,7 @@ abstract class PageLoader {
             currentChapterPosition = it.chapter
         }
         mCurrentChapterPosition = currentChapterPosition
-        LogUtils.e("BookRecord", "mCurrentChapterPosition is $mCurrentChapterPosition")
-        mLastChapterPosition = mCurrentChapterPosition
+       mLastChapterPosition = mCurrentChapterPosition
     }
 
 

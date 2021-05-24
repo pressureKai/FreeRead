@@ -7,6 +7,9 @@ import com.kai.common.utils.LogUtils
 import com.kai.crawler.Crawler
 import com.kai.crawler.xpath.model.JXDocument
 import com.kai.model.book.BookRepository
+import com.kai.ui.fragments.ranking.BookRankingFragment
+import io.reactivex.rxjava3.core.Observable
+import kotlinx.android.synthetic.main.fragment_book_ranking.*
 import java.lang.Exception
 
 class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendContract.Presenter {
@@ -42,7 +45,7 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
                                 try {
                                     value.save()
                                 } catch (e: Exception) {
-                                    LogUtils.e("RecommendPresenter", e.toString())
+                               //     LogUtils.e("RecommendPresenter", e.toString())
                                 }
                             }
                             getView()?.onBanner(list as ArrayList<BookRecommend>)
@@ -55,7 +58,7 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
                         try {
                             value.save()
                         } catch (e: Exception) {
-                            LogUtils.e("RecommendPresenter", e.toString())
+                          //  LogUtils.e("RecommendPresenter", e.toString())
                         }
                     }
                     getView()?.onBanner(list as ArrayList<BookRecommend>)
@@ -116,11 +119,17 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
                         for (type in types) {
                             map[type]?.let { mapItem ->
                                 if (!checkIsRepeat(mapItem, recommends)) {
+
                                     recommends.add(mapItem)
                                 }
                             }
                         }
-                        getView()?.onRecommend(recommends)
+
+                        Observable.fromIterable(recommends).toSortedList{
+                                i1,i2 -> i1.first().bookType - i2.first().bookType}
+                            .subscribe { orderList ->
+                                getView()?.onRecommend(orderList as ArrayList<ArrayList<BookRecommend>>)
+                            }
                     }
                     .doOnError {
                         //访问数据遇到错误
@@ -130,10 +139,15 @@ class RecommendPresenter : BasePresenter<RecommendContract.View>(), RecommendCon
                                 if (!checkIsRepeat(mapItem, recommends)) {
                                     recommends.add(mapItem)
                                 }
-
                             }
                         }
-                        getView()?.onRecommend(recommends)
+
+                        Observable.fromIterable(recommends).toSortedList{
+                                i1,i2 -> i1.first().bookType - i2.first().bookType}
+                            .subscribe { orderList ->
+                                getView()?.onRecommend(orderList as ArrayList<ArrayList<BookRecommend>>)
+                            }
+
                     }
                     .subscribe {
                         //从数据库返回或爬虫数据返回

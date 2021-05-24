@@ -64,4 +64,11 @@
     <string name="quit_read_page">再按一次退出阅读页面</string>
     <string name="wifi_transmission">wifi传书</string>
     <string name="bluetooth_transmission">蓝牙传书</string>
+    <string name="loading">加载中...</string>
+    <string name="wifi_des">请在电脑浏览器的地址栏输入</string>
+    <string name="wifi_ps">确保您的电脑和手机在同一局域网内,\nWIFI传书过程中不要关闭此页面</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="wifi_read">成功收到文件%s，是否前往阅读</string>
+    <string name="current_chapter_no_exist">当前章节不存在</string>
 </resources>

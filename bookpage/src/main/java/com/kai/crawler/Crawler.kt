@@ -686,8 +686,6 @@ class Crawler {
                                 val selN = jxDocument.selN(content.recommendListPath)
 
                                 for(value in selN) {
-                                    LogUtils.e("Crawler","value is$value")
-
 
                                     try {
                                         value?.let {

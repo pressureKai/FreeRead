@@ -28,7 +28,6 @@ import java.util.*
  */
 class BaseInit : BaseAppInit {
     override fun onInitSpeed(application: Application): Boolean {
-
         return true
     }
 

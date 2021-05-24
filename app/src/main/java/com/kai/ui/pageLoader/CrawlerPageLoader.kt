@@ -10,7 +10,7 @@ import io.reactivex.rxjava3.core.Observable
 import java.io.*
 import kotlin.collections.ArrayList
 
-class CrawlerPageLoader(pageView: PageView, coolBookBean: CoolBookBean):PageLoader(
+class CrawlerPageLoader(pageView: PageView, coolBookBean: CoolBookBean) : PageLoader(
     pageView,
     coolBookBean
 ) {
@@ -19,28 +19,48 @@ class CrawlerPageLoader(pageView: PageView, coolBookBean: CoolBookBean):PageLoad
         val bookChapterById = BookDatabase.get().bookDao().getBookChapterById(chapter.id)
         var contentIsEmpty = true
         try {
-            contentIsEmpty =  bookChapterById.content.isNotEmpty()
-        }catch (e:java.lang.Exception){
-            LogUtils.e("CrawlerPageLoader","getChapter error is $e")
+            contentIsEmpty = if(bookChapterById.link.contains("http")){
+                bookChapterById.content.isNotEmpty()
+            } else {
+                bookChapterById.link.isNotEmpty()
+            }
+
+        } catch (e: java.lang.Exception) {
+            LogUtils.e("CrawlerPageLoader", "getChapter error is $e")
         }
-        return  contentIsEmpty
+        return contentIsEmpty
     }
 
     override fun getChapterReader(chapter: BookChapterBean): BufferedReader {
+        LogUtils.e("CrawlerPageLoader","link is getChapterReader")
+
         val bookChapterById = BookDatabase.get().bookDao().getBookChapterById(chapter.id)
-        var contentIsEmpty = true
+        var contentIsNotEmpty = true
         try {
-          contentIsEmpty =  bookChapterById.content.isNotEmpty()
-        }catch (e:java.lang.Exception){
-            LogUtils.e("CrawlerPageLoader","getChapter error is $e")
+            contentIsNotEmpty = if (chapter.link.contains("http")) {
+                bookChapterById.content.isNotEmpty()
+            } else {
+                bookChapterById.link.isNotEmpty()
+            }
+
+        } catch (e: java.lang.Exception) {
+            LogUtils.e("CrawlerPageLoader", "getChapter error is $e")
         }
-        return if(contentIsEmpty){
-            val content: ByteArray = bookChapterById.content.toByteArray()
-            val input = ByteArrayInputStream(content)
-            val br = BufferedReader(InputStreamReader(input))
-            br
+
+        return if (contentIsNotEmpty) {
+            return if (!bookChapterById.link.contains("http")) {
+                val file = File(bookChapterById.link)
+                val fileInputStream = FileInputStream(file)
+                val bufferedReader = BufferedReader(InputStreamReader(fileInputStream))
+                bufferedReader
+            } else {
+                val content: ByteArray = bookChapterById.content.toByteArray()
+                val input = ByteArrayInputStream(content)
+                val br = BufferedReader(InputStreamReader(input))
+                br
+            }
         } else {
-            LogUtils.e("CrawlerPageLoader","getChapterReader content is empty")
+            LogUtils.e("CrawlerPageLoader", "getChapterReader content is empty")
             BufferedReader(null)
         }
 
@@ -52,23 +72,24 @@ class CrawlerPageLoader(pageView: PageView, coolBookBean: CoolBookBean):PageLoad
             getCoolBook()?.let {
                 try {
                     BookDatabase.get().bookDao().insertCoolBook(it)
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     BookDatabase.get().bookDao().updateCoolBook(it)
                 }
 
                 val chapterList = BookDatabase.get().bookDao().getChapterList(it.bookId)
-                if(chapterList.bookChapterList.size != getChapterCategory().size
+                if (chapterList.bookChapterList.size != getChapterCategory().size
                     && chapterList.bookChapterList.isNotEmpty()
-                ){
-                    Observable.fromIterable(chapterList.bookChapterList).toSortedList {
-                        o1, o2 -> o1!!.position - o2!!.position }.subscribe { orderList ->
-                        setChapterCategory(orderList as ArrayList<BookChapterBean>)
-                        isChapterListPrepare = true
-                    }
+                ) {
+                    Observable.fromIterable(chapterList.bookChapterList)
+                        .toSortedList { o1, o2 -> o1!!.position - o2!!.position }
+                        .subscribe { orderList ->
+                            setChapterCategory(orderList as ArrayList<BookChapterBean>)
+                            isChapterListPrepare = true
+                        }
                 }
 
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             LogUtils.e("CrawlerPageLoader", e.toString())
         }
     }

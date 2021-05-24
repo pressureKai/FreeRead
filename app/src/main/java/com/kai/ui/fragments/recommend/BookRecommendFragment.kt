@@ -31,6 +31,8 @@ import com.kai.common.utils.GlideUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
 import com.kai.ui.main.MainActivity
+import com.scwang.smart.refresh.footer.ClassicsFooter
+import com.scwang.smart.refresh.header.ClassicsHeader
 import com.zhpan.bannerview.BannerViewPager
 import com.zhpan.bannerview.adapter.OnPageChangeListenerAdapter
 import com.zhpan.bannerview.constants.PageStyle
@@ -49,6 +51,8 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
     RecommendContract.View {
     private var indexBanner: BannerViewPager<BookRecommend, NetViewHolder>? = null
     private var loadFirst = false
+    private var adapterMap: HashMap<Int, RecommendItemListAdapter> = HashMap()
+
     companion object {
         fun newInstance(): BookRecommendFragment {
             val bookRackFragment =
@@ -112,10 +116,18 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
             }
         }
 
+
+        refresh.setEnableAutoLoadMore(false)
+        refresh.setRefreshHeader(ClassicsHeader(activity))
+        refresh.setRefreshFooter(ClassicsFooter(activity))
+        refresh.setOnRefreshListener {
+            mPresenter?.getHomePage()
+        }
+
     }
 
     override fun lazyInit(view: View, savedInstanceState: Bundle?) {
-        if(!loadFirst){
+        if (!loadFirst) {
             mPresenter?.getHomePage()
             showMul(0)
         }
@@ -136,7 +148,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                     .create(banners)
                 Handler(Looper.getMainLooper()).postDelayed({
                     banner_layout.visibility = View.VISIBLE
-                },100)
+                }, 100)
             } else {
                 banner_layout.visibility = View.GONE
             }
@@ -223,24 +235,36 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
 
                 gridLayoutManager.orientation = GridLayoutManager.HORIZONTAL
                 itemList.layoutManager = gridLayoutManager
-                val recommendItemListAdapter = RecommendItemListAdapter()
-                recommendItemListAdapter.setHasStableIds(true)
-                recommendItemListAdapter.setOnItemClickListener { _, view, i ->
 
-                    try {
-                        val bookRecommend = item[i]
-                        ARouter.getInstance()
-                            .build("/app/bookinfo")
-                            .withString("url", bookRecommend.bookUrl)
-                            .navigation()
-                    } catch (e: java.lang.Exception) {
+                var recommendItemListAdapter: RecommendItemListAdapter? = null
+                if (adapterMap.size > 0 && item.size > 0 && adapterMap[item.first().bookType] != null) {
+                    recommendItemListAdapter = adapterMap[item.first().bookType]
+                } else {
+                    recommendItemListAdapter = RecommendItemListAdapter()
+                    recommendItemListAdapter?.setHasStableIds(true)
+                    recommendItemListAdapter?.setOnItemClickListener { _, view, i ->
+                        try {
+                            val bookRecommend = item[i]
+                            ARouter.getInstance()
+                                .build("/app/bookinfo")
+                                .withString("url", bookRecommend.bookUrl)
+                                .navigation()
+                        } catch (e: java.lang.Exception) {
 
+                        }
                     }
+                }
 
+
+                itemList.adapter = recommendItemListAdapter
+                try {
+                    if (item.size > 0) {
+                        adapterMap[item.first().bookType] = recommendItemListAdapter!!
+                    }
+                } catch (e: java.lang.Exception) {
 
                 }
-                itemList.adapter = recommendItemListAdapter
-                recommendItemListAdapter.setNewInstance(item)
+                recommendItemListAdapter?.setNewInstance(item)
             }
         }
 
@@ -289,7 +313,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                                                     RoundedCorners(16)
                                                 )
                                             )
-                                            .skipMemoryCache(true)
+                                            .skipMemoryCache(false)
                                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                                         Glide.with(cover)
                                             .load(bookRecommend.bookCoverUrl)
@@ -315,7 +339,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                                     RoundedCorners(16)
                                 )
                             )
-                            .skipMemoryCache(true)
+                            .skipMemoryCache(false)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                         Glide.with(cover)
                             .load(localBookDetail.bookCoverUrl)
@@ -352,35 +376,38 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
     override fun onRecommend(arrayList: ArrayList<ArrayList<BookRecommend>>) {
         showMul(2)
         loadFirst = true
-        (list.adapter as RecommendListAdapter).setNewInstance(arrayList)
-        (list.adapter as RecommendListAdapter).notifyDataSetChanged()
+        val recommendListAdapter = list.adapter as RecommendListAdapter
+        recommendListAdapter.setNewInstance(arrayList)
+        recommendListAdapter.notifyDataSetChanged()
+        refresh.finishRefresh(300)
     }
 
 
     /**
      * @param state 0:loading 1:empty 2: content
      */
-    private fun showMul(state:Int) {
+    private fun showMul(state: Int) {
         var layout = R.layout.layout_empty
-        when(state){
-            0->{
+        when (state) {
+            0 -> {
                 layout = R.layout.layout_loading
             }
-            1 ->{
+            1 -> {
                 layout = R.layout.layout_empty
             }
         }
-        if(state != 2){
+        if (state != 2) {
             val inflate = View.inflate(activity, layout, null)
-            multiply.showEmpty(inflate, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            ))
+            multiply.showEmpty(
+                inflate, LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                )
+            )
         } else {
             Handler(Looper.getMainLooper()).postDelayed({
                 multiply.showContent()
-            },200)
-
+            }, 200)
         }
 
     }

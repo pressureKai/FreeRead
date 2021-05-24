@@ -11,9 +11,11 @@ import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
+import com.kai.common.application.BaseApplication
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.listener.CustomAnimatorListener
 import com.kai.common.utils.LogUtils
+import com.kai.util.DialogHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -26,6 +28,7 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
     private var mMultipleStatusView: MultipleStatusView? = null
     private val DEFAULT_LAYOUT_PARAMS = ConstraintLayout.LayoutParams( ConstraintLayout.LayoutParams.MATCH_PARENT,
             ConstraintLayout.LayoutParams.MATCH_PARENT)
+    private var mActivityTag = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mEventBusTarget = resetEventBusTarget()
@@ -155,7 +158,6 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 it.showError(layoutId!!,DEFAULT_LAYOUT_PARAMS)
             }
         }
-
     }
 
 
@@ -241,6 +243,5 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
         customAnimatorListener?.let {
             mAnimatorTranslateY.addListener(customAnimatorListener)
         }
-
     }
 }

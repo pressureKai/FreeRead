@@ -24,6 +24,7 @@ import com.kai.base.activity.BaseMvpActivity
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.utils.GlideUtils
 import com.kai.common.utils.LogUtils
+import com.kai.util.DialogHelper
 import com.kai.view.cardstack.RxCardStackView
 import com.kai.view.cardstack.tools.RxAdapterStack
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
@@ -58,6 +59,7 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
         ranking_stack.setAdapter(mRankingAdapter)
         url?.let {
             mPresenter?.ranking(type, url)
+            DialogHelper.instance?.showLoadingDialog(activity = this)
         }
 
         pre.setOnClickListener {
@@ -223,6 +225,7 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
 
     override fun onRanking(recommends: ArrayList<BookRecommend>) {
         runOnUiThread {
+            DialogHelper.instance?.hintLoadingDialog()
             Observable.fromIterable(recommends)
                 .toSortedList { recommend1, recommend2 ->
                     recommend1.rankingPosition - recommend2.rankingPosition

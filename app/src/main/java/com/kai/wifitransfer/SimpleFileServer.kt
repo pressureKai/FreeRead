@@ -6,9 +6,13 @@ import android.text.TextUtils
 import androidx.fragment.app.FragmentActivity
 import com.google.gson.Gson
 import com.kai.common.application.BaseApplication
+import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.LogUtils.Companion.e
+import com.kai.entity.User
+import com.kai.ui.wifi.WifiActivity
 import com.kai.util.FileHelper
+import com.kai.util.FileType
 import com.kai.util.FileUtils
 import com.kai.util.FileUtils.Companion.createWifiTempFile
 import com.kai.util.FileUtils.Companion.createWifiTranfesFile
@@ -17,6 +21,7 @@ import com.kai.util.FileUtils.Companion.readAssets
 import com.kai.util.PermissionHelper
 import com.kai.wifitransfer.Defaults.Companion.extensions
 import com.kai.wifitransfer.Defaults.Companion.getPort
+import org.greenrobot.eventbus.EventBus
 import java.io.*
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -119,10 +124,15 @@ class SimpleFileServer(port: Int) : NanoHTTPD(port) {
                     try {
                         // 创建目标文件
                         val desc = createWifiTranfesFile(
-                            fileName!!
+                            fileName +"."+ FileType.getFileType(outputFile.path)
                         )
                         e("SimpleFileServer", "--" + desc.absolutePath)
                         fileChannelCopy(outputFile, desc)
+
+                        val baseEntity = BaseEntity<String>()
+                        baseEntity.message = WifiActivity::class.java.name
+                        baseEntity.data = desc.absolutePath
+                        EventBus.getDefault().postSticky(baseEntity)
                     } catch (e: Exception) {
                         e("SimpleFileServer", "-- copy error is $e")
                     }

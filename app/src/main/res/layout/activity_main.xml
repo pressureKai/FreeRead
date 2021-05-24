@@ -234,6 +234,7 @@
 
 
                         <include
+                            android:visibility="gone"
                             android:id="@+id/bluetooth"
                             layout="@layout/merge_draw_layout"/>
 
