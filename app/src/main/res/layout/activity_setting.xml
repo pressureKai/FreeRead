@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:orientation="vertical">
+
+
+    <include layout="@layout/merge_toolbar" />
+
+
+    <LinearLayout
+        android:layout_margin="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:text="@string/cache_chapter_count"
+            android:textColor="@color/app.font.color"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+
+
+        <EditText
+            android:id="@+id/chapter_count"
+            android:inputType="number"
+            android:textColorHint="@color/app.font.second.color"
+            android:textColor="@color/app.font.color"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:layout_width="50dp"
+            android:hint="0"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 
 </LinearLayout>
