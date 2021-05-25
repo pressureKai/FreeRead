@@ -10,6 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.launcher.ARouter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
@@ -120,7 +121,9 @@ class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
                 } else {
                     contentLayout.visibility = View.VISIBLE
                     addLayout.visibility = View.INVISIBLE
-                    Glide.with(cover).load(item.bookCoverUrl).into(cover)
+                    val placeholder = RequestOptions().error(R.drawable.default_loading)
+                        .placeholder(R.drawable.default_loading)
+                    Glide.with(cover).load(item.bookCoverUrl).apply(placeholder).into(cover)
                     bookName.text = item.bookName
                     bookAuthor.text = item.authorName
                 }

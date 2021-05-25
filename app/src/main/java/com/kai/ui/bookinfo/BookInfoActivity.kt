@@ -2,6 +2,7 @@ package com.kai.ui.bookinfo
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -33,6 +34,10 @@ import com.kai.common.utils.ScreenUtils
 import com.kai.ui.bookdetail.BookDetailActivity
 import com.kai.util.DialogHelper
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_book_info.*
 import kotlinx.android.synthetic.main.activity_book_info.appBar
@@ -205,22 +210,9 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                 update_chapter.text = recommend.newChapterName
                 update_time.text = recommend.updateTime
                 book_descriptor.text = recommend.bookDescriptor
-                val options = RequestOptions()
-                    .transform(
-                        MultiTransformation(
-                            CenterCrop(),
-                            RoundedCorners(16)
-                        )
-                    )
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                Glide.with(cover)
-                    .load(recommend.bookCoverUrl)
-                    .apply(options)
-                    .dontAnimate()
-                    .into(cover)
-                loadBlur(recommend.bookCoverUrl)
 
+
+                loadBlur(recommend.bookCoverUrl)
 
                 if (!recommend.getCurrentLikeState()) {
                     add_like_layout.isEnabled = true
@@ -271,27 +263,48 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
 
 
     private fun loadBlur(url: String) {
-        Thread {
-            val blur = RequestOptions()
-                .skipMemoryCache(true)
-                .transform(BlurTransformation(25, 20))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-
-            val into = Glide.with(sector)
-                .asBitmap()
-                .load(url)
-                .apply(blur)
-                .override(bitmapWidth, bitmapHeight)
-                .into(bitmapWidth, bitmapHeight)
-            val drawable = into.get()
-            runOnUiThread {
-                if (drawable.width < bitmapWidth) {
-                    loadBlur(url)
-                } else {
-                    sector.setBitmap(drawable)
+        Observable.create<Bitmap> {
+            var isMatch = false
+            while(!isMatch){
+                val blur = RequestOptions()
+                    .skipMemoryCache(true)
+                    .error(R.drawable.default_loading)
+                    .placeholder(R.drawable.default_loading)
+                    .transform(BlurTransformation(25, 20))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                val into = Glide.with(sector)
+                    .asBitmap()
+                    .load(url)
+                    .apply(blur)
+                    .override(bitmapWidth, bitmapHeight)
+                    .into(bitmapWidth, bitmapHeight)
+                val drawable = into.get()
+                if(drawable.width >= bitmapWidth){
+                    isMatch = true
+                    it.onNext(drawable)
                 }
             }
-        }.start()
+        }.observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                sector.setBitmap(it)
+                val options = RequestOptions()
+                    .transform(
+                        MultiTransformation(
+                            CenterCrop(),
+                            RoundedCorners(16)
+                        )
+                    )
+                    .error(R.drawable.default_loading)
+                    .placeholder(R.drawable.default_loading)
+                    .skipMemoryCache(false)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+
+                Glide.with(book_cover)
+                    .load(url)
+                    .apply(options)
+                    .into(book_cover)
+            }
     }
 
     inner class RecommendItemListAdapter :
@@ -324,6 +337,8 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                                                     RoundedCorners(16)
                                                 )
                                             )
+                                            .error(R.drawable.default_loading)
+                                            .placeholder(R.drawable.default_loading)
                                             .skipMemoryCache(true)
                                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                                         Glide.with(cover)
@@ -350,6 +365,8 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                                     RoundedCorners(16)
                                 )
                             )
+                            .error(R.drawable.default_loading)
+                            .placeholder(R.drawable.default_loading)
                             .skipMemoryCache(true)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                         Glide.with(cover)

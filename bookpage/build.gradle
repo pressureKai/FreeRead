@@ -49,7 +49,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     kapt rootProject.ext.dependencies.room_kapt
     kapt rootProject.ext.dependencies.arouter_processer
-    implementation project(':commonMvvm')
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.apache.commons:commons-lang3:3.8.1'
 }

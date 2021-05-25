@@ -91,7 +91,6 @@ dependencies {
     kapt rootProject.ext.dependencies.room_kapt
     api project(':common')
     api project(':bookpage')
-    api project(':learn')
     testImplementation rootProject.ext.dependencies.junit
     androidTestImplementation  rootProject.ext.dependencies.test_junit
     androidTestImplementation  rootProject.ext.dependencies.espresso

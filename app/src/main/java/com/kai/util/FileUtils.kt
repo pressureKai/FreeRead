@@ -91,6 +91,9 @@ class FileUtils {
             val src: String =
                 PATH_DATA + System.currentTimeMillis()
             val file = File(src)
+            if(file.exists()){
+                file.delete()
+            }
             if (!file.exists()) createFile(file)
             return file
         }
@@ -143,6 +146,9 @@ class FileUtils {
             // 取文件名作为文件夹（bookid）
             val absPath: String = "$PATH_TXT/$fileName"
             val file = File(absPath)
+            if(file.exists()){
+                file.delete()
+            }
             if (!file.exists()) createFile(file)
             return file
         }

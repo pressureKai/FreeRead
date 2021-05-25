@@ -1,24 +1,14 @@
 package com.kai.wifitransfer
 
-import android.app.Application
-import android.content.Intent
 import android.text.TextUtils
-import androidx.fragment.app.FragmentActivity
-import com.google.gson.Gson
-import com.kai.common.application.BaseApplication
 import com.kai.common.eventBusEntity.BaseEntity
-import com.kai.common.utils.LogUtils
 import com.kai.common.utils.LogUtils.Companion.e
-import com.kai.entity.User
 import com.kai.ui.wifi.WifiActivity
-import com.kai.util.FileHelper
 import com.kai.util.FileType
-import com.kai.util.FileUtils
 import com.kai.util.FileUtils.Companion.createWifiTempFile
 import com.kai.util.FileUtils.Companion.createWifiTranfesFile
 import com.kai.util.FileUtils.Companion.fileChannelCopy
 import com.kai.util.FileUtils.Companion.readAssets
-import com.kai.util.PermissionHelper
 import com.kai.wifitransfer.Defaults.Companion.extensions
 import com.kai.wifitransfer.Defaults.Companion.getPort
 import org.greenrobot.eventbus.EventBus
@@ -77,12 +67,7 @@ class SimpleFileServer(port: Int) : NanoHTTPD(port) {
                 )
                 resp
             } else if (uri.startsWith("/files")) {
-//                List<Recommend.RecommendBooks> collectionList = CollectionsManager.getInstance().getCollectionList();
-//                List<HtmlBook> htmlBooks = new ArrayList<>();
-//                for (Recommend.RecommendBooks recommendBooks : collectionList) {
-//                    htmlBooks.add(new HtmlBook(recommendBooks.title, recommendBooks._id, recommendBooks.lastChapter));
-//                }
-                Response(Response.Status.OK, "text/json", Gson().toJson(""))
+                Response(Response.Status.OK, "text/json","")
             } else {
                 // 获取文件类型
                 val type = extensions[uri.substring(
@@ -109,7 +94,6 @@ class SimpleFileServer(port: Int) : NanoHTTPD(port) {
                     }
 
                     val outputFile = createWifiTempFile()
-                    e("SimpleFileServer", "file is exist ${outputFile.exists()}")
                     val fos = FileOutputStream(outputFile)
                     val buffer = ByteArray(1024)
                     while (true) {
@@ -126,7 +110,7 @@ class SimpleFileServer(port: Int) : NanoHTTPD(port) {
                         val desc = createWifiTranfesFile(
                             fileName +"."+ FileType.getFileType(outputFile.path)
                         )
-                        e("SimpleFileServer", "--" + desc.absolutePath)
+
                         fileChannelCopy(outputFile, desc)
 
                         val baseEntity = BaseEntity<String>()

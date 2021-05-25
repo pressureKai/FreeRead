@@ -139,34 +139,66 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
             val marginLayoutParams = cover.layoutParams as ViewGroup.MarginLayoutParams
             marginLayoutParams.topMargin = topMargin
             map[item]?.let {
-                mPresenter?.getCover(item, it, object : RankingPresenter.GetCoverListener {
-                    override fun onCover(path: String) {
-                        activity?.let { fragmentActivity ->
-                            fragmentActivity.runOnUiThread {
-                                GlideUtils.loadCornersTop(
-                                    WeakReference(activity),
-                                    path,
-                                    cover,
-                                    8,
-                                    object : GlideUtils.ResourceWidthAndHeightListener {
-                                        override fun resourceWidthAndHeight(width: Int, height: Int) {
-                                            try {
-                                                val fl = width.toFloat() / height.toFloat()
-                                                val height1 = cover.layoutParams.height
-                                                typeLayout.layoutParams.width =
-                                                    (fl * height1).toInt() + ScreenUtils.dpToPx(1)
-                                                typeLayout.layoutParams.height =  typeName.measureView()[1]
-                                                back.layoutParams.height = typeName.measureView()[1]
-                                                back.alpha = 0.85f
-                                            }catch (e:Exception){
-                                                LogUtils.e("BookRankingFragment","error is $e")
+
+                val localBookDetail = mPresenter?.localBookDetail(it)
+                val b = localBookDetail != null && !localBookDetail.checkIsEmpty()
+                if(!b){
+                    mPresenter?.getCover(item, it, object : RankingPresenter.GetCoverListener {
+                        override fun onCover(path: String) {
+                            activity?.let { fragmentActivity ->
+                                fragmentActivity.runOnUiThread {
+                                    GlideUtils.loadCornersTop(
+                                        WeakReference(activity),
+                                        path,
+                                        cover,
+                                        8,
+                                        object : GlideUtils.ResourceWidthAndHeightListener {
+                                            override fun resourceWidthAndHeight(width: Int, height: Int) {
+                                                try {
+                                                    val fl = width.toFloat() / height.toFloat()
+                                                    val height1 = cover.layoutParams.height
+                                                    typeLayout.layoutParams.width =
+                                                        (fl * height1).toInt() + ScreenUtils.dpToPx(1)
+                                                    typeLayout.layoutParams.height =  typeName.measureView()[1]
+                                                    back.layoutParams.height = typeName.measureView()[1]
+                                                    back.alpha = 0.85f
+                                                }catch (e:Exception){
+                                                    LogUtils.e("BookRankingFragment","error is $e")
+                                                }
                                             }
-                                        }
-                                    })
+                                        })
+                                }
                             }
                         }
+                    })
+
+                } else{
+                    val path = localBookDetail!!.bookCoverUrl
+                    activity?.let { fragmentActivity ->
+                        fragmentActivity.runOnUiThread {
+                            GlideUtils.loadCornersTop(
+                                WeakReference(activity),
+                                path,
+                                cover,
+                                8,
+                                object : GlideUtils.ResourceWidthAndHeightListener {
+                                    override fun resourceWidthAndHeight(width: Int, height: Int) {
+                                        try {
+                                            val fl = width.toFloat() / height.toFloat()
+                                            val height1 = cover.layoutParams.height
+                                            typeLayout.layoutParams.width =
+                                                (fl * height1).toInt() + ScreenUtils.dpToPx(1)
+                                            typeLayout.layoutParams.height =  typeName.measureView()[1]
+                                            back.layoutParams.height = typeName.measureView()[1]
+                                            back.alpha = 0.85f
+                                        }catch (e:Exception){
+                                            LogUtils.e("BookRankingFragment","error is $e")
+                                        }
+                                    }
+                                })
+                        }
                     }
-                })
+                }
 
 
                 view.setOnClickListener { _ ->

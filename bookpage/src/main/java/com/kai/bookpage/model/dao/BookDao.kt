@@ -16,6 +16,10 @@ interface BookDao {
     @Query("SELECT * FROM coolBook WHERE bookId = :id")
     fun getCoolBookById(id: Int):CoolBookBean
 
+
+    @Query("SELECT * FROM coolBook WHERE isLocal = :isLocal")
+    fun getCoolBookByIsLocal(isLocal: Boolean):List<CoolBookBean>
+
     @Update
     fun updateCoolBook(coolBookBean: CoolBookBean)
 

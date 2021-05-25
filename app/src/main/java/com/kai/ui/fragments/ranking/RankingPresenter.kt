@@ -1,6 +1,8 @@
 package com.kai.ui.fragments.ranking
 
 import com.kai.base.mvp.base.BasePresenter
+import com.kai.bookpage.model.BookRecommend
+import com.kai.bookpage.model.database.BookDatabase
 import com.kai.common.utils.LogUtils
 import com.kai.crawler.Crawler
 import com.kai.model.book.BookRepository
@@ -26,6 +28,10 @@ class RankingPresenter : BasePresenter<RankingContract.View>(), RankingContract.
                 }
             }
         }
+    }
+
+    fun localBookDetail(bookUrl:String): BookRecommend {
+        return  BookDatabase.get().bookDao().getBookRecommendByBookUrl(bookUrl)
     }
 
     public interface GetCoverListener {

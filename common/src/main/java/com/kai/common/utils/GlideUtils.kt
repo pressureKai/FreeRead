@@ -111,6 +111,8 @@ object GlideUtils {
         val requestOptions = RequestOptions().centerCrop()
             .format(DecodeFormat.PREFER_RGB_565)
             .priority(Priority.LOW)
+            .error(R.drawable.default_loading)
+            .placeholder(R.drawable.default_loading)
             .skipMemoryCache(false)
             .dontAnimate()
             .transform(RoundedCornersTransformation(

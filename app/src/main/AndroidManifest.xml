@@ -55,6 +55,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:theme="@android:style/Theme.Translucent" />
         <activity android:name="com.kai.ui.wifi.WifiActivity" />
+        <activity android:name="com.kai.ui.setting.SettingActivity" />
 
 
         <provider

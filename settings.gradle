@@ -1,6 +1,4 @@
 include ':app',
         ':common',
-        ':bookpage',
-        ':learn',
-        ':commonMvvm'
+        ':bookpage'
 rootProject.name = "CommonApplication"

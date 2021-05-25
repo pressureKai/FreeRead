@@ -33,7 +33,8 @@
     <string name="update_password_success">密码修改成功</string>
     <string name="un_register_success">注销成功</string>
     <string name="un_register_fail">注销失败</string>
-    <string name="order_chapter_list">排序</string>
+    <string name="order_up_chapter_list">升序</string>
+    <string name="order_down_chapter_list">降序</string>
     <string name="book_set_chapter">章节</string>
     <string name="book_brightness">亮度</string>
     <string name="book_size">字号</string>
@@ -71,4 +72,7 @@
     <string name="confirm">确定</string>
     <string name="wifi_read">成功收到文件%s，是否前往阅读</string>
     <string name="current_chapter_no_exist">当前章节不存在</string>
+    <string name="cache_chapter_count">缓存章节数</string>
+    <string name="setting">设置</string>
+    <string name="delete_all_history">删除全部搜索历史</string>
 </resources>

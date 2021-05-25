@@ -123,6 +123,7 @@ $(function () {
             return;
         }
 
+
         isUploading = true;
         var eleFile = $(uploadQueue[currentQueueIndex]);
         var eleFileId = eleFile.attr('id');
@@ -133,7 +134,6 @@ $(function () {
         currentQueueIndex++;
 
         var row = $("#right .file [filename='" + escape(fileName) + "']").parent();
-
         alert(fileName)
         $.post("/send_file_name", {"filename": fileName}, function () {
             $.ajaxFileUpload({
@@ -174,10 +174,8 @@ $(function () {
         if (!fileName || !fileName.toLowerCase().match('(epub|txt|pdf)$')) {
             return STRINGS.UNSUPPORTED_FILE_TYPE;
         }
-
         var arr = fileName.split("\\");
         fileName = arr[arr.length - 1];
-
         var hasFile = false;
         var existFile = $("#right .file [filename='" + escape(fileName) + "']");
         if (existFile.length > 0) {
@@ -220,14 +218,13 @@ $(function () {
     function bindAjaxUpload(fileSelector) {
         $(fileSelector).unbind();
         $(fileSelector).change(function () {
+            alert("change")
             if (this.files) {
                 uploadFiles(this.files)
-                //优先使用HTML5上传方式
                 return;
             }
 
             var fileName = $(this).val()
-
             var msg = checkFileName(fileName);
             if (msg) {
                 alert(msg);
@@ -264,19 +261,6 @@ $(function () {
             .mouseup(function () {
                 $('#upload_button').removeClass('pressed').addClass('normal');
             });
-        // if (typeof(Worker) !== "undefined") {
-        //     $(fileSelector)
-        //         .mouseover(function() { $('#upload_button').removeClass('normal').addClass('pressed'); })
-        //         .mouseout(function() { $('#upload_button').removeClass('pressed').addClass('normal'); })
-        //         .mousedown(function() { $('#upload_button').removeClass('normal').addClass('pressed'); })
-        //         .mouseup(function() { $('#upload_button').removeClass('pressed').addClass('normal'); });
-        // } else {
-        //     $(fileSelector)
-        //         .mouseover(function() { $('#upload_button').css('background-image', 'url("images/select_file1_rollover.jpg")'); })
-        //         .mouseout(function() { $('#upload_button').css('background-image', 'url("images/select_file1.jpg")'); })
-        //         .mousedown(function() { $('#upload_button').css('background-image', 'url("images/select_file1_pressed.jpg")'); })
-        //         .mouseup(function() { $('#upload_button').css('background-image', 'url("images/select_file1.jpg")'); });
-        // }
     }
 
     function formatFileSize(value) {
@@ -331,6 +315,9 @@ $(function () {
                     elePrecent.text(Math.round(progress * 100) + "%");
                     var eleProgress = ele.prev();
                     eleProgress.width(483 * progress);
+                    if(progress == 1){
+                        html5Uploader = null
+                    }
                 },
                 success: function (item) {
                     var fileName = item.getFilename();
@@ -346,6 +333,7 @@ $(function () {
                     $('<div class="column trash" title="' + STRINGS.DELETE_FILE + '"></div>')
                     //.click(deleteBook)
                         .appendTo(row);
+
                 },
                 error: function (item) {
                     var fileName = item.getFilename();
@@ -402,26 +390,10 @@ $(function () {
     }
 
     function showHtml5View() {
-        // $('#logo').append('<img src="images/logo5.jpg" />');
-
-        // var dragAree = $('<div id="drag_area"><div class="drag_hint">' + STRINGS.DRAG_TO_HERE + '</div></div)').addClass('normal').appendTo('#logo');
-        // $('#upload_hint').empty();
-        // $('<div>'+STRINGS.SELECT_YOUR_FILES+'<br />'+STRINGS.SUPPORTED_FILE_TYPES+'</div>')
-        //     .addClass('hint')
-        //     .insertAfter('#upload_button');
-
-        // var buttonLabels = $('<div class="button_lables"></div>').prependTo("#upload_button")
-        // $('<div class="button_lable1"></div>').text(STRINGS.SELECT_BUTTON_LABLE1).appendTo(buttonLabels);
-        // $('<div class="button_lable2"></div>').text(STRINGS.SELECT_BUTTON_LABLE2).appendTo(buttonLabels);
-
         dragUpload();
     }
 
     function showHtml4View() {
-        // $('#logo').append('<img src="images/logo.jpg" />').append('<div class="wifi">' + STRINGS.WIFI_AVAILABLE + '</div>');
-        // $('#upload_button').css('background-image', 'url("images/select_file1_rollover.jpg")');
-        // $('#upload_hint').html(STRINGS.SELECT_YOUR_FILES+'<br />'+STRINGS.SUPPORTED_FILE_TYPES);
-        // $('<div class="button_lable">' + STRINGS.SELECT_BUTTON_LABLE + '</div>').prependTo("#upload_button")
     }
 
     $(document).ready(function () {
@@ -431,7 +403,7 @@ $(function () {
 
         initPageStrings();
         fillFilesContainer();
-        loadFileList();
+        //loadFileList();
         $(window).resize(function () {
             fillFilesContainer();
         });

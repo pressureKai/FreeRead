@@ -406,7 +406,9 @@ abstract class NanoHTTPD(private val hostname: String?, private val myPort: Int)
             );
 
             val description: String
-                get() = "" + requestStatus + " " + descr
+                get() {
+                    return "$requestStatus $descr"
+                }
         }
 
         companion object {

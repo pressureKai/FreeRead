@@ -29,11 +29,13 @@ import com.kai.common.utils.LogUtils
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.SearchHistory
 import com.kai.ui.bookdetail.BookDetailActivity
+import com.kai.util.DialogHelper
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_search.*
 import kotlinx.android.synthetic.main.activity_search.recycler
 import kotlinx.android.synthetic.main.activity_search.refresh
 import kotlinx.android.synthetic.main.activity_search.status
+import kotlinx.android.synthetic.main.dialog_loading.*
 import java.lang.Exception
 
 
@@ -54,6 +56,7 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
                 if(searchString.isNotEmpty()){
                     listPageLoader.setLoadState(ListPageLoader.SMART_LOAD_REFRESH)
                     mPresenter?.search(searchString)
+                    DialogHelper.instance?.showLoadingDialog(activity = this@SearchActivity)
                 }
             }
         })
@@ -89,7 +92,15 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
 
 
         delete.setOnClickListener {
-           mPresenter?.deleteAll()
+            DialogHelper.instance?.showRemindDialog(activity = this,resources.getString(R.string.delete_all_history),remindDialogClickListener = object :DialogHelper.RemindDialogClickListener{
+                override fun onRemindDialogClickListener(positive: Boolean) {
+                    if(positive){
+                        mPresenter?.deleteAll()
+                    }
+                    DialogHelper.instance?.hintRemindDialog()
+                }
+            })
+
         }
     }
 
@@ -106,6 +117,7 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
         descriptor_layout.visibility = View.GONE
         refresh_content.visibility = View.VISIBLE
         listPageLoader.loadData(searchBooks)
+        DialogHelper.instance?.hintLoadingDialog()
     }
 
     override fun onRecommend(recommends: ArrayList<SearchHistory>) {
@@ -118,6 +130,11 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
     override fun onHistory(historys: ArrayList<SearchHistory>) {
         (history_list.adapter as HistoryAdapter).setNewInstance(historys)
         (history_list.adapter as HistoryAdapter).notifyDataSetChanged()
+        if(historys.size > 0){
+            delete.visibility =View.VISIBLE
+        } else {
+            delete.visibility = View.INVISIBLE
+        }
     }
 
     override fun onDelete() {

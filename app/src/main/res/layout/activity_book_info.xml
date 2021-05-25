@@ -311,7 +311,7 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/cover"
+                android:id="@+id/book_cover"
                 android:layout_width="80dp"
                 android:layout_height="110dp"
                 android:layout_marginTop="8dp"

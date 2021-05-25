@@ -229,7 +229,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         settingIcon.setImageResource(R.drawable.setting)
         settingName.text = "设置"
         setting.setOnClickListener {
-
+            ARouter.getInstance().build("/app/setting").navigation()
         }
 
 

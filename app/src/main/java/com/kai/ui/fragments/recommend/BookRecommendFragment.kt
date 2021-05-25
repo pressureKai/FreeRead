@@ -169,7 +169,10 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                     GlideUtils.loadBlur(it, data.bookCoverUrl, layout)
                 }.start()
             }
-            Glide.with(imageView).load(data.bookCoverUrl).into(imageView)
+            val placeholder = RequestOptions()
+                .error(R.drawable.default_loading)
+                .placeholder(R.drawable.default_loading)
+            Glide.with(imageView).load(data.bookCoverUrl).apply(placeholder).into(imageView)
 
             itemView.setOnClickListener {
                 ARouter.getInstance()
@@ -313,6 +316,8 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                                                     RoundedCorners(16)
                                                 )
                                             )
+                                            .error(R.drawable.default_loading)
+                                            .placeholder(R.drawable.default_loading)
                                             .skipMemoryCache(false)
                                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                                         Glide.with(cover)
@@ -339,6 +344,8 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                                     RoundedCorners(16)
                                 )
                             )
+                            .error(R.drawable.default_loading)
+                            .placeholder(R.drawable.default_loading)
                             .skipMemoryCache(false)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                         Glide.with(cover)

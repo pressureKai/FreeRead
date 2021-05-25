@@ -55,7 +55,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
 import skin.support.SkinCompatManager
 
-
 @Route(path = "/app/book")
 class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPresenter>(),
     BookDetailContract.View {
@@ -168,6 +167,17 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                             val category = pageLoader.getChapterCategory()
                             val bookChapterBean = category[it.progress]
                             current_chapter.text = bookChapterBean.title
+                            try {
+                                if(order_des.text == resources.getString(R.string.order_up_chapter_list)){
+                                    draw_list.scrollToPosition(it.progress.toInt())
+                                } else {
+                                    draw_list.scrollToPosition((category.size -1)-it.progress.toInt())
+                                }
+                            }catch (e:Exception){
+
+                            }
+
+
                         } catch (e: java.lang.Exception) {
                             LogUtils.e("BookDetailActivity", "seek change error is $e")
                         }
@@ -365,6 +375,29 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             mPageLoader?.setPageMode(PageMode.NONE)
         }
 
+
+        order.setOnClickListener {
+            val bookMenuAdapter = draw_list.adapter as BookMenuAdapter
+            bookMenuAdapter.data.reverse()
+            bookMenuAdapter.notifyDataSetChanged()
+            val progress = chapter_progress.progress.toInt()
+            val size = bookMenuAdapter.data.size - 1
+            try {
+                if(order_des.text == resources.getString(R.string.order_up_chapter_list)){
+                    order_des.text = resources.getString(R.string.order_down_chapter_list)
+                    draw_list.scrollToPosition(size - progress)
+                } else {
+                    order_des.text = resources.getString(R.string.order_up_chapter_list)
+                    draw_list.scrollToPosition(progress)
+                }
+            }catch (e:Exception){
+
+            }
+
+
+
+        }
+
     }
 
 
@@ -448,11 +481,13 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                 position = it.mCurrentChapterPosition
             }
             LogUtils.e("BookDetailActivity", "current position is $position")
+
             mPresenter?.loadBookContentByChapter(
                 chapters[position], true
             )
-            chapter_progress.min = position.toFloat()
+            chapter_progress.min = 0f
             chapter_progress.max = chapters.size.toFloat()
+            chapter_progress.setProgress(position.toFloat())
         }
     }
 
@@ -523,6 +558,8 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             }
 
 
+
+
             mPageLoader?.setOnPageChangeListener(object : PageLoader.OnPageChangeListener {
                 override fun onChapterChange(pos: Int) {
                     mPageLoader?.let {
@@ -551,7 +588,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                     //预加载数据前后指定章节数量的数据
                     val chapterCategory = mPageLoader?.getChapterCategory()
                     chapterCategory?.let {
-                        for (index in (mCurrentChapterPosition - 3).until(mCurrentChapterPosition)) {
+                        for (index in (mCurrentChapterPosition - loadSize).until(mCurrentChapterPosition)) {
                             if (index >= 0) {
                                 val bookChapterBean = it[index]
                                 mPresenter?.loadBookContentByChapter(bookChapterBean, false)

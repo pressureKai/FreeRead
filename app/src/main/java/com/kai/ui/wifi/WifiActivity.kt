@@ -1,6 +1,10 @@
 package com.kai.ui.wifi
 
+import android.content.Context
 import android.text.TextUtils
+import androidx.annotation.NonNull
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.google.android.material.appbar.AppBarLayout
@@ -19,6 +23,7 @@ import com.kai.util.DialogHelper
 import com.kai.util.NetworkUtils
 import com.kai.wifitransfer.Defaults
 import com.kai.wifitransfer.ServerRunner
+import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_wifi.*
 import kotlinx.android.synthetic.main.activity_wifi.appBar
 import kotlinx.android.synthetic.main.activity_wifi.back_layout
@@ -29,7 +34,7 @@ import kotlin.math.abs
 @Route(path = "/app/wifi")
 class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     override fun initView() {
-        initImmersionBar(fitSystem = false, dark = true)
+        initImmersionBar(fitSystem = false)
         val wifiIp = NetworkUtils.getConnectWifiIp(this@WifiActivity)
         if (wifiIp!=null && !TextUtils.isEmpty(wifiIp)) {
             address.text = "http://" + NetworkUtils.getConnectWifiIp(this@WifiActivity)
@@ -94,6 +99,7 @@ class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
 
 
                 runOnUiThread {
+                    DialogHelper.instance?.hintRemindDialog()
                     DialogHelper.instance?.showRemindDialog(this,format,remindDialogClickListener = object :DialogHelper.RemindDialogClickListener{
                         override fun onRemindDialogClickListener(positive: Boolean) {
                             if(positive){
@@ -105,17 +111,15 @@ class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
                                 searchBook.author = "wifi"
                                 searchBook.cover = ""
 
-
+                                DialogHelper.instance?.hintRemindDialog()
                                 ARouter.getInstance().build("/app/book").navigation()
                                 this@WifiActivity.postStickyEvent(
                                     searchBook,
                                     BookDetailActivity.BOOK_DETAIL,
                                     BookDetailActivity::class.java.name
                                 )
-                                DialogHelper.instance?.hintRemindDialog()
-                            } else{
-                                DialogHelper.instance?.hintRemindDialog()
                             }
+                            DialogHelper.instance?.hintRemindDialog()
                         }
                     })
                 }
@@ -126,6 +130,18 @@ class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
 
         }
     }
+
+
+    @NonNull
+    override fun getDelegate(): AppCompatDelegate {
+        return SkinAppCompatDelegateImpl.get(this, this)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
+    }
+
+
 
 
 }

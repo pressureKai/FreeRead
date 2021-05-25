@@ -1,6 +1,7 @@
 package com.kai.bookpage.page
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.*
 import android.text.TextPaint
 import androidx.core.content.ContextCompat
@@ -11,6 +12,7 @@ import com.kai.common.constant.Constant
 import com.kai.common.utils.IOUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
+import com.kai.common.utils.SharedPreferenceUtils
 import io.reactivex.rxjava3.disposables.Disposable
 import org.w3c.dom.Text
 import java.io.BufferedReader
@@ -22,6 +24,9 @@ import java.io.BufferedReader
  *   NetPageLoader
  */
 abstract class PageLoader {
+    companion object{
+        const val CHAPTERCOUNT = "CHAPTER_COUNT"
+    }
     private val TAG = "PageLoader"
 
     var STATUS_LOADING = 1
@@ -106,7 +111,7 @@ abstract class PageLoader {
 
 
     private var mTipTitleMargin = 0
-    private var preLoadChapterSize = 3
+    private var preLoadChapterSize = SharedPreferenceUtils.getInstance()?.getInt(CHAPTERCOUNT,3)
 
 
     constructor(pageView: PageView, coolBookBean: CoolBookBean) {
@@ -1237,7 +1242,7 @@ abstract class PageLoader {
 
 
     private fun preLoadChapterData() {
-        mPageChangeListener?.onPreLoadChapter(mCurrentChapterPosition, preLoadChapterSize)
+        mPageChangeListener?.onPreLoadChapter(mCurrentChapterPosition, preLoadChapterSize!!)
     }
 
 

@@ -72,6 +72,7 @@
                         android:layout_weight="1" />
 
                     <LinearLayout
+                        android:id="@+id/order"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="16dp"
@@ -79,9 +80,10 @@
                         android:padding="@dimen/dp_4">
 
                         <TextView
+                            android:id="@+id/order_des"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/order_chapter_list"
+                            android:text="@string/order_up_chapter_list"
                             android:textColor="@color/app.font.color" />
 
 
