@@ -8,6 +8,7 @@ import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.bookpage.page.PageLoader
@@ -17,7 +18,7 @@ import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_setting.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
 
-@Route(path = "/app/setting")
+@Route(path =BaseInit.SETTING)
 class SettingActivity: BaseMvpActivity<IView, BasePresenter<IView>>() {
 
     override fun initView() {

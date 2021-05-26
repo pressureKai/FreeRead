@@ -144,6 +144,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/shelf_image"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:src="@drawable/book_shelf"/>
@@ -170,9 +171,10 @@
 
 
                             <ImageView
+                                android:id="@+id/like_image"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/add_like"/>
+                                android:src="@drawable/add_like_night"/>
 
 
                             <TextView
@@ -181,7 +183,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/app.font.color"
-                                android:text="@string/add_book_shelf"/>
+                                android:text="@string/like"/>
 
                         </LinearLayout>
 
@@ -198,7 +200,8 @@
                             <Button
                                 android:id="@+id/read"
                                 android:text="@string/read"
-                                android:textColor="@color/app.font.color"
+                                android:background="@drawable/login_button_bg_big_radius"
+                                android:textColor="@color/white"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"/>
 

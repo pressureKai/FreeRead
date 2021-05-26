@@ -18,7 +18,7 @@ import com.kai.common.application.BaseApplication
         CoolBookBean::class,
         BookRecordBean::class,
         BookRecommend::class,
-    ], version = 4
+    ], version = 5
 )
 abstract class BookDatabase : RoomDatabase() {
     companion object {

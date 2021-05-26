@@ -21,6 +21,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.utils.GlideUtils
 import com.kai.common.utils.LogUtils
@@ -36,7 +37,7 @@ import kotlinx.android.synthetic.main.merge_toolbar.*
 import kotlinx.android.synthetic.main.merge_toolbar.back
 import java.lang.Exception
 
-@Route(path = "/app/ranking")
+@Route(path = BaseInit.RANKING)
 class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, RankingDetailPresenter>(),
     RankingDetailContract.View, RxCardStackView.ItemExpendListener {
     private lateinit var mRankingAdapter: RankingAdapter
@@ -73,7 +74,7 @@ class RankingDetailActivity : BaseMvpActivity<RankingDetailContract.View, Rankin
                 val currentSelect = ranking_stack.getCurrentSelect()
                 val bookRecommend = mRankingAdapter.mData[currentSelect]
                 ARouter.getInstance()
-                    .build("/app/bookinfo")
+                    .build(BaseInit.BOOKINFO)
                     .withString("url", bookRecommend.bookUrl)
                     .navigation()
 

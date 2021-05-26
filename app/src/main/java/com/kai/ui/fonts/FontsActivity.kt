@@ -8,6 +8,7 @@ import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.utils.SharedPreferenceUtils
@@ -28,7 +29,7 @@ import kotlinx.android.synthetic.main.merge_toolbar.*
  * @Author:         pressureKai
  * @UpdateDate:     2021/4/6 10:58
  */
-@Route(path = "/app/fonts")
+@Route(path = BaseInit.FONTS)
 class FontsActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     companion object {
         const val CURRENT_FONT = "current_font"
@@ -43,7 +44,7 @@ class FontsActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
         }
         SharedPreferenceUtils.getInstance()?.let {
             current_font.text = "当前字体 - ${
-                it.getString(CURRENT_FONT, "fonts/方正准圆.ttf")
+                it.getString(CURRENT_FONT, resources.getString(R.string.system_fonts))
                     .replace("fonts/", "")
                     .replace(".ttf", "")
                     .replace(".TTF", "").trim()

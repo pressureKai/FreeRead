@@ -14,6 +14,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
+import com.kai.base.application.BaseInit
 import com.kai.base.fragment.BaseMvpFragment
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.extension.getScreenWidth
@@ -77,7 +78,7 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
 
 
         search_layout.setOnClickListener {
-            ARouter.getInstance().build("/app/search").navigation()
+            ARouter.getInstance().build(BaseInit.SEARCH).navigation()
         }
         draw.setOnClickListener {
             (activity as MainActivity).openDrawer()
@@ -203,7 +204,7 @@ class BookRankingFragment : BaseMvpFragment<RankingContract.View, RankingPresent
 
                 view.setOnClickListener { _ ->
                     ARouter.getInstance()
-                        .build("/app/ranking")
+                        .build(BaseInit.RANKING)
                         .withInt("type", item)
                         .withString("url", it)
                         .navigation()

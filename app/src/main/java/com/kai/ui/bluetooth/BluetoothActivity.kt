@@ -15,6 +15,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.appbar.AppBarLayout
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.common.extension.customToast
@@ -30,7 +31,7 @@ import kotlinx.android.synthetic.main.activity_bluetooth.toolbar
 import java.util.logging.Handler
 import kotlin.math.abs
 
-@Route(path = "/app/bluetooth")
+@Route(path = BaseInit.BLUETOOTH)
 class BluetoothActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     private var bluetoothUtils: BlueToothUtils? = null
     private val bluetoothDevices: ArrayList<BluetoothDevice> = ArrayList()

@@ -21,6 +21,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.ListPageLoader
 import com.kai.base.widget.load.RefreshDataListener
@@ -28,7 +29,6 @@ import com.kai.common.listener.CustomTextWatcher
 import com.kai.common.utils.LogUtils
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.SearchHistory
-import com.kai.ui.bookdetail.BookDetailActivity
 import com.kai.util.DialogHelper
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_search.*
@@ -39,7 +39,7 @@ import kotlinx.android.synthetic.main.dialog_loading.*
 import java.lang.Exception
 
 
-@Route(path = "/app/search")
+@Route(path = BaseInit.SEARCH)
 class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
     SearchContract.View, RefreshDataListener, ChargeLoadMoreListener {
     private lateinit var listPageLoader: ListPageLoader<SearchBook>
@@ -68,7 +68,7 @@ class SearchActivity: BaseMvpActivity<SearchContract.View, SearchPresenter>(),
                 val searchBook = adapter.data[position] as SearchBook
                 val url = searchBook.sources.first().link
                 ARouter.getInstance()
-                    .build("/app/bookinfo")
+                    .build(BaseInit.BOOKINFO)
                     .withString("url", url)
                     .navigation()
             }catch (e:Exception){

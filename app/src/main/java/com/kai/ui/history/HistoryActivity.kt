@@ -21,13 +21,14 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.bookpage.model.BookRecommend
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_history.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
 import java.lang.Exception
 
-@Route(path = "/app/history")
+@Route(path = BaseInit.HISTORY)
 class HistoryActivity : BaseMvpActivity<HistoryContract.View, HistoryPresenter>(),
     HistoryContract.View {
     companion object {
@@ -50,7 +51,7 @@ class HistoryActivity : BaseMvpActivity<HistoryContract.View, HistoryPresenter>(
                 val searchBook = bookRecommend.toSearchBook()
                 val url = searchBook.sources.first().link
                 ARouter.getInstance()
-                    .build("/app/bookinfo")
+                    .build(BaseInit.BOOKINFO)
                     .withString("url", url)
                     .navigation()
             } catch (e: Exception) {

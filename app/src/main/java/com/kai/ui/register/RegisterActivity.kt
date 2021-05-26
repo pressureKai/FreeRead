@@ -7,6 +7,7 @@ import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.common.extension.customToast
 import com.kai.common.extension.formatPhone
 import com.kai.common.extension.measureView
@@ -27,7 +28,7 @@ import kotlinx.android.synthetic.main.merge_toolbar.*
  * @Author:         pressureKai
  * @UpdateDate:     2021/4/7 15:45
  */
-@Route(path = "/app/register")
+@Route(path = BaseInit.REGISTER)
 class RegisterActivity : BaseMvpActivity<RegisterContract.View, RegisterPresenter>()
     ,KeyboardHeightObserver ,RegisterContract.View{
 

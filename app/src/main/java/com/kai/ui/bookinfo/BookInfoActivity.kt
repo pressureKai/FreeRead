@@ -3,8 +3,11 @@ package com.kai.ui.bookinfo
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatDelegate
@@ -24,6 +27,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.appbar.AppBarLayout
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.extension.customToast
 import com.kai.common.extension.getScreenHeight
@@ -36,20 +40,18 @@ import com.kai.util.DialogHelper
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.schedulers.Schedulers
 import jp.wasabeef.glide.transformations.BlurTransformation
 import kotlinx.android.synthetic.main.activity_book_info.*
 import kotlinx.android.synthetic.main.activity_book_info.appBar
 import kotlinx.android.synthetic.main.activity_book_info.info_layout
-import kotlinx.android.synthetic.main.activity_main.*
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
 import java.lang.Exception
 import kotlin.math.abs
 
 
-@Route(path = "/app/bookinfo")
+@Route(path = BaseInit.BOOKINFO)
 class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresenter>(),
     BookInfoContract.View, SkinCompatSupportable {
     private var bitmapWidth = 0
@@ -90,9 +92,16 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         val url = intent.getStringExtra("url")
         url?.let {
             if (it.isNotEmpty()) {
-                mPresenter?.getBookDetail(it)
-                mPresenter?.recommendList(it)
                 DialogHelper.instance?.showLoadingDialog(activity = this)
+
+
+                Thread{
+                    Thread.sleep(200)
+                    mPresenter?.getBookDetail(it)
+                    mPresenter?.recommendList(it)
+                }.start()
+
+
             } else {
                 finish()
             }
@@ -106,52 +115,14 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
 
         add_like_layout.setOnClickListener {
             mRecommend?.let {
-                if (it.updateLikeState()) {
-                    if (!it.getCurrentLikeState()) {
-                        add_like.text = "收藏"
-                        customToast("取消收藏成功")
-                    } else {
-                        add_like.text = "已收藏"
-                        customToast("收藏成功")
-                    }
-                } else {
-                    it.save()
-                    if (it.updateLikeState()) {
-                        if (!it.getCurrentLikeState()) {
-                            add_like.text = "收藏"
-                            customToast("取消收藏成功")
-                        } else {
-                            add_like.text = "已收藏"
-                            customToast("收藏成功")
-                        }
-                    }
-                }
+               val addLike = add_like.text == resources.getString(R.string.like)
+               mPresenter?.likeOption(it.bookUrl,addLike)
             }
         }
         add_shelf_layout.setOnClickListener {
             mRecommend?.let {
-                if (it.updateShelfState()) {
-                    if (!it.getCurrentShelfState()) {
-                        add_shelf_layout.isEnabled = true
-                        add_shelf.text = "加书架"
-                    } else {
-                        add_shelf_layout.isEnabled = false
-                        add_shelf.text = "已加入"
-                        customToast("加入书架成功")
-                    }
-                } else {
-                    it.save()
-                    if (it.updateShelfState()) {
-                        if (!it.getCurrentShelfState()) {
-                            add_shelf_layout.isEnabled = true
-                            add_shelf.text = "加书架"
-                        } else {
-                            add_shelf_layout.isEnabled = false
-                            add_shelf.text = "已加入"
-                            customToast("加入书架成功")
-                        }
-                    }
-                }
+                val addShelf = add_shelf.text == resources.getString(R.string.add_book_shelf)
+                mPresenter?.shelfOption(it.bookUrl,addShelf)
             }
         }
         read.setOnClickListener {
@@ -210,26 +181,9 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                 update_chapter.text = recommend.newChapterName
                 update_time.text = recommend.updateTime
                 book_descriptor.text = recommend.bookDescriptor
-
-
                 loadBlur(recommend.bookCoverUrl)
-
-                if (!recommend.getCurrentLikeState()) {
-                    add_like_layout.isEnabled = true
-                    add_like.text = "收藏"
-                } else {
-                    add_like_layout.isEnabled = false
-                    add_like.text = "已收藏"
-                }
-
-                if (!recommend.getCurrentShelfState()) {
-                    add_shelf_layout.isEnabled = true
-                    add_shelf.text = "加书架"
-                } else {
-                    add_shelf_layout.isEnabled = false
-                    add_shelf.text = "已加入"
-                }
-
+                mPresenter?.getBookLike(recommend.bookUrl)
+                mPresenter?.getBookShelf(recommend.bookUrl)
 
                 recommend.updateReadState()
             } catch (e: Exception) {
@@ -250,7 +204,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
             try {
                 val bookRecommend = list[i]
                 ARouter.getInstance()
-                    .build("/app/bookinfo")
+                    .build(BaseInit.BOOKINFO)
                     .withString("url", bookRecommend.bookUrl)
                     .navigation()
             } catch (e: java.lang.Exception) {
@@ -259,6 +213,71 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         }
         recommend_list.adapter = recommendItemListAdapter
         recommendItemListAdapter.setNewInstance(list)
+    }
+
+    override fun onLikeOption(code:Int) {
+        when (code) {
+            0 -> {
+                customToast("请登录")
+            }
+            1 -> {
+                mRecommend?.let {
+                    customToast("已收藏")
+                    mPresenter?.getBookLike(it.bookUrl)
+                }
+            }
+            else -> {
+                mRecommend?.let {
+                    customToast("已取消")
+                    mPresenter?.getBookLike(it.bookUrl)
+                }
+            }
+        }
+    }
+
+    override fun onShelfOption(code: Int) {
+        when (code) {
+            0 -> {
+                customToast("请登录")
+            }
+            1 -> {
+                mRecommend?.let {
+                    customToast("已加入")
+                    mPresenter?.getBookShelf(it.bookUrl)
+                }
+            }
+            else -> {
+                mRecommend?.let {
+                    customToast("已移除")
+                    mPresenter?.getBookShelf(it.bookUrl)
+                }
+            }
+        }
+    }
+
+    override fun onGetBookLike(like:Boolean) {
+        if (!like) {
+            add_like_layout.isEnabled = true
+            Glide.with(like_image).load(R.drawable.add_like_night).into(like_image)
+            add_like.text = resources.getString(R.string.like)
+        } else {
+            add_like_layout.isEnabled = true
+            Glide.with(like_image).load(R.drawable.add_like).into(like_image)
+            add_like.text = resources.getString(R.string.liked)
+        }
+    }
+
+    override fun onGetBookShelf(shelf:Boolean) {
+        if (!shelf) {
+            add_shelf_layout.isEnabled = true
+            Glide.with(shelf_image).load(R.drawable.book_shelf_night).into(shelf_image)
+            add_shelf.text =  resources.getString(R.string.add_book_shelf)
+        } else {
+            add_shelf_layout.isEnabled = true
+            Glide.with(shelf_image).load(R.drawable.book_shelf).into(shelf_image)
+            add_shelf.text = resources.getString(R.string.shelfed)
+        }
+
     }
 
 
@@ -312,16 +331,19 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         override fun convert(holder: BaseViewHolder, item: BookRecommend) {
             val cover = holder.getView<ImageView>(R.id.cover)
             val name = holder.getView<TextView>(R.id.book_name)
-            val descriptor = holder.getView<TextView>(R.id.book_descriptor)
+            val descriptor = holder.getView<TextView>(R.id.book_descriptor_item)
             val layout = holder.getView<ConstraintLayout>(R.id.layout)
-            val width = (getScreenWidth()) / 2 + 10
+            val nameLayout = holder.getView<LinearLayout>(R.id.name_layout)
+            val width = (getScreenWidth()) / 2 + name.textSize.toInt() * 2
             layout.layoutParams.width = width
             val coverWidth = (width / 2) - ScreenUtils.dpToPx(16)
             cover.layoutParams.width = coverWidth
             cover.layoutParams.height = (coverWidth / 0.75).toInt()
-            layout.layoutParams.height = (coverWidth / 0.75).toInt() + ScreenUtils.dpToPx(16)
+            layout.layoutParams.height = (coverWidth / 0.75).toInt()
             name.layoutParams.width = width / 2
             descriptor.layoutParams.width = width / 2
+            nameLayout.layoutParams.height = (coverWidth / 0.75).toInt()
+
             mPresenter?.let {
                 val localBookDetail = it.localBookDetail(item.bookUrl)
                 if (localBookDetail == null || localBookDetail.checkIsEmpty()) {
@@ -375,9 +397,19 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
                             .dontAnimate()
                             .into(cover)
                     }
-
                     name.text = localBookDetail.bookName
-                    descriptor.text = localBookDetail.bookDescriptor
+                    name.postDelayed({
+                        val fl = (((coverWidth / 0.75).toInt() - name.measureView()[1]) / name.measureView()[1]).toInt()
+                        descriptor.setLines(fl-1)
+                        descriptor.text = localBookDetail.bookDescriptor
+                        descriptor.lineCount
+                    },10)
+                    descriptor.postDelayed({
+                        val fl = (((coverWidth / 0.75).toInt() - name.measureView()[1]) / name.measureView()[1]).toInt()
+                        descriptor.setLines(fl)
+                        descriptor.text = localBookDetail.bookDescriptor
+                    },30)
+
                 }
             }
 

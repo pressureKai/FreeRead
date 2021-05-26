@@ -5,4 +5,13 @@
         <!-- Vertical Spacing between two lines of items being laid out. -->
         <attr format="dimension" name="lineSpacing"/>
     </declare-styleable>
+
+    <declare-styleable name="SlideWrapper">
+        <!-- static:侧滑的view不动,只有被包装的view移动； dynamic:侧滑view跟随被包装view一起移动 -->
+        <attr name="mode" format="string"/>
+        <!-- 侧滑view展开或关闭时的动画时长-->
+        <attr name="anim_duration" format="integer"/>
+        <!-- 点击后是否自动关闭侧滑view -->
+        <attr name="close_onclick" format="boolean"/>
+    </declare-styleable>
 </resources>

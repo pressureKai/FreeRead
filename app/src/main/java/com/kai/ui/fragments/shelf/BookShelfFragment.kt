@@ -14,10 +14,13 @@ import com.bumptech.glide.request.RequestOptions
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
+import com.kai.base.application.BaseInit
 import com.kai.base.fragment.BaseMvpFragment
 import com.kai.bookpage.model.BookRecommend
+import com.kai.common.extension.customToast
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
+import com.kai.common.view.SlideWrapper
 import com.kai.ui.bookdetail.BookDetailActivity
 import com.kai.ui.main.MainActivity
 import kotlinx.android.synthetic.main.fragment_book_shelf.*
@@ -50,7 +53,7 @@ class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
 
 
         search_layout.setOnClickListener {
-            ARouter.getInstance().build("/app/search").navigation()
+            ARouter.getInstance().build(BaseInit.SEARCH).navigation()
         }
         draw.setOnClickListener {
             (activity as MainActivity).openDrawer()
@@ -58,16 +61,7 @@ class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
         val bookAdapter = BookAdapter()
         bookAdapter.setOnItemClickListener { baseQuickAdapter, view, i ->
             if (baseQuickAdapter.data.size - 1 == i) {
-                ARouter.getInstance().build("/app/search").navigation()
-            } else {
-                val bookRecommend = baseQuickAdapter.data[i] as BookRecommend
-                val searchBook = bookRecommend.toSearchBook()
-                ARouter.getInstance().build("/app/book").navigation()
-                (activity as MainActivity).postStickyEvent(
-                    searchBook,
-                    BookDetailActivity.BOOK_DETAIL,
-                    BookDetailActivity::class.java.name
-                )
+                ARouter.getInstance().build(BaseInit.SEARCH).navigation()
             }
         }
         activity?.let {
@@ -99,6 +93,11 @@ class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
         mPresenter?.shelf()
     }
 
+
+    fun refresh(){
+        mPresenter?.shelf()
+    }
+
     override fun initImmersionBar() {
 
     }
@@ -113,6 +112,7 @@ class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
                 val bookAuthor = holder.getView<TextView>(R.id.book_author)
                 val cover = holder.getView<ImageView>(R.id.cover)
                 val addLayout = holder.getView<ConstraintLayout>(R.id.add_layout)
+                val slide = holder.getView<SlideWrapper>(R.id.slide)
 
 
                 if ((getItemPosition(item) == data.size - 1)) {
@@ -127,11 +127,37 @@ class BookShelfFragment : BaseMvpFragment<ShelfContract.View, ShelfPresenter>(),
                     bookName.text = item.bookName
                     bookAuthor.text = item.authorName
                 }
+
+                val b = getItemPosition(item) != data.size - 1
+                slide.setEnableSlide(b)
+                slide.setStartDeleteConfirm(true)
+                slide.setOnClickListener {
+                    if (data.size - 1 == getItemPosition(item)) {
+                        ARouter.getInstance().build(BaseInit.SEARCH).navigation()
+                    } else {
+                        val bookRecommend = item as BookRecommend
+                        val searchBook = bookRecommend.toSearchBook()
+                        ARouter.getInstance().build(BaseInit.BOOK).navigation()
+                        (activity as MainActivity).postStickyEvent(
+                            searchBook,
+                            BookDetailActivity.BOOK_DETAIL,
+                            BookDetailActivity::class.java.name
+                        )
+                    }
+                }
+                slide.setmSlideControlViewClickListener(object :SlideWrapper.SlideControlViewClickListener{
+                    override fun onSlideControlViewClickListener(type: Int) {
+                        mPresenter?.removeBookShelf(item.bookUrl,object :ShelfPresenter.RemoveListener{
+                            override fun removeListener() {
+                                mPresenter?.shelf()
+                                customToast("移除成功")
+                            }
+                        })
+                    }
+                })
             } catch (e: java.lang.Exception) {
                 LogUtils.e("BookShelfFragment", "error is $e")
             }
-
-
         }
 
         override fun getItemId(position: Int): Long {

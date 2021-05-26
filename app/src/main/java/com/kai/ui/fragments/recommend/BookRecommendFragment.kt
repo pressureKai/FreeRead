@@ -23,10 +23,12 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.appbar.AppBarLayout
 import com.kai.base.R
+import com.kai.base.application.BaseInit
 import com.kai.base.fragment.BaseMvpFragment
 import com.kai.bookpage.model.BookRecommend
 import com.kai.common.extension.getScreenHeight
 import com.kai.common.extension.getScreenWidth
+import com.kai.common.extension.measureView
 import com.kai.common.utils.GlideUtils
 import com.kai.common.utils.LogUtils
 import com.kai.common.utils.ScreenUtils
@@ -109,7 +111,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
             recommendListAdapter.setHasStableIds(true)
             list.adapter = recommendListAdapter
             search_layout.setOnClickListener {
-                ARouter.getInstance().build("/app/search").navigation()
+                ARouter.getInstance().build(BaseInit.SEARCH).navigation()
             }
             draw.setOnClickListener {
                 (activity as MainActivity).openDrawer()
@@ -176,7 +178,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
 
             itemView.setOnClickListener {
                 ARouter.getInstance()
-                    .build("/app/bookinfo")
+                    .build(BaseInit.BOOKINFO)
                     .withString("url", data.bookUrl)
                     .navigation()
             }
@@ -249,7 +251,7 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                         try {
                             val bookRecommend = item[i]
                             ARouter.getInstance()
-                                .build("/app/bookinfo")
+                                .build(BaseInit.BOOKINFO)
                                 .withString("url", bookRecommend.bookUrl)
                                 .navigation()
                         } catch (e: java.lang.Exception) {
@@ -289,18 +291,22 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
         override fun convert(holder: BaseViewHolder, item: BookRecommend) {
             val cover = holder.getView<ImageView>(R.id.cover)
             val name = holder.getView<TextView>(R.id.book_name)
-            val descriptor = holder.getView<TextView>(R.id.book_descriptor)
+            val descriptor = holder.getView<TextView>(R.id.book_descriptor_item)
             val layout = holder.getView<ConstraintLayout>(R.id.layout)
+            val layoutName = holder.getView<ConstraintLayout>(R.id.layout_name)
+            val nameLayout = holder.getView<LinearLayout>(R.id.name_layout)
+            var coverWidth = 0
             activity?.let {
-                val width = (it.getScreenWidth()) / 2 + 100
+                val width = (it.getScreenWidth()) / 2 + name.textSize.toInt() * 2
                 layout.layoutParams.width = width
-                val coverWidth = (width / 2) - ScreenUtils.dpToPx(16)
+                coverWidth = (width / 2) - ScreenUtils.dpToPx(16)
                 cover.layoutParams.width = coverWidth
                 cover.layoutParams.height = (coverWidth / 0.75).toInt()
-                layout.layoutParams.height = (coverWidth / 0.75).toInt() + ScreenUtils.dpToPx(16)
+                layout.layoutParams.height = (coverWidth / 0.75).toInt()
                 name.layoutParams.width = width / 2
                 descriptor.layoutParams.width = width / 2
-            }
+                nameLayout.layoutParams.height = (coverWidth / 0.75).toInt()
+           }
             mPresenter?.let {
                 val localBookDetail = it.localBookDetail(item.bookUrl)
                 if (localBookDetail == null || localBookDetail.checkIsEmpty()) {
@@ -354,9 +360,20 @@ class BookRecommendFragment : BaseMvpFragment<RecommendContract.View, RecommendP
                             .dontAnimate()
                             .into(cover)
                     }
-
                     name.text = localBookDetail.bookName
-                    descriptor.text = localBookDetail.bookDescriptor
+                    name.postDelayed({
+                        val fl = (((coverWidth / 0.75).toInt() - name.measureView()[1]) / name.measureView()[1]).toInt()
+                        descriptor.setLines(fl-1)
+                        descriptor.text = localBookDetail.bookDescriptor
+                        descriptor.lineCount
+                    },10)
+
+                    descriptor.postDelayed({
+                        val fl = (((coverWidth / 0.75).toInt() - name.measureView()[1]) / name.measureView()[1]).toInt()
+                        descriptor.setLines(fl)
+                        descriptor.text = localBookDetail.bookDescriptor
+                    },30)
+
                 }
             }
 

@@ -22,6 +22,7 @@ import androidx.viewpager.widget.ViewPager
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.base.widget.load.ChargeLoadMoreListener
 import com.kai.base.widget.load.ListPageLoader
 import com.kai.base.widget.load.RefreshDataListener
@@ -34,17 +35,23 @@ import com.kai.common.utils.SharedPreferenceUtils
 import com.kai.crawler.Crawler
 import com.kai.crawler.entity.book.SearchBook
 import com.kai.entity.User
+import com.kai.ui.fonts.FontsActivity
 import com.kai.ui.forgetpassword.ForgetPasswordActivity
 import com.kai.ui.fragments.ranking.BookRankingFragment
 import com.kai.ui.fragments.recommend.BookRecommendFragment
 import com.kai.ui.fragments.shelf.BookShelfFragment
 import com.kai.ui.history.HistoryActivity
+import com.kai.ui.login.interceptor.LoginNavigationCallbackImpl
 import com.tencent.bugly.beta.Beta
+import io.github.inflationx.calligraphy3.CalligraphyConfig
+import io.github.inflationx.calligraphy3.CalligraphyInterceptor
+import io.github.inflationx.viewpump.ViewPump
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import skin.support.SkinCompatManager
 import skin.support.widget.SkinCompatSupportable
+import java.lang.Exception
 
 /**
  *# app - 首页
@@ -229,7 +236,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         settingIcon.setImageResource(R.drawable.setting)
         settingName.text = "设置"
         setting.setOnClickListener {
-            ARouter.getInstance().build("/app/setting").navigation()
+            ARouter.getInstance().build(BaseInit.SETTING).navigation()
         }
 
 
@@ -290,7 +297,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         wifiIcon.setImageResource(R.drawable.wifi)
         wifiName.text = "Wi-Fi传书"
         wifi.setOnClickListener {
-            ARouter.getInstance().build("/app/wifi").navigation()
+            ARouter.getInstance().build(BaseInit.WIFI).navigation()
         }
 
 
@@ -299,7 +306,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         bluetoothIcon.setImageResource(R.drawable.bluetooth)
         bluetoothName.text = "蓝牙传书"
         bluetooth.setOnClickListener {
-            ARouter.getInstance().build("/app/bluetooth").navigation()
+            ARouter.getInstance().build(BaseInit.BLUETOOTH).navigation()
         }
 
 
@@ -310,7 +317,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         font.setOnClickListener {
             ARouter
                 .getInstance()
-                .build("/app/fonts")
+                .build(BaseInit.FONTS)
                 .navigation()
         }
 
@@ -328,7 +335,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 )
                 ARouter
                     .getInstance()
-                    .build("/app/forgetPassword")
+                    .build(BaseInit.FORGETPASSWORD)
                     .withBoolean("unRegister", true)
                     .navigation()
             }
@@ -343,7 +350,12 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         quitAppIcon.setImageResource(R.drawable.quit)
         quitAppName.text = "退出登陆"
         quit_app.setOnClickListener {
-            finish()
+            val currentUser1 = mPresenter?.getCurrentUser()
+            if(!currentUser1.isNullOrEmpty()){
+                mPresenter?.quitLogin()
+            } else {
+                customToast("请登录")
+            }
         }
 
 
@@ -371,7 +383,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         read_history.setOnClickListener {
             ARouter
                 .getInstance()
-                .build("/app/history")
+                .build(BaseInit.HISTORY)
                 .withInt("type", HistoryActivity.READ)
                 .navigation()
         }
@@ -384,15 +396,21 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
         like.setOnClickListener {
             ARouter
                 .getInstance()
-                .build("/app/history")
+                .build(BaseInit.HISTORY)
                 .withInt("type", HistoryActivity.LIKE)
-                .navigation()
+                .navigation(this, LoginNavigationCallbackImpl());
         }
 
 
 
         info_layout.setOnClickListener {
-            ARouter.getInstance().build("/app/login").navigation()
+            val currentUser1 = mPresenter?.getCurrentUser()
+            if(!currentUser1.isNullOrEmpty()){
+
+            } else {
+                ARouter.getInstance().build(BaseInit.LOGIN).navigation()
+            }
+
         }
 
     }
@@ -416,6 +434,16 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
                 currentUser = user
             }
         }
+    }
+
+    override fun onQuitLogin() {
+        mPresenter?.getLoginCurrentUser()
+        try {
+            (fragments?.get(0) as BookShelfFragment).refresh()
+        }catch (e:Exception){
+
+        }
+
     }
 
 
@@ -453,7 +481,7 @@ class MainActivity : BaseMvpActivity<MainContract.View, MainPresenter>(), MainCo
             .doOnError {
                 listPageLoader.loadData(responseState = ListPageLoader.DATA_STATE_ERROR)
             }.subscribe {
-                listPageLoader.loadData(it)
+               // listPageLoader.loadData(it)
             }
     }
 

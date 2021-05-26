@@ -28,6 +28,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.bookpage.model.BookChapterBean
 import com.kai.bookpage.model.BookChapterListBean
 import com.kai.bookpage.model.CoolBookBean
@@ -55,7 +56,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.merge_toolbar.*
 import skin.support.SkinCompatManager
 
-@Route(path = "/app/book")
+@Route(path = BaseInit.BOOK)
 class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPresenter>(),
     BookDetailContract.View {
     private var mPageLoader: PageLoader? = null
@@ -326,7 +327,10 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         arrayList.add(PageStyle.BG_4)
         (background_list.adapter as BackgroundListAdapter).setNewInstance(arrayList)
         (background_list.adapter as BackgroundListAdapter).setOnItemClickListener { adapter, _, position ->
-            val pageStyle = adapter.data[position] as PageStyle
+            var pageStyle = adapter.data[position] as PageStyle
+            if (SkinCompatManager.getInstance().curSkinName == "night") {
+                pageStyle = PageStyle.BG_NIGHT
+            }
             mPageLoader?.setPageStyle(pageStyle)
             adapter.notifyDataSetChanged()
         }
@@ -393,9 +397,6 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             }catch (e:Exception){
 
             }
-
-
-
         }
 
     }
@@ -551,6 +552,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             mPageLoader =
                 pageView.getPageLoader(mCoolBookBean, crawlerPageLoader)
 
+            setPageStyle()
             mPageLoader?.let {
                 current_size.text =
                     resources.getString(R.string.book_current_size) + " " + it.getTextSize()
@@ -793,15 +795,23 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
 
     override fun onResume() {
         super.onResume()
+
+        setPageStyle()
+    }
+
+    private fun setPageStyle(){
         mPageLoader?.let {
-            val pageStyle = it.getSettingManager()?.getPageStyle()
+            var pageStyle = it.getSettingManager()?.getPageStyle()
+            if (SkinCompatManager.getInstance().curSkinName == "night") {
+                pageStyle = PageStyle.BG_NIGHT
+            }
+
             pageStyle?.let { style ->
                 Handler(Looper.getMainLooper()).postDelayed({
                     it.setPageStyle(style)
                 }, 100)
             }
         }
-
     }
 
     inner class BackgroundListAdapter :

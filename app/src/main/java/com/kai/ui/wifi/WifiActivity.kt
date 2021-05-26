@@ -10,6 +10,7 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.google.android.material.appbar.AppBarLayout
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
 import com.kai.bookpage.model.BookRecommend
@@ -31,12 +32,12 @@ import kotlinx.android.synthetic.main.activity_wifi.toolbar
 import org.greenrobot.eventbus.EventBus
 import kotlin.math.abs
 
-@Route(path = "/app/wifi")
+@Route(path = BaseInit.WIFI)
 class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     override fun initView() {
         initImmersionBar(fitSystem = false)
         val wifiIp = NetworkUtils.getConnectWifiIp(this@WifiActivity)
-        if (wifiIp!=null && !TextUtils.isEmpty(wifiIp)) {
+        if (wifiIp != null && !TextUtils.isEmpty(wifiIp)) {
             address.text = "http://" + NetworkUtils.getConnectWifiIp(this@WifiActivity)
                 .toString() + ":" + Defaults.getPort()
             // 启动wifi传书服务器
@@ -74,12 +75,12 @@ class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     override fun <T> onMessageReceiver(baseEntity: BaseEntity<T>) {
         super.onMessageReceiver(baseEntity)
         val path = baseEntity.data.toString()
-        if(path.isNotEmpty()){
+        if (path.isNotEmpty()) {
             try {
                 var name = ""
                 try {
-                     name = path.substring(path.lastIndexOf("/") +1, path.length)
-                }catch (e:java.lang.Exception){
+                    name = path.substring(path.lastIndexOf("/") + 1, path.length)
+                } catch (e: java.lang.Exception) {
 
                 }
 
@@ -94,37 +95,41 @@ class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
                 bookRecommend.bookCoverUrl = R.mipmap.ic_launcher.toString()
                 bookRecommend.newChapterUrl = path
                 bookRecommend.newChapterName = name
-                bookRecommend.isShelf = true
+                bookRecommend.isLocal = true
                 bookRecommend.save()
 
 
                 runOnUiThread {
                     DialogHelper.instance?.hintRemindDialog()
-                    DialogHelper.instance?.showRemindDialog(this,format,remindDialogClickListener = object :DialogHelper.RemindDialogClickListener{
-                        override fun onRemindDialogClickListener(positive: Boolean) {
-                            if(positive){
-                                val searchBook = SearchBook()
-                                val sl = SearchBook.SL(path, Source(0, "", "", ""))
-                                searchBook.sources = arrayListOf(sl)
-                                searchBook.title = name
-                                searchBook.descriptor = name
-                                searchBook.author = "wifi"
-                                searchBook.cover = ""
+                    DialogHelper.instance?.showRemindDialog(
+                        this,
+                        format,
+                        remindDialogClickListener = object :
+                            DialogHelper.RemindDialogClickListener {
+                            override fun onRemindDialogClickListener(positive: Boolean) {
+                                if (positive) {
+                                    val searchBook = SearchBook()
+                                    val sl = SearchBook.SL(path, Source(0, "", "", ""))
+                                    searchBook.sources = arrayListOf(sl)
+                                    searchBook.title = name
+                                    searchBook.descriptor = name
+                                    searchBook.author = "wifi"
+                                    searchBook.cover = ""
 
+                                    DialogHelper.instance?.hintRemindDialog()
+                                    ARouter.getInstance().build(BaseInit.BOOK).navigation()
+                                    this@WifiActivity.postStickyEvent(
+                                        searchBook,
+                                        BookDetailActivity.BOOK_DETAIL,
+                                        BookDetailActivity::class.java.name
+                                    )
+                                }
                                 DialogHelper.instance?.hintRemindDialog()
-                                ARouter.getInstance().build("/app/book").navigation()
-                                this@WifiActivity.postStickyEvent(
-                                    searchBook,
-                                    BookDetailActivity.BOOK_DETAIL,
-                                    BookDetailActivity::class.java.name
-                                )
                             }
-                            DialogHelper.instance?.hintRemindDialog()
-                        }
-                    })
+                        })
                 }
 
-            }catch (e:Exception){
+            } catch (e: Exception) {
 
             }
 
@@ -140,8 +145,6 @@ class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(ViewPumpContextWrapper.wrap(newBase))
     }
-
-
 
 
 }

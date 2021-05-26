@@ -21,6 +21,8 @@ class MainContract {
          * @date 2021/4/13
          */
         fun onGetLoginUser(user: BaseEntity<User>)
+
+        fun onQuitLogin()
     }
 
     interface Presenter {
@@ -31,6 +33,9 @@ class MainContract {
          * @date 2021/4/13
          */
         fun getLoginCurrentUser()
+
+
+        fun quitLogin()
 
     }
 }

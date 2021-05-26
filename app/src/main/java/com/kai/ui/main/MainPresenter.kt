@@ -3,6 +3,7 @@ package com.kai.ui.main
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.utils.LogUtils
+import com.kai.database.CustomDatabase
 import com.kai.entity.User
 import com.kai.model.book.BookRepository
 import com.kai.model.user.UserRepository
@@ -42,5 +43,19 @@ class MainPresenter : BasePresenter<MainContract.View>(), MainContract.Presenter
         }
     }
 
+    override fun quitLogin() {
+        val userByOnLine = CustomDatabase.get().userDao().getUserByOnLine(true)
+        for(value in userByOnLine){
+            val userById = CustomDatabase.get().userDao().getUserById(value.id)
+            userById.onLine = false
+            CustomDatabase.get().userDao().updateUser(userById)
+        }
+        getView()?.onQuitLogin()
+    }
+
+
+    fun getCurrentUser():List<User>{
+        return CustomDatabase.get().userDao().getUserByOnLine(true)
+    }
 
 }

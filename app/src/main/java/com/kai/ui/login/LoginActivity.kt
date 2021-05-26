@@ -8,6 +8,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
 import com.kai.common.extension.formatPhone
@@ -34,7 +35,7 @@ import java.lang.Exception
  * @Author:         pressureKai
  * @UpdateDate:     2021/4/7 15:45
  */
-@Route(path = "/app/login")
+@Route(path = BaseInit.LOGIN)
 class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
         KeyboardHeightObserver, LoginContract.View {
 
@@ -69,11 +70,11 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
             }
             if (account_layout.error == null) {
                 postStickyEvent(number, ForgetPasswordActivity.FORGET_PASSWORD_CODE, ForgetPasswordActivity::class.java.name)
-                ARouter.getInstance().build("/app/forgetPassword").navigation()
+                ARouter.getInstance().build(BaseInit.FORGETPASSWORD).navigation()
             }
         }
         register.setOnClickListener {
-            ARouter.getInstance().build("/app/register").navigation()
+            ARouter.getInstance().build(BaseInit.REGISTER).navigation()
         }
 
 
@@ -200,7 +201,14 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
             }
             LOGIN_SUCCESS -> {
                 customToast(resources.getString(R.string.login_success))
-                finish()
+                val stringExtra = intent.getStringExtra(BaseInit.REBACK)
+                if(!stringExtra.isNullOrEmpty()){
+                    ARouter.getInstance().build(stringExtra).with(intent.extras).navigation()
+                    finish()
+                } else {
+                    finish()
+                }
+
             }
             LOGIN_FAIL_NO_ACCOUNT -> {
 

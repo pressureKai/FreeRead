@@ -108,10 +108,9 @@ class BookRecommend {
     var newChapterUrl = ""
     var newChapterName = ""
     var updateTime = ""
-    var isShelf = false
     var isRead = false
-    var isLike = false
     var isRanking = false
+    var isLocal = false
     var userId = 0L
     var rankingPosition = 0
 
@@ -169,54 +168,11 @@ class BookRecommend {
                 bookRecommendByBookUrl.isRead = true
                 BookDatabase.get().bookDao().updateBookRecommend(bookRecommendByBookUrl)
             }
-        }
-    }
-
-
-
-    fun updateLikeState():Boolean{
-        val bookRecommendByBookUrl =
-            BookDatabase.get().bookDao().getBookRecommendByBookUrl(bookUrl)
-        return if (bookRecommendByBookUrl != null) {
-            bookRecommendByBookUrl.isLike = !bookRecommendByBookUrl.isLike
-            BookDatabase.get().bookDao().updateBookRecommend(bookRecommendByBookUrl)
-            true
         } else {
-            false
-        }
-    }
-
-    fun getCurrentLikeState():Boolean{
-        val bookRecommendByBookUrl =
-            BookDatabase.get().bookDao().getBookRecommendByBookUrl(bookUrl)
-        return if (bookRecommendByBookUrl != null) {
-            bookRecommendByBookUrl.isLike
-        } else {
-            false
+            LogUtils.e("BookRcommend","update book null")
         }
     }
 
 
-    fun updateShelfState():Boolean{
-        val bookRecommendByBookUrl =
-            BookDatabase.get().bookDao().getBookRecommendByBookUrl(bookUrl)
-        return if (bookRecommendByBookUrl != null) {
-            bookRecommendByBookUrl.isShelf = !bookRecommendByBookUrl.isShelf
-            BookDatabase.get().bookDao().updateBookRecommend(bookRecommendByBookUrl)
-            true
-        } else {
-            false
-        }
-    }
-
-    fun getCurrentShelfState():Boolean{
-        val bookRecommendByBookUrl =
-            BookDatabase.get().bookDao().getBookRecommendByBookUrl(bookUrl)
-        return if (bookRecommendByBookUrl != null) {
-            bookRecommendByBookUrl.isShelf
-        } else {
-            false
-        }
-    }
 
 }

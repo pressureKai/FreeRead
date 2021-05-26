@@ -8,6 +8,7 @@ import androidx.appcompat.app.SkinAppCompatDelegateImpl
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
+import com.kai.base.application.BaseInit
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.extension.customToast
 import com.kai.common.listener.CustomTextWatcher
@@ -31,7 +32,7 @@ import java.lang.Exception
  * @Author:         pressureKai
  * @UpdateDate:     2021/4/7 15:45
  */
-@Route(path = "/app/forgetPassword")
+@Route(path = BaseInit.FORGETPASSWORD)
 class ForgetPasswordActivity : BaseMvpActivity<ForgetPasswordContract.View,ForgetPasswordPresenter>(),ForgetPasswordContract.View {
     companion object{
         const val FORGET_PASSWORD_CODE = 0x11

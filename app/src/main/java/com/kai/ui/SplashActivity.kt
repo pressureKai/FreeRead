@@ -11,6 +11,7 @@ import com.kai.ui.main.MainActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_splash.*
 
+
 class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
     private var isClickSkip = false
     override fun setLayoutId(): Int {
@@ -38,4 +39,6 @@ class SplashActivity : BaseMvpActivity<IView,BasePresenter<IView>>() {
             finish()
         }
     }
+
+
 }

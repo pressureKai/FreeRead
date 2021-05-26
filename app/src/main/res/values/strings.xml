@@ -57,6 +57,7 @@
     <string name="check_detail">查看详情</string>
     <string name="intro">简介</string>
     <string name="add_book_shelf">加书架</string>
+    <string name="shelfed">已加入</string>
     <string name="like">收藏</string>
     <string name="read_history">浏览历史</string>
     <string name="add_you_like">添加你喜欢的小说</string>
@@ -75,4 +76,7 @@
     <string name="cache_chapter_count">缓存章节数</string>
     <string name="setting">设置</string>
     <string name="delete_all_history">删除全部搜索历史</string>
+    <string name="remove">移除</string>
+    <string name="liked">已收藏</string>
+    <string name="system_fonts">系统字体</string>
 </resources>

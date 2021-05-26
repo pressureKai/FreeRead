@@ -1,6 +1,7 @@
 package com.kai.base.application
 
 import android.app.Application
+import android.os.Looper
 import com.alibaba.android.arouter.launcher.ARouter
 import com.kai.base.R
 import com.kai.common.application.BaseAppInit
@@ -21,12 +22,29 @@ import skin.support.app.SkinCardViewInflater
 import skin.support.constraint.app.SkinConstraintViewInflater
 import skin.support.design.app.SkinMaterialViewInflater
 import java.util.*
+import java.util.logging.Handler
+import java.util.zip.InflaterOutputStream
 
 
 /**
  * com.kai.base 此包的 application 初始化
  */
 class BaseInit : BaseAppInit {
+    companion object{
+        const val LOGIN = "/app/login"
+        const val BLUETOOTH = "/app/bluetooth"
+        const val BOOK = "/app/book"
+        const val BOOKINFO = "/app/bookinfo"
+        const val FONTS ="/app/fonts"
+        const val FORGETPASSWORD = "/app/forgetPassword"
+        const val HISTORY ="/app/history"
+        const val RANKING = "/app/ranking"
+        const val REGISTER = "/app/register"
+        const val SEARCH = "/app/search"
+        const val SETTING =  "/app/setting"
+        const val WIFI =  "/app/wifi"
+        const val REBACK = "reback"
+    }
     override fun onInitSpeed(application: Application): Boolean {
         return true
     }
@@ -87,16 +105,19 @@ class BaseInit : BaseAppInit {
 
 
     private fun initCalligraphy() {
-        var fontPath = "fonts/方正准圆.ttf"
+        var fontPath = ""
         SharedPreferenceUtils.getInstance()?.let {
             fontPath = it.getString(FontsActivity.CURRENT_FONT)
         }
-        ViewPump.init(ViewPump.builder()
+        if(fontPath.isNotEmpty()){
+            ViewPump.init(ViewPump.builder()
                 .addInterceptor(CalligraphyInterceptor(
-                        CalligraphyConfig.Builder()
-                                .setDefaultFontPath(fontPath)
-                                .setFontAttrId(R.attr.fontPath)
-                                .build()))
+                    CalligraphyConfig.Builder()
+                        .setDefaultFontPath(fontPath)
+                        .setFontAttrId(R.attr.fontPath)
+                        .build()))
                 .build())
+        }
+
     }
 }
