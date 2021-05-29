@@ -270,7 +270,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
             add_like.text = resources.getString(R.string.like)
         } else {
             add_like_layout.isEnabled = true
-            Glide.with(like_image).load(R.drawable.add_like).into(like_image)
+            Glide.with(like_image).load(R.drawable.like_selected).into(like_image)
             add_like.text = resources.getString(R.string.liked)
         }
     }
@@ -282,7 +282,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
             add_shelf.text =  resources.getString(R.string.add_book_shelf)
         } else {
             add_shelf_layout.isEnabled = true
-            Glide.with(shelf_image).load(R.drawable.book_shelf).into(shelf_image)
+            Glide.with(shelf_image).load(R.drawable.book_shelf_select).into(shelf_image)
             add_shelf.text = resources.getString(R.string.shelfed)
         }
 
