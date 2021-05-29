@@ -11,11 +11,9 @@ import com.gyf.immersionbar.ImmersionBar
 import com.kai.base.R
 import com.kai.base.mvp.base.BasePresenter
 import com.kai.base.mvp.base.IView
-import com.kai.common.application.BaseApplication
 import com.kai.common.eventBusEntity.BaseEntity
 import com.kai.common.listener.CustomAnimatorListener
 import com.kai.common.utils.LogUtils
-import com.kai.util.DialogHelper
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -232,7 +230,7 @@ abstract class BaseMvpActivity<V : IView, P : BasePresenter<V>> : AppCompatActiv
                 .init()
         }
     }
-    fun beginAnimation(view: View, height: Float,customAnimatorListener: CustomAnimatorListener? = null){
+    fun beginAnimation(view: View, height: Float, customAnimatorListener: CustomAnimatorListener? = null){
         val mAnimatorTranslateY: ObjectAnimator = ObjectAnimator.ofFloat(
             view,
             "translationY", view.translationY, height

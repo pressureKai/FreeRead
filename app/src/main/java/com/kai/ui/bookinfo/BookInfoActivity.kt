@@ -58,7 +58,7 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
     private var bitmapHeight = 0
     private var mRecommend: BookRecommend? = null
     override fun initView() {
-        initImmersionBar(view = toolbar, fitSystem = false)
+        initImmersionBar(view = real_toolbar_layout, fitSystem = false)
         val height = getScreenHeight() / 6 * 2
         val layoutParams = sector.layoutParams
         layoutParams.height = height
@@ -219,6 +219,8 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         when (code) {
             0 -> {
                 customToast("请登录")
+                ARouter.getInstance().build(BaseInit.LOGIN)
+                    .navigation()
             }
             1 -> {
                 mRecommend?.let {
@@ -239,6 +241,8 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         when (code) {
             0 -> {
                 customToast("请登录")
+                ARouter.getInstance().build(BaseInit.LOGIN)
+                    .navigation()
             }
             1 -> {
                 mRecommend?.let {

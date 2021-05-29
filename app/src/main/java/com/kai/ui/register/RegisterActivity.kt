@@ -10,10 +10,12 @@ import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.application.BaseInit
 import com.kai.common.extension.customToast
 import com.kai.common.extension.formatPhone
+import com.kai.common.extension.getScreenHeight
 import com.kai.common.extension.measureView
 import com.kai.common.keyboard.KeyboardHeightObserver
 import com.kai.common.keyboard.KeyboardHeightProvider
 import com.kai.common.listener.CustomTextWatcher
+import com.kai.common.utils.LogUtils
 import com.kai.common.utils.StringUtils
 import com.kai.entity.User
 import com.kai.ui.login.LoginActivity
@@ -48,9 +50,9 @@ class RegisterActivity : BaseMvpActivity<RegisterContract.View, RegisterPresente
             finish()
         }
 
-        register.post {
+        register.postDelayed({
             keyboardHeightProvider.start()
-        }
+        },100)
         register.setOnClickListener {
             if(verifyAll()){
                 mPresenter?.register(StringUtils.trim(account.text.toString()),
@@ -144,13 +146,14 @@ class RegisterActivity : BaseMvpActivity<RegisterContract.View, RegisterPresente
     }
 
     override fun onKeyboardHeightChanged(height: Int, orientation: Int) {
-        register.post {
+        LogUtils.e("RegisterActivity","height is $height")
+        root.post {
             if(registerOriginBottom == 0){
                 registerOriginBottom = content.bottom
             }
-            val rootHeight = root.height
+            val rootHeight = getScreenHeight()
 
-            var changeHeight = if (height == 0) {
+            var changeHeight = if (height < 0) {
                 0
             } else {
                 if (rootHeight - registerOriginBottom < height) {
@@ -163,6 +166,12 @@ class RegisterActivity : BaseMvpActivity<RegisterContract.View, RegisterPresente
                if(changeHeight < toolbar.measureView()[1]){
                    changeHeight = toolbar.measureView()[1]
                }
+            }else{
+               changeHeight = if(toolbar.top < 0){
+                    -toolbar.measureView()[1]
+                } else {
+                    0
+                }
             }
             beginAnimation(root,-changeHeight.toFloat())
         }

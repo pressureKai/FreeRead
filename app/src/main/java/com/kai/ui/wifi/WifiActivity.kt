@@ -35,7 +35,7 @@ import kotlin.math.abs
 @Route(path = BaseInit.WIFI)
 class WifiActivity : BaseMvpActivity<IView, BasePresenter<IView>>() {
     override fun initView() {
-        initImmersionBar(fitSystem = false)
+        initImmersionBar(fitSystem = false,view = back_layout)
         val wifiIp = NetworkUtils.getConnectWifiIp(this@WifiActivity)
         if (wifiIp != null && !TextUtils.isEmpty(wifiIp)) {
             address.text = "http://" + NetworkUtils.getConnectWifiIp(this@WifiActivity)

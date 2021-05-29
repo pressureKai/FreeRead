@@ -102,6 +102,29 @@ fun Activity.getRealHeightWithKeyboard(keyboardHeight: Int): Int {
 }
 
 
+fun Activity.getRealHeight(): Int {
+    var realHeight  = getScreenHeight()
+    //屏幕实际高度
+    val screenHeightReal = getScreenHeightReal()
+    //屏幕可用高度
+    val screenHeight = getScreenHeight()
+    //底部导航栏高度
+    val navigationBarHeight = getNavigationBarHeight()
+
+    //屏幕导航栏高度加上屏幕可用高度小于屏幕实际高度视为正常情况(异常情况为某些机型上ROM添加了底部非系统手势线)
+    if (navigationBarHeight + screenHeight < screenHeightReal) {
+        if (screenHeight != screenHeightReal) {
+            realHeight += abs(screenHeightReal - screenHeight)
+            if (isNavigationBarExist()) {
+                realHeight -= navigationBarHeight
+            }
+        }
+    }
+
+    return realHeight
+}
+
+
 fun Activity.isNavigationBarExist(): Boolean {
     val vp = window.decorView as ViewGroup
     if (vp != null) {

@@ -10,9 +10,7 @@ import com.kai.base.R
 import com.kai.base.activity.BaseMvpActivity
 import com.kai.base.application.BaseInit
 import com.kai.common.eventBusEntity.BaseEntity
-import com.kai.common.extension.customToast
-import com.kai.common.extension.formatPhone
-import com.kai.common.extension.getScreenWidth
+import com.kai.common.extension.*
 import com.kai.common.keyboard.KeyboardHeightObserver
 import com.kai.common.keyboard.KeyboardHeightProvider
 import com.kai.common.listener.CustomTextWatcher
@@ -143,9 +141,9 @@ class LoginActivity : BaseMvpActivity<LoginContract.View, LoginPresenter>(),
             if (loginCardOriginBottom == 0) {
                 loginCardOriginBottom = login_card.bottom
             }
-            val rootHeight = root.height
+            val rootHeight = getScreenHeight()
 
-            val changeHeight = if (height == 0) {
+            val changeHeight = if (height < 0) {
                 0
             } else {
                 if (rootHeight - loginCardOriginBottom < height) {
