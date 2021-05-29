@@ -34,7 +34,7 @@ class SearchPresenter : BasePresenter<SearchContract.View>(), SearchContract.Pre
 
     override fun history() {
         searchRepository.history().subscribe {
-            getView()?.onHistory(it as ArrayList<SearchHistory>)
+            getView()?.onHistory(it.reversed() as ArrayList<SearchHistory>)
         }
     }
 

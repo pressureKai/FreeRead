@@ -26,10 +26,6 @@ import com.kai.wifitransfer.Defaults
 import com.kai.wifitransfer.ServerRunner
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
 import kotlinx.android.synthetic.main.activity_wifi.*
-import kotlinx.android.synthetic.main.activity_wifi.appBar
-import kotlinx.android.synthetic.main.activity_wifi.back_layout
-import kotlinx.android.synthetic.main.activity_wifi.toolbar
-import org.greenrobot.eventbus.EventBus
 import kotlin.math.abs
 
 @Route(path = BaseInit.WIFI)

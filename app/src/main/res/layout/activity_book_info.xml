@@ -220,81 +220,72 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/real_toolbar_layout"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
         android:alpha="0"
+        android:background="@color/app.draw.content.background"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/toolbar"
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/toolbar.back.size"
+            android:layout_height="@dimen/toolbar.back.size"
+            android:padding="@dimen/toolbar.padding"
+            android:src="@drawable/back"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+
+        <LinearLayout
+            android:id="@+id/otherRoot"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:background="@color/app.draw.content.background"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/toolbar.back.size"
+            android:layout_marginRight="@dimen/toolbar.more.size"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/back"
+            app:layout_constraintLeft_toRightOf="@+id/back"
+            app:layout_constraintTop_toTopOf="@id/back">
 
-            <ImageView
-                android:id="@+id/back"
-                android:layout_width="@dimen/toolbar.back.size"
-                android:layout_height="@dimen/toolbar.back.size"
-                android:padding="@dimen/toolbar.padding"
-                android:src="@drawable/back"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-
-            <LinearLayout
-                android:id="@+id/otherRoot"
+            <TextView
+                android:id="@+id/toolbar_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/toolbar.back.size"
-                android:layout_marginRight="@dimen/toolbar.more.size"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="@+id/back"
-                app:layout_constraintLeft_toRightOf="@+id/back"
-                app:layout_constraintTop_toTopOf="@id/back">
-
-                <TextView
-                    android:id="@+id/toolbar_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:ellipsize="end"
-                    android:gravity="center"
-                    android:lines="1"
-                    android:singleLine="true"
-                    android:textColor="@color/app.font.color"
-                    android:textSize="@dimen/toolbar.size" />
+                android:layout_gravity="center"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:lines="1"
+                android:singleLine="true"
+                android:textColor="@color/app.font.color"
+                android:textSize="@dimen/toolbar.size" />
 
 
-                <TextView
-                    android:id="@+id/toolbar_sub_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="2dp"
-                    android:ellipsize="end"
-                    android:gravity="center"
-                    android:lines="1"
-                    android:singleLine="true"
-                    android:textColor="@color/app.font.color"
-                    android:textSize="@dimen/toolbar.sub.title.size"
-                    android:visibility="gone" />
+            <TextView
+                android:id="@+id/toolbar_sub_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:lines="1"
+                android:singleLine="true"
+                android:textColor="@color/app.font.color"
+                android:textSize="@dimen/toolbar.sub.title.size"
+                android:visibility="gone" />
 
-            </LinearLayout>
-
-
-            <ImageView
-                android:id="@+id/more"
-                android:layout_width="@dimen/toolbar.more.size"
-                android:layout_height="@dimen/toolbar.more.size"
-                android:padding="@dimen/toolbar.padding"
-                android:src="@drawable/more"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/more"
+            android:layout_width="@dimen/toolbar.more.size"
+            android:layout_height="@dimen/toolbar.more.size"
+            android:padding="@dimen/toolbar.padding"
+            android:src="@drawable/more"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

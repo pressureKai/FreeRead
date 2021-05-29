@@ -168,6 +168,10 @@ class BookInfoActivity : BaseMvpActivity<BookInfoContract.View, BookInfoPresente
         bookLayoutParams.topMargin =
             ((layoutHeight - (layoutHeight / 3 * 2) * (1 - alpha)) + ScreenUtils.dpToPx(50)).toInt()
         book_intro.layoutParams = bookLayoutParams
+
+//        val marginLayoutParams1 = toolbar.layoutParams as ViewGroup.MarginLayoutParams
+//        marginLayoutParams1.topMargin = ScreenUtils.getStatusBarHeight()
+//        toolbar.layoutParams = marginLayoutParams1
     }
 
     override fun onBookDetail(recommend: BookRecommend) {

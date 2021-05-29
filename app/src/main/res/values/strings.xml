@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Free Read</string>
     <string name="user_name_default">请登录</string>
     <string name="login">登陆</string>
     <string name="register">注册</string>

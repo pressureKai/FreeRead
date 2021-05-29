@@ -40,6 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
                     android:alpha="0"
+                    android:visibility="invisible"
                     android:background="@color/app.draw.content.background"
                     app:layout_collapseMode="pin"/>
 
@@ -110,10 +111,11 @@
         android:id="@+id/back_layout"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
+        android:background="@color/app.draw.content.background"
         android:alpha="0"
-        android:layout_height="70dp">
+        android:layout_height="wrap_content">
         <ImageView
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:id="@+id/back"
             android:padding="@dimen/toolbar.padding"
