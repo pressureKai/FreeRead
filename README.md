@@ -65,7 +65,7 @@ Android 免费小说阅读器
 
 - **设置**
 
-![收藏](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/like.jpg)
+![收藏](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/setting.jpg)
 
 - **全局字体**
 
