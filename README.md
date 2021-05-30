@@ -29,7 +29,7 @@ Android 免费小说阅读器
 # 项目截图
 - **书架**
 
-![书架](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf.jpg) ![移除操作](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf_slide.jpg)
+![书架](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf.jpg)   ![移除操作](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf_slide.jpg)
    
   
   
