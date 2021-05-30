@@ -28,7 +28,7 @@ Android 免费小说阅读器
    
 #项目截图
 - **书架**
-<img src="https://github.com/pressureKai/FreeRead/tree/master/screenShot/bookShelf.jpg?raw=true" width="280"/>
+<img src="https://github.com/pressureKai/FreeRead/tree/master/screenShot/bookShelf.jpg" width="280"/>
    
   
   
