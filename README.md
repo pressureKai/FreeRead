@@ -26,9 +26,9 @@ Android 免费小说阅读器
    2. WIFI传书应用间互传
    3. 支持pdf,epub文件阅读
    
-#项目截图
+# 项目截图
 - **书架**
-<img src="https://github.com/pressureKai/FreeRead/tree/master/screenShot/bookShelf.jpg" width="280"/>
+<img src="https://github.com/pressureKai/FreeRead/tree/master/screenShot/bookShelf.jpg"/>
    
   
   
