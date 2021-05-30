@@ -23,7 +23,8 @@ Android 免费小说阅读器
   
 # 体验包
   
-  由于集成的字体包较大，包的体积较大[体验包下载](https://github.com/pressureKai/FreeRead/blob/master/%E4%BD%93%E9%AA%8Capk/free%20read.apk) 
+  由于集成的字体包较大，包的体积较大[体验包下载](https://github.com/pressureKai/FreeRead/blob/master/%E4%BD%93%E9%AA%8Capk/free%20read.apk) <br/>
+  在荣耀Magic2和RedmiK30i通过运行，欢迎star和fork，如有bug 请提issue
   
 # 更新计划
    1. 蓝牙传书
