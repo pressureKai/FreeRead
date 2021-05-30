@@ -18,8 +18,19 @@ Android 免费小说阅读器
   7. 日间模式/夜间模式切换使用 [Android-skin-support](https://github.com/ximsfei/Android-skin-support)
   8. 全局字体切换使用[calligraphy](https://github.com/chrisjenx/Calligraphy)
   9. 集成bugly奔溃上报以及应用内更新
-  10. 使用lottie实现欢迎页动画，以及加载框动画
+  10. 使用[lottie](https://github.com/airbnb/lottie-android) 实现欢迎页动画，以及加载框动画
   11. 使用Glide对图片进行圆角化以及高斯模糊处理
+  
+# 更新计划
+   1. 蓝牙传书
+   2. WIFI传书应用间互传
+   3. 支持pdf,epub文件阅读
+   
+#项目截图
+- **书架**
+<img src="https://github.com/pressureKai/FreeRead/screenshot/bookShelf.jpg?raw=true" width="280"/>
+   
+  
   
     
 
