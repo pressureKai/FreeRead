@@ -4,14 +4,14 @@ Android 免费小说阅读器
 
 # 项目介绍  
   1. 基于MVP模式使用Kotlin语言编写
-  2. 项目阅读器参考[任阅](https://github.com/JustWayward/BookReader) 
+  2. 项目阅读器参考[任阅](https://github.com/JustWayward/BookReader)  
     并做以下改动
-    1).源代码重构为使用kotlin语言实现
-    2).书籍的缓存由原作者的ACache类改为Room数据库实现
-    3).更改数据成更切合爬虫数据的实体类
+    1). 源代码重构为使用kotlin语言实现
+    2). 书籍的缓存由原作者的ACache类改为Room数据库实现
+    3). 更改数据成更切合爬虫数据的实体类
   3. 数据源爬虫参考[CrawlerForReader](https://github.com/smuyyh/CrawlerForReader)  
-    1).源代码重构为使用kotlin语言实现
-    2).更改数据回调方式（原作者使用接口回调更改为使用Rxjava进行回调）
+    1). 源代码重构为使用kotlin语言实现
+    2). 更改数据回调方式（原作者使用接口回调更改为使用Rxjava进行回调）
   4. 使用Room数据库存储数据
   5. 使用[ImmersionBar](https://github.com/gyf-dev/ImmersionBar) 实现沉浸式状态栏
   6. 使用[今日头条屏幕适配](https://github.com/JessYanCoding/AndroidAutoSize) 方案

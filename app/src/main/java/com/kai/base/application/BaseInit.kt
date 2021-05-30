@@ -64,8 +64,8 @@ class BaseInit : BaseAppInit {
         try {
             // val channel = WalleChannelReader.getChannel(application)
             val strategy = UserStrategy(application)
-            strategy.appChannel = "Channel${Random().nextInt(100000)}"
-            strategy.appVersion = "1.0"
+            strategy.appChannel = "bugly"
+            strategy.appVersion = "4.0.0"
             strategy.appPackageName = "com.kai.base"
             strategy.deviceID = Random().nextInt(100000).toString()
             Bugly.setUserId(application, Random().nextInt(100000).toString())
