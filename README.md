@@ -1,6 +1,6 @@
 # FreeRead
 Android 免费小说阅读器
-####  基于网络爬虫实现的小说阅读器，实现了全局夜间/夜间模式切换，全局字体切换，书籍章节预加载，字体/主题/亮度设置，模拟翻页效果，Wi-Fi传书以及实现基于本地数据库实现的书籍浏览历史，模拟账号注册登陆，书籍收藏，书籍添加书架等功能
+####  基于网络爬虫实现的小说阅读器，实现了全局夜间/夜间模式切换，全局字体切换，书籍章节预加载，字体/主题/亮度设置，模拟翻页效果，Wi-Fi传书以及实现基于本地数据库实现的书籍浏览历史，模拟账号注册登陆，书籍收藏，书籍添加书架等功能<br/>纯属共享学习之用，不得用于商业！！
 
 # 项目介绍  
   1. 基于MVP模式使用Kotlin语言编写
@@ -20,6 +20,10 @@ Android 免费小说阅读器
   9. 集成bugly奔溃上报以及应用内更新
   10. 使用[lottie](https://github.com/airbnb/lottie-android) 实现欢迎页动画，以及加载框动画
   11. 使用Glide对图片进行圆角化以及高斯模糊处理
+  
+# 体验包
+  
+  由于集成的字体包较大，包的体积较大[体验包下载](https://github.com/pressureKai/FreeRead/blob/master/%E4%BD%93%E9%AA%8Capk/free%20read.apk) 
   
 # 更新计划
    1. 蓝牙传书
@@ -116,8 +120,11 @@ Android 免费小说阅读器
 <br/>
 
 - **日间/夜间模式切换**
+
 <br/>
+
 ![日间](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/day.jpg) ![夜间](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/night.jpg)
+
 <br/>
 
 - **Wi-Fi传书**
