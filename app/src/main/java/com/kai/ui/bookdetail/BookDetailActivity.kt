@@ -169,12 +169,12 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                             val bookChapterBean = category[it.progress]
                             current_chapter.text = bookChapterBean.title
                             try {
-                                if(order_des.text == resources.getString(R.string.order_up_chapter_list)){
+                                if (order_des.text == resources.getString(R.string.order_up_chapter_list)) {
                                     draw_list.scrollToPosition(it.progress.toInt())
                                 } else {
-                                    draw_list.scrollToPosition((category.size -1)-it.progress.toInt())
+                                    draw_list.scrollToPosition((category.size - 1) - it.progress.toInt())
                                 }
-                            }catch (e:Exception){
+                            } catch (e: Exception) {
 
                             }
 
@@ -336,6 +336,8 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         }
 
 
+
+
         simulation.setOnClickListener {
             simulation.setBackgroundResource(R.drawable.read_page_mode_selected)
             cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
@@ -387,14 +389,14 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             val progress = chapter_progress.progress.toInt()
             val size = bookMenuAdapter.data.size - 1
             try {
-                if(order_des.text == resources.getString(R.string.order_up_chapter_list)){
+                if (order_des.text == resources.getString(R.string.order_up_chapter_list)) {
                     order_des.text = resources.getString(R.string.order_down_chapter_list)
                     draw_list.scrollToPosition(size - progress)
                 } else {
                     order_des.text = resources.getString(R.string.order_up_chapter_list)
                     draw_list.scrollToPosition(progress)
                 }
-            }catch (e:Exception){
+            } catch (e: Exception) {
 
             }
         }
@@ -552,6 +554,51 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
             mPageLoader =
                 pageView.getPageLoader(mCoolBookBean, crawlerPageLoader)
 
+
+            mPageLoader?.let {
+                val pageMode = it.getSettingManager()?.getPageMode()
+                LogUtils.e("BookDetailActivity","pagemode is ${pageMode}")
+                if(pageMode!= null){
+                    when (pageMode) {
+                        PageMode.SIMULATION -> {
+                            simulation.setBackgroundResource(R.drawable.read_page_mode_selected)
+                            cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            slide.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            none.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                        }
+                        PageMode.COVER -> {
+                            cover.setBackgroundResource(R.drawable.read_page_mode_selected)
+                            simulation.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            slide.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            none.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                        }
+                        PageMode.SCROLL -> {
+                            scroll.setBackgroundResource(R.drawable.read_page_mode_selected)
+                            simulation.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            slide.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            none.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                        }
+                        PageMode.SLIDE -> {
+                            slide.setBackgroundResource(R.drawable.read_page_mode_selected)
+                            simulation.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            none.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                        }
+                        PageMode.NONE -> {
+                            none.setBackgroundResource(R.drawable.read_page_mode_selected)
+                            simulation.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            cover.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            slide.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                            scroll.setBackgroundResource(R.drawable.read_page_mode_un_selected)
+                        }
+                    }
+                }
+
+            }
             setPageStyle()
             mPageLoader?.let {
                 current_size.text =
@@ -590,7 +637,9 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                     //预加载数据前后指定章节数量的数据
                     val chapterCategory = mPageLoader?.getChapterCategory()
                     chapterCategory?.let {
-                        for (index in (mCurrentChapterPosition - loadSize).until(mCurrentChapterPosition)) {
+                        for (index in (mCurrentChapterPosition - loadSize).until(
+                            mCurrentChapterPosition
+                        )) {
                             if (index >= 0) {
                                 val bookChapterBean = it[index]
                                 mPresenter?.loadBookContentByChapter(bookChapterBean, false)
@@ -703,7 +752,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
                 chapterName.text = item.title
             } catch (e: Exception) {
 
-                LogUtils.e("BookMenuAdapter","error is $e")
+                LogUtils.e("BookMenuAdapter", "error is $e")
             }
 
         }
@@ -799,7 +848,7 @@ class BookDetailActivity : BaseMvpActivity<BookDetailContract.View, BookDetailPr
         setPageStyle()
     }
 
-    private fun setPageStyle(){
+    private fun setPageStyle() {
         mPageLoader?.let {
             var pageStyle = it.getSettingManager()?.getPageStyle()
             if (SkinCompatManager.getInstance().curSkinName == "night") {

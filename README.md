@@ -29,8 +29,62 @@ Android 免费小说阅读器
 # 项目截图
 - **书架**
 
-![书架](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf.jpg)   ![移除操作](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf_slide.jpg)
-   
+![书架](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf.jpg) ![移除操作](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/bookShelf_slide.jpg)
+
+- **推荐**
+
+![推荐](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/recommend.jpg)
+
+- **排行**
+
+![排行](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/ranking.jpg) ![排行详情](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/ranking_detail.jpg) ![点击](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/ranking_detail_click.jpg)
+
+- **搜索**
+
+![搜索](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/search.jpg) ![搜索结果](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/search_result.jpg) 
+
+- **书籍详情页**
+
+![书籍详情页](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/book_detail_1.jpg) ![书籍详情页2](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/book_detail_2.jpg) 
+
+- **阅读页面**    
+
+![阅读页面](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/read_1.jpg) ![阅读页面2](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/read_2.jpg) ![阅读页面3](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/read_3.jpg) 
+
+- **我的**
+
+![我的](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/mine.jpg)
+
+- **浏览历史**
+
+![浏览历史](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/history.jpg)
+
+- **收藏**
+
+![收藏](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/like.jpg)
+
+- **设置**
+
+![收藏](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/like.jpg)
+
+- **全局字体**
+
+![全局字体](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/fonts.jpg) ![全局字体2](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/fonts2.jpg)
+
+
+- **日间/夜间模式切换**
+
+![日间](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/day.jpg) ![夜间](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/night.jpg)
+
+- **Wi-Fi传书**
+
+
+![wifi1](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/wifi_1.jpg) ![wifi2](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/wifi_2.jpg) ![wifi3](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/wifi_3.jpg) ![wifi4](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/wifi_4.jpg) ![wifi5](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/wifi_5.jpg)
+
+
+- **登陆**    
+
+![login](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/login.jpg) ![register](https://raw.githubusercontent.com/pressureKai/FreeRead/master/screenShot/register.jpg) 
   
   
     

@@ -28,9 +28,9 @@ class HistoryPresenter:  BasePresenter<HistoryContract.View>(), HistoryContract.
         } else {
             val bookRecommendByBookLike =
                 BookDatabase.get().bookDao().getBookRecommendByBookRead(true)
-            bookRecommendByBookLike as ArrayList<BookRecommend>
-            bookRecommendByBookLike.reverse()
-            getView()?.onHistory(bookRecommendByBookLike)
+            val arrayList = bookRecommendByBookLike as ArrayList<BookRecommend>
+            arrayList.reverse()
+            getView()?.onHistory(arrayList)
         }
     }
 

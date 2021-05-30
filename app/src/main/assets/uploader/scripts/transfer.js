@@ -218,7 +218,6 @@ $(function () {
     function bindAjaxUpload(fileSelector) {
         $(fileSelector).unbind();
         $(fileSelector).change(function () {
-            alert("change")
             if (this.files) {
                 uploadFiles(this.files)
                 return;
